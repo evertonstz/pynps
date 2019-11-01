@@ -10,6 +10,8 @@ from csv import DictReader
 import subprocess
 import urllib.request
 from math import log2
+import argparse
+
 # from urllib.request import urlopen
 
 #check and create database#
@@ -76,7 +78,21 @@ def crop_print(text, leng):
 	elif len(text) == leng: 
 		return(text)
 
-def search_db(system, type, query, region, raw):
+def process_search( out, index ):
+	if index == True:
+		ind = 1
+		for i in out:
+			print(ind,")",i['Title ID'], "|", crop_print(i['Region'], 4), "|", i['Type'], i['Name'], \
+				"|", file_size(i['File Size']) )
+			ind += 1
+			# print(i['Title ID'], i['Region'], i['Type'], i['Name'], i['File Size'] )
+	elif index == False:
+		for i in out:
+			print(i['Title ID'], "|", crop_print(i['Region'], 4), "|", i['Type'], i['Name'], \
+				"|", file_size(i['File Size']) )
+		
+
+def search_db(system, type, query, region):
 	query = query.upper()
 	#process query#
 
@@ -130,17 +146,8 @@ def search_db(system, type, query, region, raw):
 								else:
 									if row['Region'] == region:
 										o.append(row)
-
-	def process_search( out ):
-		for i in out:
-			print(i['Title ID'], "|", crop_print(i['Region'], 4), "|", i['Type'], i['Name'], \
-				"|", file_size(i['File Size']) )
-			# print(i['Title ID'], i['Region'], i['Type'], i['Name'], i['File Size'] )
 	
-	if raw == 1:
-		return o
-	elif raw == 0:
-		return process_search(o)
+	return o
 
 # search_db("psv","games", "Sonic", "all", 0)
 
@@ -164,8 +171,6 @@ def download_pkg(system, id_list):
 			DLFOLDER+"/"+system+"/"+i['Name']+" "+ i['Title ID'], i['PKG direct link'] ] )
 
 # download_pkg("psv", ["PCSE00383"])
-
-import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("search", type=str, nargs="?",
@@ -214,6 +219,23 @@ what_to_dl = {"games":args.games, "dlcs":args.dlcs, "themes":args.themes, \
 if list(what_to_dl.values()) == [False, False, False, False, False]:
 	what_to_dl = {"games":True, "dlcs":True, "themes":True, "updates":True, "demos":True}
 
-print(what_to_dl, args.search)
+maybe_download = search_db(args.console, what_to_dl, args.search, reg)
 
-search_db(args.console, what_to_dl, args.search, reg, 0)
+#print possible mathes to the user
+process_search(maybe_download, 1)
+index_to_download = input("Enter the number for what you want to download, you can enter multiple separated by commas:")
+
+index_to_download = index_to_download.replace(" ","").split(",")
+try:
+	index_to_download = [int(x)-1 for x in index_to_download]
+except:
+	print("Please, only use numbers.")
+	exit(1)
+
+files_to_download = [maybe_download[i] for i in index_to_download]
+
+print("\nYou're going to download the following files:")
+process_search(files_to_download, 0)
+
+if input("\nProceed to download files? [y/n]:") != "y":
+	exit(0)
