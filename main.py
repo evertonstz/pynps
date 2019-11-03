@@ -8,7 +8,7 @@ from math import log2
 import argparse
 
 #./ will use the same folder the script is currently inside
-MAIN_DOWNLOAD_FOLDER:"./"
+MAIN_DOWNLOAD_FOLDER="./"
 
 
 PKG2ZIP=MAIN_DOWNLOAD_FOLDER+'pkg2zip'
@@ -22,18 +22,18 @@ database_psv_links = {"games":"https://beta.nopaystation.com/tsv/PSV_GAMES.tsv",
 					"demos":"https://beta.nopaystation.com/tsv/PSV_DEMOS.tsv", \
 					}
 
-# from urllib.request import urlopen
+database_psp_links = {"games":"https://beta.nopaystation.com/tsv/PSP_GAMES.tsv", \
+					"dlcs":"https://beta.nopaystation.com/tsv/PSP_DLCS.tsv", \
+					"themes":"https://beta.nopaystation.com/tsv/PSP_THEMES.tsv", \
+					"updates":"https://beta.nopaystation.com/tsv/PSP_UPDATES.tsv", \
+					}
 
-#check and create database#
-def create_folder( location ):
-	try:
-		os.makedirs(location)
-		print(location,"created")
-	except:
-		pass
-
-create_folder(DBFOLDER+"/PSV")
-
+# def create_folder( location ):
+# 	try:
+# 		os.makedirs(location)
+# 		print(location,"created")
+# 	except:
+# 		pass
 
 def save_file( file, string ):
 	with open(file, 'w') as file:
@@ -68,7 +68,9 @@ def updatedb( dict, system ):
 	#detect gaming system#
 	if system == "PSV":
 		system_name = "Playstation Vita"
-		print("Updating Database for", system_name+":")
+	elif system == "PSP":
+		system_name = "Playstation Portable"
+	print("Updating Database for", system_name+":")
 	
 	for t in dict:
 		#detect file#
@@ -78,9 +80,15 @@ def updatedb( dict, system ):
 		filename = url.split("/")[-1]
 		process = subprocess.Popen( [ "wget", "-c", "-P", DBFOLDER+"/"+system+"/", url ], \
 									stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
-
+		
+		saved = False
 		for line in iter(process.stdout.readline, b''):
 			line = line.decode("utf-8").split(" ")
+			
+			#test if downloaded#
+			if "saved" in line:
+				saved = True
+			
 			line = [x for x in line if x != ""]
 			if '..........' in line:
 				line = [x for x in line if x != '..........']
@@ -97,9 +105,11 @@ def updatedb( dict, system ):
 				# print("", end = '')
 				sys.stdout.write("\r"+print_string)
 				sys.stdout.flush()
-
-		print("\nrenaming file:", DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
-		os.rename(DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
+		if saved:
+			print("\nrenaming file:", DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
+			os.rename(DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
+		else:
+			print("\nunable to download file, try again later!")
 
 def dl_file( dict, system ):
 	url = dict['PKG direct link']
@@ -111,15 +121,11 @@ def dl_file( dict, system ):
 
 	# print("Updating Database for", system_name+":", file)
 
-	process = subprocess.run( [ "wget", "-c", "-P", DBFOLDER+"/"+system+"/", url ] )
-	os.rename(DBFOLDER+"/"+system+"/"+url.split("/")[-1], DBFOLDER+"/"+system+"/"+file)
-
-
-##MAKING FUNCTIONS##
-
-_suffixes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+	process = subprocess.run( [ "wget", "-c", "-P", DLFOLDER+"/"+system+"/", url ] )
+	# os.rename(DBFOLDER+"/"+system+"/"+url.split("/")[-1], DBFOLDER+"/"+system+"/"+file)
 
 def file_size(size):
+	_suffixes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
 	if type(size) != int:
 		try:
 			size = int(size)
@@ -153,7 +159,6 @@ def process_search( out, index ):
 			print(i['Title ID'], "|", crop_print(i['Region'], 4), "|", i['Type'], i['Name'], \
 				"|", file_size(i['File Size']) )
 		
-
 def search_db(system, type, query, region):
 	query = query.upper()
 	#process query#
@@ -240,7 +245,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("search", type=str, nargs="?",
                     help="name what you want to download.")
 parser.add_argument("-c", "--console", help="the console you wanna use with NPS.",
-                    type=str, required = True)
+                    type=str, required = True, choices=["psv", "psp"])
 parser.add_argument("-r", "--region", help="the region for the pkj you want.",
                     type=str, required = False, choices=["usa","eur","jap","asia"])
 parser.add_argument("-dg", "--games", help="to download games.",
@@ -259,12 +264,15 @@ parser.add_argument("-u", "--update", help="update database.",
 
 args = parser.parse_args()
 
-
+# create_folder(DBFOLDER+"/PSV")
 
 #check if updating db is needed
 if args.update == True:
 	if args.console == "psv":
 		updatedb(database_psv_links, "PSV")
+	elif args.console == "psp":
+		updatedb(database_psp_links, "PSP")
+
 	if args.search is None:
 		print("DONE!")
 		print("No search term provided, exiting...")
@@ -303,7 +311,7 @@ files_to_download = [maybe_download[i] for i in index_to_download]
 print("\nYou're going to download the following files:")
 process_search(files_to_download, 0)
 print(files_to_download)
-exit()
+
 if input("\nProceed to download files? [y/n]:") != "y":
 	exit(0)
 
