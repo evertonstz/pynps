@@ -1,16 +1,26 @@
 #!/usr/bin/python3
 # Created by evertonstz
-
-PKG2ZIP='./pkg2zip'
-DBFOLDER='./DATABASE'
-DLFOLDER="./DOWNLOADS"
-
 import os, sys
 from csv import DictReader
 import subprocess
 import urllib.request
 from math import log2
 import argparse
+
+#./ will use the same folder the script is currently inside
+MAIN_DOWNLOAD_FOLDER:"./"
+
+
+PKG2ZIP=MAIN_DOWNLOAD_FOLDER+'pkg2zip'
+DBFOLDER=MAIN_DOWNLOAD_FOLDER+'DATABASE'
+DLFOLDER=MAIN_DOWNLOAD_FOLDER+"DOWNLOADS"
+
+database_psv_links = {"games":"https://beta.nopaystation.com/tsv/PSV_GAMES.tsv", \
+					"dlcs":"https://beta.nopaystation.com/tsv/PSV_DLCS.tsv", \
+					"themes":"https://beta.nopaystation.com/tsv/PSV_THEMES.tsv", \
+					"updates":"https://beta.nopaystation.com/tsv/PSV_UPDATES.tsv", \
+					"demos":"https://beta.nopaystation.com/tsv/PSV_DEMOS.tsv", \
+					}
 
 # from urllib.request import urlopen
 
@@ -24,21 +34,72 @@ def create_folder( location ):
 
 create_folder(DBFOLDER+"/PSV")
 
-#update and download DB
-
-database_psv_links = ["https://beta.nopaystation.com/tsv/PSV_GAMES.tsv", \
-					"https://beta.nopaystation.com/tsv/PSV_DLCS.tsv", \
-					"https://beta.nopaystation.com/tsv/PSV_THEMES.tsv", \
-					"https://beta.nopaystation.com/tsv/PSV_UPDATES.tsv", \
-					"https://beta.nopaystation.com/tsv/PSV_DEMOS.tsv", \
-					]
-
-
-#download database files
 
 def save_file( file, string ):
 	with open(file, 'w') as file:
 	    file.write(string)
+
+def progress_bar(number, symbol="#", fill_width=20,open_symbol="[", close_symbol="]", color=False, unfilled_symbol="-"):
+	if color == 0:
+		slice = int(number*fill_width/100)
+		return(open_symbol+symbol*slice+unfilled_symbol*(fill_width-slice)+close_symbol)
+	else:
+		
+		slice = int(number*fill_width/100)
+		if fill_width%4 == 0:
+			chunks = int(fill_width/4)
+			chunks_dir = ""
+			for i in range(0, slice):
+				if i in range(0, chunks):
+					chunks_dir+=LBLUE+symbol
+				elif i in range(chunks, chunks*2):
+					chunks_dir+=LGREEN+symbol
+				elif i in range(chunks*2, chunks*3):
+					chunks_dir+=YELLOW+symbol
+				elif i in range(chunks*3, chunks*4):
+					chunks_dir+=LRED+symbol
+
+			return(open_symbol+chunks_dir+GREY+unfilled_symbol*(fill_width-slice)+close_symbol+NC)
+		else:
+			print('ERROR: Use a number divisible by 4 in "fill_width".')
+			exit(1)
+
+def updatedb( dict, system ):
+	#detect gaming system#
+	if system == "PSV":
+		system_name = "Playstation Vita"
+		print("Updating Database for", system_name+":")
+	
+	for t in dict:
+		#detect file#
+		file = t.upper()+".tsv"
+		url = dict[t]
+
+		filename = url.split("/")[-1]
+		process = subprocess.Popen( [ "wget", "-c", "-P", DBFOLDER+"/"+system+"/", url ], \
+									stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
+
+		for line in iter(process.stdout.readline, b''):
+			line = line.decode("utf-8").split(" ")
+			line = [x for x in line if x != ""]
+			if '..........' in line:
+				line = [x for x in line if x != '..........']
+				#variables#
+				try:
+					percentage = int(line[1].replace("%",""))
+				except:
+					percentage = 100
+				downloaded = line[0]
+				speed = line[2].replace("\n","")
+
+				print_string = "Downloading File: " + filename + " " + progress_bar(percentage) + " " + str(percentage) + "% " + \
+								downloaded + " @ " + speed+"/s"
+				# print("", end = '')
+				sys.stdout.write("\r"+print_string)
+				sys.stdout.flush()
+
+		print("\nrenaming file:", DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
+		os.rename(DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
 
 def dl_file( dict, system ):
 	url = dict['PKG direct link']
@@ -46,7 +107,6 @@ def dl_file( dict, system ):
 	system = system.upper()
 	
 	if system == "PSV":
-		print(22222)
 		system_name = "Playstation Vita"
 
 	# print("Updating Database for", system_name+":", file)
@@ -172,6 +232,8 @@ def download_pkg(system, id_list):
 		process = subprocess.run( [ "wget", "-c", "-P", \
 			DLFOLDER+"/"+system+"/"+i['Name']+" "+ i['Title ID'], i['PKG direct link'] ] )
 
+###MAIN STARTS HERE###
+
 # download_pkg("psv", ["PCSE00383"])
 
 parser = argparse.ArgumentParser()
@@ -197,12 +259,14 @@ parser.add_argument("-u", "--update", help="update database.",
 
 args = parser.parse_args()
 
+
+
 #check if updating db is needed
 if args.update == True:
 	if args.console == "psv":
-		for i in database_psv_links:
-			dl_file(i)
+		updatedb(database_psv_links, "PSV")
 	if args.search is None:
+		print("DONE!")
 		print("No search term provided, exiting...")
 		exit(0)
 elif args.update == False and args.search is None:
