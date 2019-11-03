@@ -40,14 +40,16 @@ def save_file( file, string ):
 	with open(file, 'w') as file:
 	    file.write(string)
 
-def dl_file( url ):
+def dl_file( dict, system ):
+	url = dict['PKG direct link']
 	#detect file#
-	system, file = url.split("/")[-1].split("_")
+	system = system.upper()
 	
 	if system == "PSV":
+		print(22222)
 		system_name = "Playstation Vita"
 
-	print("Updating Database for", system_name+":", file)
+	# print("Updating Database for", system_name+":", file)
 
 	process = subprocess.run( [ "wget", "-c", "-P", DBFOLDER+"/"+system+"/", url ] )
 	os.rename(DBFOLDER+"/"+system+"/"+url.split("/")[-1], DBFOLDER+"/"+system+"/"+file)
@@ -236,6 +238,10 @@ files_to_download = [maybe_download[i] for i in index_to_download]
 
 print("\nYou're going to download the following files:")
 process_search(files_to_download, 0)
-
+print(files_to_download)
+exit()
 if input("\nProceed to download files? [y/n]:") != "y":
 	exit(0)
+
+for i in files_to_download:
+	dl_file(i, args.console)
