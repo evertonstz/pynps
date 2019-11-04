@@ -25,41 +25,41 @@ Downloading File: PSP_THEMES.tsv [####################] 100% 0K @ 100%/s
 renaming file: ./DATABASE/PSP/PSP_THEMES.tsv ./DATABASE/PSP/THEMES.tsv
 Downloading File: PSP_UPDATES.tsv [####################] 100% 0K @ 928K=0.02s/s
 renaming file: ./DATABASE/PSP/PSP_UPDATES.tsv ./DATABASE/PSP/UPDATES.tsv
-1 ) ULUS10323 | US   | GAMES Sonic Rivals 2 | 455.7 MiB
-2 ) ULES00622 | EU   | GAMES Sonic Rivals | 195.1 MiB
-3 ) ULES00940 | EU   | GAMES Sonic Rivals 2 | 219.8 MiB
-4 ) ULUS10195 | US   | GAMES Sonic Rivals | 196.8 MiB
+1 ) ULUS10323 | US   | GAMES | Sonic Rivals 2 | 455.7 MiB
+2 ) ULES00622 | EU   | GAMES | Sonic Rivals | 195.1 MiB
+3 ) ULES00940 | EU   | GAMES | Sonic Rivals 2 | 219.8 MiB
+4 ) ULUS10195 | US   | GAMES | Sonic Rivals | 196.8 MiB
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
 * search for an european release of spyro for PSX
 >$ python3.7 main.py -c psx -r eur -dg crash
 ```
-1 ) NPEE00074 | EU   | GAMES Spyro 2: Gateway to Glimmer  | 343.6 MiB
-2 ) NPEE00074 | EU   | GAMES Spyro 2: Gateway to Glimmer (German store)  | 343.6 MiB
-3 ) NPEE00074 | EU   | GAMES Spyro 2: Gateway to Glimmer (Russian store)  | 343.6 MiB
-4 ) NPEE00075 | EU   | GAMES Spyro: Year of The Dragon  | 339.6 MiB
-5 ) NPEE00075 | EU   | GAMES Spyro: Year of The Dragon (German store)  | 339.7 MiB
-6 ) NPEE00075 | EU   | GAMES Spyro: Year of The Dragon (Russian store)  | 339.6 MiB
-7 ) NPEE00076 | EU   | GAMES Spyro the Dragon  | 329.8 MiB
-8 ) NPEE00076 | EU   | GAMES Spyro the Dragon (German store)  | 329.8 MiB
-9 ) NPEE00076 | EU   | GAMES Spyro the Dragon (Russian store)  | 329.8 MiB
+1 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer  | 343.6 MiB
+2 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer (German store)  | 343.6 MiB
+3 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer (Russian store)  | 343.6 MiB
+4 ) NPEE00075 | EU   | GAMES | Spyro: Year of The Dragon  | 339.6 MiB
+5 ) NPEE00075 | EU   | GAMES | Spyro: Year of The Dragon (German store)  | 339.7 MiB
+6 ) NPEE00075 | EU   | GAMES | Spyro: Year of The Dragon (Russian store)  | 339.6 MiB
+7 ) NPEE00076 | EU   | GAMES | Spyro the Dragon  | 329.8 MiB
+8 ) NPEE00076 | EU   | GAMES | Spyro the Dragon (German store)  | 329.8 MiB
+9 ) NPEE00076 | EU   | GAMES | Spyro the Dragon (Russian store)  | 329.8 MiB
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
 * search for for themes and demos related to the word "touhou in any region:
 >$ python3.7 main.py -c psv -dt -dde touhou
 ```
-1 ) PCSE00947 | US   | THEMES Touhou Genso Rondo Theme | 6.723 MiB
-2 ) PCSE00990 | US   | THEMES Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
-3 ) PCSE01104 | US   | THEMES Touhou Kobuto V: Burst Battle 4 Theme | 4.038 MiB
-4 ) PCSB01039 | EU   | THEMES Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
-5 ) PCSB01129 | EU   | THEMES Touhou Kobuto V: Burst Battle Theme 4 | 4.038 MiB
-6 ) PCSG00999 | JP   | THEMES Touhou Kobuto V | 2.533 MiB
-7 ) PCSE01104 | US   | THEMES Touhou Kobuto V: Burst Battle Theme 3 | 5.581 MiB
-8 ) PCSE01104 | US   | THEMES Touhou Kobuto V: Burst Battle Theme 2 | 5.174 MiB
-9 ) PCSE01104 | US   | THEMES Touhou Kobuto V: Burst Battle Theme 1 | 2.533 MiB
-10 ) PCSG90252 | JP   | DEMOS Touhou Soujinengi V (DEMO) | 335.6 MiB
+1  ) PCSE00947 | US   | THEMES | Touhou Genso Rondo Theme | 6.723 MiB
+2  ) PCSE00990 | US   | THEMES | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
+3  ) PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle 4 Theme | 4.038 MiB
+4  ) PCSB01039 | EU   | THEMES | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
+5  ) PCSB01129 | EU   | THEMES | Touhou Kobuto V: Burst Battle Theme 4 | 4.038 MiB
+6  ) PCSG00999 | JP   | THEMES | Touhou Kobuto V | 2.533 MiB
+7  ) PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle Theme 3 | 5.581 MiB
+8  ) PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle Theme 2 | 5.174 MiB
+9  ) PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle Theme 1 | 2.533 MiB
+10 ) PCSG90252 | JP   | DEMOS  | Touhou Soujinengi V (DEMO) | 335.6 MiB
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
@@ -68,21 +68,21 @@ Enter the number for what you want to download, you can enter multiple separated
 * or if you like suffering:
 >$ python3.7 main.py -c psv -dg -dd -dt -du -dde knight
 ```
-1 ) PCSE00244 | US   | GAMES Valhalla Knights 3 | 897.8 MiB
-13 ) PCSA00017 | US   | DLCS LittleBigPlanet Knights of Old Pre-Order Costume Pack | 100 KiB
-49 ) PCSB00861 | EU   | THEMES Digimon Story Cyber Sleuth Custom Theme: Royal Knights Set | 4.999 MiB
-53 ) PCSB00743 | EU   | UPDATES Shovel Knight | 120.8 MiB
+1  ) PCSE00244 | US   | GAMES   | Valhalla Knights 3 | 897.8 MiB
+13 ) PCSA00017 | US   | DLCS    | LittleBigPlanet Knights of Old Pre-Order Costume Pack | 100 KiB
+49 ) PCSB00861 | EU   | THEMES  | Digimon Story Cyber Sleuth Custom Theme: Royal Knights Set | 4.999 MiB
+53 ) PCSB00743 | EU   | UPDATES | Shovel Knight | 120.8 MiB
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
 * I see... you just wanna everything related to Shovel Knight? Sure:
 >$ python3.7 main.py -c psv "shovel knight"
 ```
-1 ) PCSE00640 | US   | GAMES Shovel Knight | 132.2 MiB
-2 ) PCSB00743 | EU   | GAMES Shovel Knight | 137.6 MiB
-3 ) PCSE00640 | US   | THEMES Shovel Knight Theme | 4.34 MiB
-4 ) PCSE00640 | US   | UPDATES Shovel Knight | 124.1 MiB
-5 ) PCSB00743 | EU   | UPDATES Shovel Knight | 120.8 MiB
+1 ) PCSE00640 | US   | GAMES   | Shovel Knight | 132.2 MiB
+2 ) PCSB00743 | EU   | GAMES   | Shovel Knight | 137.6 MiB
+3 ) PCSE00640 | US   | THEMES  | Shovel Knight Theme | 4.34 MiB
+4 ) PCSE00640 | US   | UPDATES | Shovel Knight | 124.1 MiB
+5 ) PCSB00743 | EU   | UPDATES | Shovel Knight | 120.8 MiB
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
