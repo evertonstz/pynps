@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 # Created by evertonstz
+
+##IMPORTS##
 import os, sys
 from csv import DictReader
 import subprocess
@@ -8,32 +10,7 @@ from math import log2
 import argparse
 import hashlib
 
-#leaving None will use the same folder the script is currently inside
-MAIN_DOWNLOAD_FOLDER=None
-
-if MAIN_DOWNLOAD_FOLDER is None:
-	MAIN_DOWNLOAD_FOLDER = os.path.dirname(os.path.realpath(__file__))+"/"
-
-
-PKG2ZIP=MAIN_DOWNLOAD_FOLDER+'pkg2zip'
-DBFOLDER=MAIN_DOWNLOAD_FOLDER+'DATABASE'
-DLFOLDER=MAIN_DOWNLOAD_FOLDER+"DOWNLOADS"
-
-database_psv_links = {"games":"https://beta.nopaystation.com/tsv/PSV_GAMES.tsv", \
-					"dlcs":"https://beta.nopaystation.com/tsv/PSV_DLCS.tsv", \
-					"themes":"https://beta.nopaystation.com/tsv/PSV_THEMES.tsv", \
-					"updates":"https://beta.nopaystation.com/tsv/PSV_UPDATES.tsv", \
-					"demos":"https://beta.nopaystation.com/tsv/PSV_DEMOS.tsv", \
-					}
-
-database_psp_links = {"games":"https://beta.nopaystation.com/tsv/PSP_GAMES.tsv", \
-					"dlcs":"https://beta.nopaystation.com/tsv/PSP_DLCS.tsv", \
-					"themes":"https://beta.nopaystation.com/tsv/PSP_THEMES.tsv", \
-					"updates":"https://beta.nopaystation.com/tsv/PSP_UPDATES.tsv", \
-					}
-
-database_psx_links = {"games":"https://beta.nopaystation.com/tsv/PSX_GAMES.tsv"}
-
+##FUNCTIONS##
 def create_folder( location ):
 	try:
 		os.makedirs(location)
@@ -69,7 +46,7 @@ def progress_bar(number, symbol="#", fill_width=20,open_symbol="[", close_symbol
 			print('ERROR: Use a number divisible by 4 in "fill_width".')
 			exit(1)
 
-def updatedb( dict, system ):
+def updatedb( dict, system, DBFOLDER):
 	#detect gaming system#
 	if system == "PSV":
 		system_name = "Playstation Vita"
@@ -118,7 +95,7 @@ def updatedb( dict, system ):
 		else:
 			print("\nunable to download file, try again later!")
 
-def dl_file( dict, system ):
+def dl_file( dict, system, DLFOLDER): #OK!
 	system = system.upper()	
 	if system == "PSV":
 		system_name = "Playstation Vita"
@@ -213,7 +190,7 @@ def process_search( out, index, lenght=None ):
 			print(i['Title ID'], "|", crop_print(i['Region'], 4), "|", crop_print(i['Type'],7), "|", i['Name'], \
 				"|", file_size(i['File Size']) )
 		
-def search_db(system, type, query, region):
+def search_db(system, type, query, region, DBFOLDER): #OK!
 	query = query.upper()
 	#process query#
 
@@ -285,7 +262,7 @@ def checksum_file( file ):
 			sha256.update(data)
 	return(sha256.hexdigest())
 
-def check_pkg2zip( location ):
+def check_pkg2zip( location ): #OK!
 	#check if the binary is inside de script's folder
 	if os.path.isfile(location) == False:
 		#try to search for a binary inside the sysem
@@ -297,7 +274,7 @@ def check_pkg2zip( location ):
 	else:
 		return(location)
 
-def run_pkg2zip( file, output_location, zrif=False):
+def run_pkg2zip( file, output_location, PKG2ZIP, zrif=False): #OK!
 	create_folder(output_location)
 	
 	if zrif == False:
@@ -306,155 +283,182 @@ def run_pkg2zip( file, output_location, zrif=False):
 		process = subprocess.run( [PKG2ZIP,"-x",file, zrif] , cwd=output_location)
 
 
-	
+##MAIN##
+def main():
 
-###MAIN STARTS HERE###
+	MAIN_DOWNLOAD_FOLDER=None
 
-parser = argparse.ArgumentParser()
+	if MAIN_DOWNLOAD_FOLDER is None:
+		MAIN_DOWNLOAD_FOLDER = os.path.dirname(os.path.realpath(__file__))+"/"
 
-parser.add_argument("search", type=str, nargs="?",
-                    help="search something to download, you can search by name or ID or use '_all' to return everythning.")
-parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
-                    type=str, required = False, choices=["psv", "psp", "psx", "_all"])
-parser.add_argument("-r", "--region", help="the region for the pkj you want.",
-                    type=str, required = False, choices=["usa","eur","jap","asia"])
-parser.add_argument("-dg", "--games", help="to download games.",
-                    action="store_true")
-parser.add_argument("-dd", "--dlcs", help="to download dlcs.",
-                    action="store_true")
-parser.add_argument("-dt", "--themes", help="to download themes.",
-                    action="store_true")
-parser.add_argument("-du", "--updates", help="to download updates.",
-                    action="store_true")	
-parser.add_argument("-dde", "--demos", help="to download demos.",
-                    action="store_true")				
 
-parser.add_argument("-u", "--update", help="update database.",
-                    action="store_true")
+	PKG2ZIP=MAIN_DOWNLOAD_FOLDER+'pkg2zip'
+	DBFOLDER=MAIN_DOWNLOAD_FOLDER+'DATABASE'
+	DLFOLDER=MAIN_DOWNLOAD_FOLDER+"DOWNLOADS"
 
-args = parser.parse_args()
+	database_psv_links = {"games":"https://beta.nopaystation.com/tsv/PSV_GAMES.tsv", \
+						"dlcs":"https://beta.nopaystation.com/tsv/PSV_DLCS.tsv", \
+						"themes":"https://beta.nopaystation.com/tsv/PSV_THEMES.tsv", \
+						"updates":"https://beta.nopaystation.com/tsv/PSV_UPDATES.tsv", \
+						"demos":"https://beta.nopaystation.com/tsv/PSV_DEMOS.tsv", \
+						}
 
-#checking if -c is empty
+	database_psp_links = {"games":"https://beta.nopaystation.com/tsv/PSP_GAMES.tsv", \
+						"dlcs":"https://beta.nopaystation.com/tsv/PSP_DLCS.tsv", \
+						"themes":"https://beta.nopaystation.com/tsv/PSP_THEMES.tsv", \
+						"updates":"https://beta.nopaystation.com/tsv/PSP_UPDATES.tsv", \
+						}
 
-#check if updating db is needed
-system = args.console.upper()
+	database_psx_links = {"games":"https://beta.nopaystation.com/tsv/PSX_GAMES.tsv"}
 
-if system == "PSP" and args.demos == True:
-	print("ERROR: NPS has no support for demos with the Playstation Portable (PSP), exiting...")
-	exit(1)
-if system == "PSX" and True in [args.dlcs, args.themes, args.updates, args.demos]:
-	print("ERROR: NPS only supports game downlaods for the Playstation (PSX), exiting...")
-	exit(1)
+	parser = argparse.ArgumentParser()
 
-if system == "_ALL" and args.search != None:
-	print("ERROR: you can't search for multiple systems, this option is only used to make a full update like:\n\tmain.py -c _all -u")
+	parser.add_argument("search", type=str, nargs="?",
+						help="search something to download, you can search by name or ID or use '_all' to return everythning.")
+	parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
+						type=str, required = False, choices=["psv", "psp", "psx", "_all"])
+	parser.add_argument("-r", "--region", help="the region for the pkj you want.",
+						type=str, required = False, choices=["usa","eur","jap","asia"])
+	parser.add_argument("-dg", "--games", help="to download games.",
+						action="store_true")
+	parser.add_argument("-dd", "--dlcs", help="to download dlcs.",
+						action="store_true")
+	parser.add_argument("-dt", "--themes", help="to download themes.",
+						action="store_true")
+	parser.add_argument("-du", "--updates", help="to download updates.",
+						action="store_true")	
+	parser.add_argument("-dde", "--demos", help="to download demos.",
+						action="store_true")				
 
-if args.update == True:
-	if system == "_ALL":
-		print("Updating all databases:")
-	if system in ["PSV", "_ALL"]:
-		updatedb(database_psv_links, "PSV")
-	if system in ["PSP", "_ALL"]:
-		updatedb(database_psp_links, "PSP")
-	if system in ["PSX", "_ALL"]:
-		updatedb(database_psx_links, "PSX")
-	print("DONE!")
+	parser.add_argument("-u", "--update", help="update database.",
+						action="store_true")
 
-	if args.search is None:
-		if system != "_ALL":
-			print("No search term provided, exiting...")
-		exit(0)
-	
-elif args.update == False and args.search is None:
-	print("Please, you need to search for something...")
-	exit(1)
+	args = parser.parse_args()
 
-#check region
-if args.region is None:
-	reg = "all"
-else:
-	reg = args.region
+	#checking if -c is empty
 
-what_to_dl = {"games":args.games, "dlcs":args.dlcs, "themes":args.themes, \
-	"updates":args.updates, "demos":args.demos}
+	#check if updating db is needed
+	system = args.console.upper()
 
-if list(what_to_dl.values()) == [False, False, False, False, False]:
-	what_to_dl = {"games":True, "dlcs":True, "themes":True, "updates":True, "demos":True}
+	if system == "PSP" and args.demos == True:
+		print("ERROR: NPS has no support for demos with the Playstation Portable (PSP), exiting...")
+		exit(1)
+	if system == "PSX" and True in [args.dlcs, args.themes, args.updates, args.demos]:
+		print("ERROR: NPS only supports game downlaods for the Playstation (PSX), exiting...")
+		exit(1)
 
-maybe_download = search_db(args.console, what_to_dl, args.search, reg)
+	if system == "_ALL" and args.search != None:
+		print("ERROR: you can't search for multiple systems, this option is only used to make a full update like:\n\tmain.py -c _all -u")
 
-#print possible mathes to the user
+	if args.update == True:
+		if system == "_ALL":
+			print("Updating all databases:")
+		if system in ["PSV", "_ALL"]:
+			updatedb(database_psv_links, "PSV", DBFOLDER)
+		if system in ["PSP", "_ALL"]:
+			updatedb(database_psp_links, "PSP", DBFOLDER)
+		if system in ["PSX", "_ALL"]:
+			updatedb(database_psx_links, "PSX", DBFOLDER)
+		print("DONE!")
 
-process_search(maybe_download, 1, len(maybe_download))
-index_to_download = input("Enter the number for what you want to download, you can enter multiple separated by commas:")
+		if args.search is None:
+			if system != "_ALL":
+				print("No search term provided, exiting...")
+			exit(0)
+		
+	elif args.update == False and args.search is None:
+		print("Please, you need to search for something...")
+		exit(1)
 
-index_to_download = index_to_download.replace(" ","").split(",")
-try:
-	index_to_download = [int(x)-1 for x in index_to_download]
-except:
-	print("Please, only use numbers.")
-	exit(1)
-
-files_to_download = [maybe_download[i] for i in index_to_download]
-
-print("\nYou're going to download the following files:")
-process_search(files_to_download, 0)
-
-if input("\nDownload files? [y/n]:") != "y":
-	exit(0)
-
-files_downloaded = []
-for i in files_to_download:
-	#download file
-	dl_result = dl_file(i, args.console)
-	downloaded_file_loc = DLFOLDER + "/PKG/" + system + "/" + i['Type']+"/"+i['PKG direct link'].split("/")[-1]
-	
-	#checksum
-	if dl_result:
-		if "SHA256" in i.keys():
-			if i["SHA256"] == "":
-				print("CHECKSUM: No checksum provided by NPS, skipping check...")
-			else:
-				
-				sha256_dl = checksum_file(downloaded_file_loc)
-				
-				try:
-					sha256_exp = i["SHA256"]
-				except:
-					sha256_exp = ""
-
-				if sha256_dl != sha256_exp:
-					print("CHECKSUM: checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg.")
-					print("CHECKSUM: corrupted file location:", DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1])
-					break
-				else:
-					print("CHECKSUM: downloaded file is ok!")
-		files_downloaded.append(i)
+	#check region
+	if args.region is None:
+		reg = "all"
 	else:
-		print("ERROR: skipping file, wget was unable to download, try again latter...")
+		reg = args.region
 
-#autoextract with pkg2zip
-PKG2ZIP = check_pkg2zip(PKG2ZIP)
-if PKG2ZIP != False:
-	for i in files_downloaded:
-		if i['Type'] not in ["THEMES"]:
-			zrif=""
-			dl_dile_loc = DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
-			dl_location = DLFOLDER+"/Extracted"
+	what_to_dl = {"games":args.games, "dlcs":args.dlcs, "themes":args.themes, \
+		"updates":args.updates, "demos":args.demos}
 
-			try:
-				zrif = i['zRIF']
-			except:
-				pass
-			print("\nEXTRACTION:",i['Name'])
-			print("\nEXTRACTION: extracting files to:",DLFOLDER+"/Extracted/")
+	if list(what_to_dl.values()) == [False, False, False, False, False]:
+		what_to_dl = {"games":True, "dlcs":True, "themes":True, "updates":True, "demos":True}
 
-			if system == "PSV" and zrif !="":
-				run_pkg2zip(dl_dile_loc, dl_location, zrif)
-			else:
-				run_pkg2zip(dl_dile_loc, dl_location)
+	maybe_download = search_db(args.console, what_to_dl, args.search, reg, DBFOLDER)
+
+	#print possible mathes to the user
+
+	process_search(maybe_download, 1, len(maybe_download))
+	index_to_download = input("Enter the number for what you want to download, you can enter multiple separated by commas:")
+
+	index_to_download = index_to_download.replace(" ","").split(",")
+	try:
+		index_to_download = [int(x)-1 for x in index_to_download]
+	except:
+		print("Please, only use numbers.")
+		exit(1)
+
+	files_to_download = [maybe_download[i] for i in index_to_download]
+
+	print("\nYou're going to download the following files:")
+	process_search(files_to_download, 0)
+
+	if input("\nDownload files? [y/n]:") != "y":
+		exit(0)
+
+	files_downloaded = []
+	for i in files_to_download:
+		#download file
+		dl_result = dl_file(i, args.console, DLFOLDER)
+		downloaded_file_loc = DLFOLDER + "/PKG/" + system + "/" + i['Type']+"/"+i['PKG direct link'].split("/")[-1]
+		
+		#checksum
+		if dl_result:
+			if "SHA256" in i.keys():
+				if i["SHA256"] == "":
+					print("CHECKSUM: No checksum provided by NPS, skipping check...")
+				else:
+					
+					sha256_dl = checksum_file(downloaded_file_loc)
+					
+					try:
+						sha256_exp = i["SHA256"]
+					except:
+						sha256_exp = ""
+
+					if sha256_dl != sha256_exp:
+						print("CHECKSUM: checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg.")
+						print("CHECKSUM: corrupted file location:", DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1])
+						break
+					else:
+						print("CHECKSUM: downloaded file is ok!")
+			files_downloaded.append(i)
 		else:
-			print("\nEXTRACTION: this type of file can't be extracted by pkg2zip:",i['Type'].lower())
-else:
-	print("\nEXTRACTION: skipping extraction since there's no pkg2zip binary in your system...")
-	exit(0)
+			print("ERROR: skipping file, wget was unable to download, try again latter...")
+
+	#autoextract with pkg2zip
+	PKG2ZIP = check_pkg2zip(PKG2ZIP)
+	if PKG2ZIP != False:
+		for i in files_downloaded:
+			if i['Type'] not in ["THEMES"]:
+				zrif=""
+				dl_dile_loc = DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
+				dl_location = DLFOLDER+"/Extracted"
+
+				try:
+					zrif = i['zRIF']
+				except:
+					pass
+				print("\nEXTRACTION:",i['Name'])
+				print("\nEXTRACTION: extracting files to:",DLFOLDER+"/Extracted/")
+
+				if system == "PSV" and zrif !="":
+					run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, zrif)
+				else:
+					run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP)
+			else:
+				print("\nEXTRACTION: this type of file can't be extracted by pkg2zip:",i['Type'].lower())
+	else:
+		print("\nEXTRACTION: skipping extraction since there's no pkg2zip binary in your system...")
+		exit(0)
+
+if __name__ == '__main__':
+	main()
