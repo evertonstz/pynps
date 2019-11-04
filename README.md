@@ -1,6 +1,9 @@
 # pyNPS
+!["pycat"](https://octodex.github.com/images/pythocat.png)
 
-Before downloading any of your legally obtained (wink wink wink) game/theme/update/etc you have to update your NPS database, you don't have to do it every time you want to download something, but only once in a while to get info about new games NPS adds to their database:
+PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in python3.7 that, with the help of [wget](https://www.gnu.org/software/wget/) and [pkg2zip](https://github.com/mmozeiko/pkg2zip/), can search, download and decrypt/extract PSVita, PSP and PSX games from Nopaystation database. It's basically a command line version of [NPSBrowser](https://nopaystation.com/vita/npsReleases/) writen by a moron (aka me).
+
+Before downloading any of your legally obtained (wink wink wink) pkg file you have to update your NPS database, you don't have to do it every time you want to download something, but only in your first run to construct your initial database and after that just once in a while to get info about new pkgs NPS adds to their database:
 
 Updating all system's databases:
 >$ python3.7 main.py -c _all -u
@@ -23,6 +26,9 @@ This script uses pkg2zip to handle the .pkg extractions, there's a bundled binar
 2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip/), after you install it pyNPS will autodetect and use it automatically;
 
 3. Or you just want to compile it yourself you can to their official repo and grab the sources [here](https://github.com/mmozeiko/pkg2zip/releases). 
+******
+## wget
+This software uses wget to make the downloads therefore it won't work if you don't have it installed in your system, most distros already come with wget installed, if you don't have it chances are you're on some crazy non-userfriendly distro and you probably know your way around for installing it. If you don't just google.
 ******
 Updating the PSP database and searching for a Sonic game in any region:
 >$ python3.7 main.py -c psp -u -dg sonic
