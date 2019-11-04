@@ -111,24 +111,25 @@ For more information just run:
 >$ python3.7 main.py -h
 
 ```
-usage: main.py [-h] -c {psv,psp,psx} [-r {usa,eur,jap,asia}] [-dg] [-dd] [-dt]
-               [-du] [-dde] [-u]
+usage: main.py [-h] [-c {psv,psp,psx,_all}] [-r {usa,eur,jap,asia}] [-dg]
+               [-dd] [-dt] [-du] [-dde] [-u]
                [search]
 
 positional arguments:
   search                search something to download, you can search by name
-                        or ID.
+                        or ID or use '_all' to return everythning.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -c {psv,psp,psx}, --console {psv,psp,psx}
+  -c {psv,psp,psx,_all}, --console {psv,psp,psx,_all}
                         the console you wanna get content with NPS.
   -r {usa,eur,jap,asia}, --region {usa,eur,jap,asia}
                         the region for the pkj you want.
-  -dg, --games          to download games.
-  -dd, --dlcs           to download dlcs.
-  -dt, --themes         to download themes.
-  -du, --updates        to download updates.
-  -dde, --demos         to download demos.
+  -dg, --games          to download psv/psp/psx games.
+  -dd, --dlcs           to download psv/psp dlcs.
+  -dt, --themes         to download psv/psp themes.
+  -du, --updates        to download psv/psp game updates.
+  -dde, --demos         to download psv demos.
   -u, --update          update database.
+
 ```

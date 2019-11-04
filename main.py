@@ -323,15 +323,15 @@ def main():
 						type=str, required = False, choices=["psv", "psp", "psx", "_all"])
 	parser.add_argument("-r", "--region", help="the region for the pkj you want.",
 						type=str, required = False, choices=["usa","eur","jap","asia"])
-	parser.add_argument("-dg", "--games", help="to download games.",
+	parser.add_argument("-dg", "--games", help="to download psv/psp/psx games.",
 						action="store_true")
-	parser.add_argument("-dd", "--dlcs", help="to download dlcs.",
+	parser.add_argument("-dd", "--dlcs", help="to download psv/psp dlcs.",
 						action="store_true")
-	parser.add_argument("-dt", "--themes", help="to download themes.",
+	parser.add_argument("-dt", "--themes", help="to download psv/psp themes.",
 						action="store_true")
-	parser.add_argument("-du", "--updates", help="to download updates.",
+	parser.add_argument("-du", "--updates", help="to download psv/psp game updates.",
 						action="store_true")	
-	parser.add_argument("-dde", "--demos", help="to download demos.",
+	parser.add_argument("-dde", "--demos", help="to download psv demos.",
 						action="store_true")				
 
 	parser.add_argument("-u", "--update", help="update database.",
