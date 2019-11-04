@@ -16,7 +16,6 @@ Before downloading any of your legally obtained (wink wink wink) game/theme/upda
 * updating Playstation One's database:
 >$ python3.7 main.py -c psx -u
 
-_you can't update every system with one command for now_
 ******
 ## pkg2zip
 This script uses pkg2zip to handle the .pkg extractions, there's a bundled binary for the version 1.8, in case you have problems with this binary or you just don't trust it you have other options:
