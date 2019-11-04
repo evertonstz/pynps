@@ -410,7 +410,7 @@ for i in files_downloaded:
 			zrif = i['zRIF']
 		except:
 			pass
-		
+		print("\nEXTRACTION:",i['Name'])
 		print("\nEXTRACTION: extracting files to:",DLFOLDER+"/Extracted/")
 
 		if system == "PSV" and zrif !="":
