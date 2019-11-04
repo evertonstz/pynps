@@ -1,20 +1,18 @@
 # pyNPS
 
 Before downloading any of your legally obtained (wink wink wink) game/theme/update/etc you have to update your NPS database, you don't have to do it every time you want to download something, but only once in a while to get info about new games NPS adds to their database:
-* updating all system's databases:
+
+Updating all system's databases:
 >$ python3.7 main.py -c _all -u
 
-<br/><br/>
-* updating Playstation Vita's database:
->$ python3.7 main.py -c psv -u
+<br/>
+Updating database per console:
 
-<br/><br/>
-* updating Playstation Portable's database:
->$ python3.7 main.py -c psp -u
+>$ python3.7 main.py -c psv -u #updates only vita's db
 
-<br/><br/>
-* updating Playstation One's database:
->$ python3.7 main.py -c psx -u
+>$ python3.7 main.py -c psp -u #updates only psp's db
+
+>$ python3.7 main.py -c psv -u #updates only psx's db
 
 ******
 ## pkg2zip
@@ -24,9 +22,9 @@ This script uses pkg2zip to handle the .pkg extractions, there's a bundled binar
 
 2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip/), after you install it pyNPS will autodetect and use it automatically;
 
- 3. Or you just want to compile it yourself you can to their official repo and grab the sources [here](https://github.com/mmozeiko/pkg2zip/releases). 
+3. Or you just want to compile it yourself you can to their official repo and grab the sources [here](https://github.com/mmozeiko/pkg2zip/releases). 
 ******
-* updating the PSP database and searching for a Sonic game in any region:
+Updating the PSP database and searching for a Sonic game in any region:
 >$ python3.7 main.py -c psp -u -dg sonic
 ```
 Updating Database for Playstation Portable:
@@ -45,7 +43,7 @@ renaming file: ./DATABASE/PSP/PSP_UPDATES.tsv ./DATABASE/PSP/UPDATES.tsv
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
-* search for an european release of spyro for PSX
+Search for an european release of spyro for PSX
 >$ python3.7 main.py -c psx -r eur -dg crash
 ```
 1 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer  | 343.6 MiB
@@ -60,7 +58,7 @@ Enter the number for what you want to download, you can enter multiple separated
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
-* search for for themes and demos related to the word "touhou in any region:
+Search for for themes and demos related to the word "touhou in any region:
 >$ python3.7 main.py -c psv -dt -dde touhou
 ```
 1  ) PCSE00947 | US   | THEMES | Touhou Genso Rondo Theme | 6.723 MiB
@@ -76,9 +74,12 @@ Enter the number for what you want to download, you can enter multiple separated
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
-* search for for everything (themes, games, demos, dlcs and updates) related to the word "knight" in any region region:
+Search for for everything (themes, games, demos, dlcs and updates) related to the word "knight" in any region region:
 >$ python3.7 main.py -c psv knight
-* or if you like suffering:
+
+<br/>
+Or if you like suffering:
+
 >$ python3.7 main.py -c psv -dg -dd -dt -du -dde knight
 ```
 1  ) PCSE00244 | US   | GAMES   | Valhalla Knights 3 | 897.8 MiB
@@ -88,7 +89,7 @@ Enter the number for what you want to download, you can enter multiple separated
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
-* I see... you just wanna everything related to Shovel Knight? Sure:
+I see... you just wanna everything related to Shovel Knight? Sure:
 >$ python3.7 main.py -c psv "shovel knight"
 ```
 1 ) PCSE00640 | US   | GAMES   | Shovel Knight | 132.2 MiB
@@ -99,7 +100,7 @@ Enter the number for what you want to download, you can enter multiple separated
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
-* wanna return every single american DLC for the psvita? Sure, it's slow but it's a free country:
+Wanna return every single american DLC for the psvita? Sure, it's slow but it's a free country:
 >$ python3.7 main.py -c psv -r usa -dd _all
 ```
 that's too big to output here, mate :<
