@@ -119,21 +119,54 @@ def updatedb( dict, system ):
 			print("\nunable to download file, try again later!")
 
 def dl_file( dict, system ):
-	url = dict['PKG direct link']
-	#detect file#
-	system = system.upper()
-	
+	system = system.upper()	
 	if system == "PSV":
 		system_name = "Playstation Vita"
+	elif system == "PSP":
+		system_name = "Playstation Portable"
+	elif system == "PSX":
+		system_name = "Playstation"
 
-	# print("Updating Database for", system_name+":", file)
+	url = dict['PKG direct link']
+	filename = url.split("/")[-1]
+	name = dict['Name']
+	title_id = dict['Title ID']
 
-	process = subprocess.run( [ "wget", "-c", "-P", DLFOLDER + "/PKG/" + system + "/" + dict['Type'] \
-								, url ] )
+	print("\nDownloading:")
 
-	# os.rename(DLFOLDER+"/"+system+"/PKG/"+dict['Type']+"/"+url.split("/")[-1], \
-	# 			DLFOLDER+"/"+system+"/"+dict['Type']+)
-	return(True)
+	dl_folder = DLFOLDER + "/PKG/" + system + "/" + dict['Type']
+
+	process = subprocess.Popen( [ "wget", "-c", "-P", dl_folder, url], \
+							stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
+	
+	saved = False
+	for line in iter(process.stdout.readline, b''):
+		# print(line)
+		line = line.decode("utf-8").split(" ")
+		
+		#test if downloaded#
+		if "saved" in line:
+			saved = True
+		
+		line = [x for x in line if x != ""]
+		if '..........' in line:
+			line = [x for x in line if x != '..........']
+			#variables#
+			try:
+				percentage = int(line[1].replace("%",""))
+			except:
+				percentage = 100
+			downloaded = line[0]
+			speed = line[2].replace("\n","")
+
+			print_string = "[" + title_id+ "] " + name + " " + progress_bar(percentage) + " " + str(percentage) + "% " + \
+							downloaded + " @ " + speed+"/s"
+			# print("", end = '')
+			sys.stdout.write("\r"+print_string)
+			sys.stdout.flush()
+	if saved:
+		print("\nsaved at:",dl_folder+"/"+filename+"\n" )
+	return(saved)
 
 def file_size(size):
 	_suffixes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
@@ -363,6 +396,8 @@ for i in files_to_download:
 				else:
 					print("CHECKSUM: downloaded file is ok!")
 		files_downloaded.append(i)
+	else:
+		print("ERROR: skipping file, wget was unable to download, try again latter...")
 
 #autoextract with pkg2zip
 for i in files_downloaded:
