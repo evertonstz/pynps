@@ -6,9 +6,13 @@ import subprocess
 import urllib.request
 from math import log2
 import argparse
+import hashlib
 
-#./ will use the same folder the script is currently inside
-MAIN_DOWNLOAD_FOLDER="./"
+#leaving None will use the same folder the script is currently inside
+MAIN_DOWNLOAD_FOLDER=None
+
+if MAIN_DOWNLOAD_FOLDER is None:
+	MAIN_DOWNLOAD_FOLDER = os.path.dirname(os.path.realpath(__file__))+"/"
 
 
 PKG2ZIP=MAIN_DOWNLOAD_FOLDER+'pkg2zip'
@@ -28,12 +32,11 @@ database_psp_links = {"games":"https://beta.nopaystation.com/tsv/PSP_GAMES.tsv",
 					"updates":"https://beta.nopaystation.com/tsv/PSP_UPDATES.tsv", \
 					}
 
-# def create_folder( location ):
-# 	try:
-# 		os.makedirs(location)
-# 		print(location,"created")
-# 	except:
-# 		pass
+def create_folder( location ):
+	try:
+		os.makedirs(location)
+	except:
+		pass
 
 def save_file( file, string ):
 	with open(file, 'w') as file:
@@ -121,8 +124,12 @@ def dl_file( dict, system ):
 
 	# print("Updating Database for", system_name+":", file)
 
-	process = subprocess.run( [ "wget", "-c", "-P", DLFOLDER+"/"+system+"/", url ] )
-	# os.rename(DBFOLDER+"/"+system+"/"+url.split("/")[-1], DBFOLDER+"/"+system+"/"+file)
+	process = subprocess.run( [ "wget", "-c", "-P", DLFOLDER + "/PKG/" + system + "/" + dict['Type'] \
+								, url ] )
+
+	# os.rename(DLFOLDER+"/"+system+"/PKG/"+dict['Type']+"/"+url.split("/")[-1], \
+	# 			DLFOLDER+"/"+system+"/"+dict['Type']+)
+	return(True)
 
 def file_size(size):
 	_suffixes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
@@ -216,32 +223,33 @@ def search_db(system, type, query, region):
 	
 	return o
 
-# search_db("psv","games", "Sonic", "all", 0)
+def checksum_file( file ):
+	
+	BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
 
-##DOWNLOADING##
+	sha256 = hashlib.sha256()
 
-def download_pkg(system, id_list):
-	system = system.upper()
-	#test if dl folder exists
-	create_folder(DLFOLDER+"/"+system)
+	with open(file, 'rb') as f:
+		while True:
+			data = f.read(BUF_SIZE)
+			if not data:
+				break
+			sha256.update(data)
+	return(sha256.hexdigest())
 
-	to_dl = []
+def run_pkg2zip( file, output_location, zrif=False):
+	create_folder(output_location)
+	if zrif == False:
+		process = subprocess.run( [PKG2ZIP,"-x",file] , cwd=output_location)
+	else:
+		process = subprocess.run( [PKG2ZIP,"-x",file, zrif] , cwd=output_location)
 
-	for i in id_list:
-		to_dl.append(search_db(system, "all", i, "all", 1)[0])
-
-	for i in to_dl:
-		print("Downloading:", i['Title ID'], i['Region'], i['Name'])
-		# filename = wget.download(i['PKG direct link'], out=DLFOLDER+"/"+system)
-		print( 'Downloading DLC', end="\r" )
-		process = subprocess.run( [ "wget", "-c", "-P", \
-			DLFOLDER+"/"+system+"/"+i['Name']+" "+ i['Title ID'], i['PKG direct link'] ] )
+	
 
 ###MAIN STARTS HERE###
 
-# download_pkg("psv", ["PCSE00383"])
-
 parser = argparse.ArgumentParser()
+
 parser.add_argument("search", type=str, nargs="?",
                     help="name what you want to download.")
 parser.add_argument("-c", "--console", help="the console you wanna use with NPS.",
@@ -264,14 +272,11 @@ parser.add_argument("-u", "--update", help="update database.",
 
 args = parser.parse_args()
 
-# create_folder(DBFOLDER+"/PSV")
-
 #check if updating db is needed
+system = args.console.upper()
+
 if args.update == True:
-	if args.console == "psv":
-		updatedb(database_psv_links, "PSV")
-	elif args.console == "psp":
-		updatedb(database_psp_links, "PSP")
+	updatedb(database_psv_links, system)
 
 	if args.search is None:
 		print("DONE!")
@@ -312,8 +317,54 @@ print("\nYou're going to download the following files:")
 process_search(files_to_download, 0)
 print(files_to_download)
 
-if input("\nProceed to download files? [y/n]:") != "y":
+if input("\nDownload files? [y/n]:") != "y":
 	exit(0)
 
+files_downloaded = []
 for i in files_to_download:
-	dl_file(i, args.console)
+	#download file
+	dl_result = dl_file(i, args.console)
+	downloaded_file_loc = DLFOLDER + "/PKG/" + system + "/" + i['Type']+"/"+i['PKG direct link'].split("/")[-1]
+	
+	#checksum
+	if dl_result:
+		if "SHA256" in i.keys():
+			if i["SHA256"] == "":
+				print("No checksum provided by NPS, skipping check...")
+			else:
+				
+				sha256_dl = checksum_file(downloaded_file_loc)
+				
+				try:
+					sha256_exp = i["SHA256"]
+				except:
+					sha256_exp = ""
+
+				if sha256_dl != sha256_exp:
+					print("CHECKSUM: checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg.")
+					print("CHECKSUM: corrupted file location:", DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1])
+					break
+				else:
+					print("CHECKSUM: downloaded file is ok!")
+		files_downloaded.append(i)
+
+#autoextract with pkg2zip
+for i in files_downloaded:
+	if i['Type'] not in ["THEMES"]:
+		zrif=""
+		dl_dile_loc = DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
+		dl_location = DLFOLDER+"/Extracted"
+
+		try:
+			zrif = i['zRIF']
+		except:
+			pass
+		
+		print("\nEXTRACTION: extracting files to:",DLFOLDER+"/Extracted/")
+
+		if system == "PSV" and zrif !="":
+			run_pkg2zip(dl_dile_loc, dl_location, zrif)
+		else:
+			run_pkg2zip(dl_dile_loc, dl_location)
+	else:
+		print("\nEXTRACTION: this type of file can't be extracted by pkg2zip:",i['Type'].lower())
