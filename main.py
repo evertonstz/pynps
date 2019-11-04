@@ -313,9 +313,9 @@ def run_pkg2zip( file, output_location, zrif=False):
 parser = argparse.ArgumentParser()
 
 parser.add_argument("search", type=str, nargs="?",
-                    help="search something to download, you can search by name or ID.")
+                    help="search something to download, you can search by name or ID or use '_all' to return everythning.")
 parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
-                    type=str, required = True, choices=["psv", "psp", "psx"])
+                    type=str, required = False, choices=["psv", "psp", "psx", "_all"])
 parser.add_argument("-r", "--region", help="the region for the pkj you want.",
                     type=str, required = False, choices=["usa","eur","jap","asia"])
 parser.add_argument("-dg", "--games", help="to download games.",
@@ -334,6 +334,8 @@ parser.add_argument("-u", "--update", help="update database.",
 
 args = parser.parse_args()
 
+#checking if -c is empty
+
 #check if updating db is needed
 system = args.console.upper()
 
@@ -344,18 +346,25 @@ if system == "PSX" and True in [args.dlcs, args.themes, args.updates, args.demos
 	print("ERROR: NPS only supports game downlaods for the Playstation (PSX), exiting...")
 	exit(1)
 
+if system == "_ALL" and args.search != None:
+	print("ERROR: you can't search for multiple systems, this option is only used to make a full update like:\n\tmain.py -c _all -u")
+
 if args.update == True:
-	if system == "PSV":
-		updatedb(database_psv_links, system)
-	if system == "PSP":
-		updatedb(database_psp_links, system)
-	if system == "PSX":
-		updatedb(database_psx_links, system)
+	if system == "_ALL":
+		print("Updating all databases:")
+	if system in ["PSV", "_ALL"]:
+		updatedb(database_psv_links, "PSV")
+	if system in ["PSP", "_ALL"]:
+		updatedb(database_psp_links, "PSP")
+	if system in ["PSX", "_ALL"]:
+		updatedb(database_psx_links, "PSX")
+	print("DONE!")
 
 	if args.search is None:
-		print("DONE!")
-		print("No search term provided, exiting...")
+		if system != "_ALL":
+			print("No search term provided, exiting...")
 		exit(0)
+	
 elif args.update == False and args.search is None:
 	print("Please, you need to search for something...")
 	exit(1)

@@ -1,11 +1,19 @@
 # pyNPS
 
 Before downloading any of your legally obtained (wink wink wink) game/theme/update/etc you have to update your NPS database, you don't have to do it every time you want to download something, but only once in a while to get info about new games NPS adds to their database:
-* updating psvita database
+* updating all system's databases:
+>$ python3.7 main.py -c _all -u
+
+<br/><br/>
+* updating Playstation Vita's database:
 >$ python3.7 main.py -c psv -u
-* updating psp database
+
+<br/><br/>
+* updating Playstation Portable's database:
 >$ python3.7 main.py -c psp -u
-* updating playstation database
+
+<br/><br/>
+* updating Playstation One's database:
 >$ python3.7 main.py -c psx -u
 
 _you can't update every system with one command for now_
