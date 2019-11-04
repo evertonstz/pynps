@@ -1,5 +1,5 @@
 # pyNPS
-!["pycat"](https://octodex.github.com/images/pythocat.png =448x)
+<img src="https://octodex.github.com/images/pythocat.png" width="448" height="448">
 
 PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in python3.7 that, with the help of [wget](https://www.gnu.org/software/wget/) and [pkg2zip](https://github.com/mmozeiko/pkg2zip/), can search, download and decrypt/extract PSVita, PSP and PSX games from Nopaystation database. It's basically a command line version of [NPSBrowser](https://nopaystation.com/vita/npsReleases/) writen by a moron (aka me).
 
