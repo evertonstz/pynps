@@ -24,7 +24,7 @@ This script uses pkg2zip to handle the .pkg extractions, there's a bundled binar
 
 2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip/)
 
- 3. or you just want to compile it yourself you can to their official repo and grab the sources [here](https://github.com/mmozeiko/pkg2zip/releases). 
+ 3. Or you just want to compile it yourself you can to their official repo and grab the sources [here](https://github.com/mmozeiko/pkg2zip/releases). 
 ******
 * updating the PSP database and searching for a Sonic game in any region:
 >$ python3.7 main.py -c psp -u -dg sonic

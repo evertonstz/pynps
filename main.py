@@ -285,16 +285,20 @@ def run_pkg2zip( file, output_location, PKG2ZIP, zrif=False): #OK!
 
 ##MAIN##
 def main():
+	#edit the root for your download folder here: ex "/home/user/Downloads/pyNPS"
+	MAIN_DOWNLOAD_FOLDER = None
 
-	MAIN_DOWNLOAD_FOLDER=None
-
+	#this will define a download folder inside the script's folder in case you don't provide one
 	if MAIN_DOWNLOAD_FOLDER is None:
 		MAIN_DOWNLOAD_FOLDER = os.path.dirname(os.path.realpath(__file__))+"/"
 
-
-	PKG2ZIP=MAIN_DOWNLOAD_FOLDER+'pkg2zip'
-	DBFOLDER=MAIN_DOWNLOAD_FOLDER+'DATABASE'
-	DLFOLDER=MAIN_DOWNLOAD_FOLDER+"DOWNLOADS"
+	#you don't need to mess with this if you have pkg2zip installed with AUR or inside /usr/binpkg2zip
+	PKG2ZIP = MAIN_DOWNLOAD_FOLDER+'pkg2zip'
+	
+	#both will make a subfolder inside your determined download's folder to handle the database and dl
+	#in case you wanna change the DB folder or the subfolder's name, feel free
+	DBFOLDER = MAIN_DOWNLOAD_FOLDER+'DATABASE'
+	DLFOLDER = MAIN_DOWNLOAD_FOLDER+"DOWNLOADS"
 
 	database_psv_links = {"games":"https://beta.nopaystation.com/tsv/PSV_GAMES.tsv", \
 						"dlcs":"https://beta.nopaystation.com/tsv/PSV_DLCS.tsv", \
@@ -334,8 +338,6 @@ def main():
 						action="store_true")
 
 	args = parser.parse_args()
-
-	#checking if -c is empty
 
 	#check if updating db is needed
 	system = args.console.upper()
