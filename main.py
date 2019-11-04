@@ -389,6 +389,9 @@ def main():
 	#print possible mathes to the user
 
 	process_search(maybe_download, 1, len(maybe_download))
+	if len(maybe_download) == 0:
+		print("Oops, there's nothing that matches '" + args.search + "'.Try searching for something else, exiting...")
+		exit(0)
 	index_to_download = input("Enter the number for what you want to download, you can enter multiple separated by commas:")
 
 	index_to_download = index_to_download.replace(" ","").split(",")
