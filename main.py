@@ -32,6 +32,8 @@ database_psp_links = {"games":"https://beta.nopaystation.com/tsv/PSP_GAMES.tsv",
 					"updates":"https://beta.nopaystation.com/tsv/PSP_UPDATES.tsv", \
 					}
 
+database_psx_links = {"games":"https://beta.nopaystation.com/tsv/PSX_GAMES.tsv"}
+
 def create_folder( location ):
 	try:
 		os.makedirs(location)
@@ -73,6 +75,8 @@ def updatedb( dict, system ):
 		system_name = "Playstation Vita"
 	elif system == "PSP":
 		system_name = "Playstation Portable"
+	elif system == "PSX":
+		system_name = "Playstation"
 	print("Updating Database for", system_name+":")
 	
 	for t in dict:
@@ -251,9 +255,9 @@ def run_pkg2zip( file, output_location, zrif=False):
 parser = argparse.ArgumentParser()
 
 parser.add_argument("search", type=str, nargs="?",
-                    help="name what you want to download.")
-parser.add_argument("-c", "--console", help="the console you wanna use with NPS.",
-                    type=str, required = True, choices=["psv", "psp"])
+                    help="search something to download, you can search by name or ID.")
+parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
+                    type=str, required = True, choices=["psv", "psp", "psx"])
 parser.add_argument("-r", "--region", help="the region for the pkj you want.",
                     type=str, required = False, choices=["usa","eur","jap","asia"])
 parser.add_argument("-dg", "--games", help="to download games.",
@@ -275,8 +279,20 @@ args = parser.parse_args()
 #check if updating db is needed
 system = args.console.upper()
 
+if system == "PSP" and args.demos == True:
+	print("ERROR: NPS has no support for demos with the Playstation Portable (PSP), exiting...")
+	exit(1)
+if system == "PSX" and True in [args.dlcs, args.themes, args.updates, args.demos]:
+	print("ERROR: NPS only supports game downlaods for the Playstation (PSX), exiting...")
+	exit(1)
+
 if args.update == True:
-	updatedb(database_psv_links, system)
+	if system == "PSV":
+		updatedb(database_psv_links, system)
+	if system == "PSP":
+		updatedb(database_psp_links, system)
+	if system == "PSX":
+		updatedb(database_psx_links, system)
 
 	if args.search is None:
 		print("DONE!")
