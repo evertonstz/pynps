@@ -140,14 +140,19 @@ def dl_file( dict, system ):
 							stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
 	
 	saved = False
+	downloaded = False
 	for line in iter(process.stdout.readline, b''):
 		# print(line)
-		line = line.decode("utf-8").split(" ")
+		line = line.decode("utf-8")
 		
 		#test if downloaded#
 		if "saved" in line:
 			saved = True
+		if "The file is already fully retrieved" in line:
+			downloaded = True
 		
+		line = line.split(" ")
+
 		line = [x for x in line if x != ""]
 		if '..........' in line:
 			line = [x for x in line if x != '..........']
@@ -165,8 +170,11 @@ def dl_file( dict, system ):
 			sys.stdout.write("\r"+print_string)
 			sys.stdout.flush()
 	if saved:
-		print("\nsaved at:",dl_folder+"/"+filename+"\n" )
-	return(saved)
+		print("\nsaved at:", dl_folder+"/"+filename+"\n" )
+		return(saved)
+	if downloaded:
+		print("file already in disk:", dl_folder+"/"+filename+"\n")
+		return(downloaded)
 
 def file_size(size):
 	_suffixes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
@@ -190,17 +198,19 @@ def crop_print(text, leng):
 	elif len(text) == leng: 
 		return(text)
 
-def process_search( out, index ):
+def process_search( out, index, lenght=None ):
 	if index == True:
 		ind = 1
+		lenght_str = len(str(lenght))
+
 		for i in out:
-			print(ind,")",i['Title ID'], "|", crop_print(i['Region'], 4), "|", i['Type'], i['Name'], \
-				"|", file_size(i['File Size']) )
+			print(crop_print(str(ind), lenght_str),")",i['Title ID'], "|", crop_print(i['Region'], 4),\
+				 "|", crop_print(i['Type'],7), "|", i['Name'], "|", file_size(i['File Size']) )
 			ind += 1
 			# print(i['Title ID'], i['Region'], i['Type'], i['Name'], i['File Size'] )
 	elif index == False:
 		for i in out:
-			print(i['Title ID'], "|", crop_print(i['Region'], 4), "|", i['Type'], i['Name'], \
+			print(i['Title ID'], "|", crop_print(i['Region'], 4), "|", crop_print(i['Type'],7), "|", i['Name'], \
 				"|", file_size(i['File Size']) )
 		
 def search_db(system, type, query, region):
@@ -218,10 +228,11 @@ def search_db(system, type, query, region):
 
 	#define the files to search
 	files_to_search = []
-	for i in type.keys():
-		if type[i] == True:
-			files_to_search.append(DBFOLDER+"/"+system.upper()+"/"+i.upper()+".tsv")
-	
+	for r, d, f in os.walk( DBFOLDER+"/"+system.upper()+"/" ):
+		for file in f:
+			if '.tsv' in file and "_" not in file:
+				files_to_search.append(os.path.join(r, file))
+
 	o = []
 	for f in files_to_search:
 		with open(f, 'r') as file:
@@ -274,12 +285,26 @@ def checksum_file( file ):
 			sha256.update(data)
 	return(sha256.hexdigest())
 
+def check_pkg2zip( location ):
+	#check if the binary is inside de script's folder
+	if os.path.isfile(location) == False:
+		#try to search for a binary inside the sysem
+		if os.path.isfile("/usr/bin/pkg2zip"):
+			new_location = "/usr/bin/pkg2zip"
+			return(new_location)
+		else:
+			return(False)
+	else:
+		return(location)
+
 def run_pkg2zip( file, output_location, zrif=False):
 	create_folder(output_location)
+	
 	if zrif == False:
 		process = subprocess.run( [PKG2ZIP,"-x",file] , cwd=output_location)
 	else:
 		process = subprocess.run( [PKG2ZIP,"-x",file, zrif] , cwd=output_location)
+
 
 	
 
@@ -350,7 +375,8 @@ if list(what_to_dl.values()) == [False, False, False, False, False]:
 maybe_download = search_db(args.console, what_to_dl, args.search, reg)
 
 #print possible mathes to the user
-process_search(maybe_download, 1)
+
+process_search(maybe_download, 1, len(maybe_download))
 index_to_download = input("Enter the number for what you want to download, you can enter multiple separated by commas:")
 
 index_to_download = index_to_download.replace(" ","").split(",")
@@ -364,7 +390,6 @@ files_to_download = [maybe_download[i] for i in index_to_download]
 
 print("\nYou're going to download the following files:")
 process_search(files_to_download, 0)
-print(files_to_download)
 
 if input("\nDownload files? [y/n]:") != "y":
 	exit(0)
@@ -379,7 +404,7 @@ for i in files_to_download:
 	if dl_result:
 		if "SHA256" in i.keys():
 			if i["SHA256"] == "":
-				print("No checksum provided by NPS, skipping check...")
+				print("CHECKSUM: No checksum provided by NPS, skipping check...")
 			else:
 				
 				sha256_dl = checksum_file(downloaded_file_loc)
@@ -400,22 +425,27 @@ for i in files_to_download:
 		print("ERROR: skipping file, wget was unable to download, try again latter...")
 
 #autoextract with pkg2zip
-for i in files_downloaded:
-	if i['Type'] not in ["THEMES"]:
-		zrif=""
-		dl_dile_loc = DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
-		dl_location = DLFOLDER+"/Extracted"
+PKG2ZIP = check_pkg2zip(PKG2ZIP)
+if PKG2ZIP != False:
+	for i in files_downloaded:
+		if i['Type'] not in ["THEMES"]:
+			zrif=""
+			dl_dile_loc = DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
+			dl_location = DLFOLDER+"/Extracted"
 
-		try:
-			zrif = i['zRIF']
-		except:
-			pass
-		print("\nEXTRACTION:",i['Name'])
-		print("\nEXTRACTION: extracting files to:",DLFOLDER+"/Extracted/")
+			try:
+				zrif = i['zRIF']
+			except:
+				pass
+			print("\nEXTRACTION:",i['Name'])
+			print("\nEXTRACTION: extracting files to:",DLFOLDER+"/Extracted/")
 
-		if system == "PSV" and zrif !="":
-			run_pkg2zip(dl_dile_loc, dl_location, zrif)
+			if system == "PSV" and zrif !="":
+				run_pkg2zip(dl_dile_loc, dl_location, zrif)
+			else:
+				run_pkg2zip(dl_dile_loc, dl_location)
 		else:
-			run_pkg2zip(dl_dile_loc, dl_location)
-	else:
-		print("\nEXTRACTION: this type of file can't be extracted by pkg2zip:",i['Type'].lower())
+			print("\nEXTRACTION: this type of file can't be extracted by pkg2zip:",i['Type'].lower())
+else:
+	print("\nEXTRACTION: skipping extraction since there's no pkg2zip binary in your system...")
+	exit(0)
