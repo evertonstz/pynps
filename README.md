@@ -11,7 +11,13 @@ Before downloading any of your legally obtained (wink wink wink) game/theme/upda
 _you can't update every system with one command for now_
 ******
 ## pkg2zip
-This script uses pkg2zip to handle the .pkg extractions, there's a bundled binary for the version 1.8, in case you have problems with this binary or you just want to compile it yourself you can to their official repo and grab the sources [here](https://github.com/mmozeiko/pkg2zip/releases).
+This script uses pkg2zip to handle the .pkg extractions, there's a bundled binary for the version 1.8, in case you have problems with this binary or you just don't trust it you have other options:
+
+1. You can just delete this binary and just use this software to download the pkg, if the script don't detect a binary either in its folder or installed in the system, it'll just skip the extraction totally;
+
+2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip/)
+
+ 3. or you just want to compile it yourself you can to their official repo and grab the sources [here](https://github.com/mmozeiko/pkg2zip/releases). 
 ******
 * updating the PSP database and searching for a Sonic game in any region:
 >$ python3.7 main.py -c psp -u -dg sonic
