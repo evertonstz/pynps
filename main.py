@@ -199,11 +199,17 @@ def search_db(system, type, query, region, DBFOLDER): #OK!
 		region = "ASIA"
 
 	#define the files to search
-	files_to_search = []
+	files_to_search_raw = []
 	for r, d, f in os.walk( DBFOLDER+"/"+system.upper()+"/" ):
 		for file in f:
 			if '.tsv' in file and "_" not in file:
-				files_to_search.append(os.path.join(r, file))
+				files_to_search_raw.append(os.path.join(r, file))
+
+	files_to_search =[]
+	for i in files_to_search_raw:
+		file_system_lst = i.split("/")[-1].replace(".tsv","").lower()
+		if type[file_system_lst] == True:
+			files_to_search.append(i)
 
 	o = []
 	for f in files_to_search:

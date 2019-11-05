@@ -52,7 +52,7 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 Search for an european release of spyro for PSX
->$ python3.7 main.py -c psx -r eur -dg crash
+>$ python3.7 main.py -c psx -r eur -dg spyro
 ```
 1 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer  | 343.6 MiB
 2 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer (German store)  | 343.6 MiB
