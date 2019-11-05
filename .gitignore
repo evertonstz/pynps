@@ -1,3 +1,4 @@
 DATABASE/*
 DOWNLOADS/*
+__pycache__/*
 test.py
