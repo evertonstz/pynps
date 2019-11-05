@@ -401,13 +401,23 @@ def main():
 		exit(0)
 	
 
-	index_to_download_raw = input("Enter the number for what you want to download, you can enter multiple numbers using commas:")
+	index_to_download_raw = input("Enter the number for what you want to download, you can enter multiple numbers using commas (or type 'help'):")
 	
 	#check if the user didn't sent an empty request
 	if len(index_to_download_raw) == 0:
 		print("ERROR: you must select something to download")
 		exit(1)
 
+	if index_to_download_raw.lower() in ["'help'", "help"]:
+		print("\tSuppose you have 10 files to select from:")
+		print("\tTo download file 2, you type: 2")
+		print("\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9")
+		print("\tTo download files 1 to 9, the cool-kid method, you type: 1-9")
+		print("\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10")
+		print("\tTo download files 1, 4 and files 6 to 10: 1,4,6-10")
+		print("\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6")
+		print("Exiting...")
+		exit(0)
 	#parsing indexes
 	index_to_download_raw = index_to_download_raw.replace(" ","").split(",")
 	index_to_download = []

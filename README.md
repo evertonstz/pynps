@@ -32,6 +32,7 @@ This script uses pkg2zip to handle the .pkg extractions, there's a bundled binar
 ## wget
 This software uses wget to make the downloads therefore it won't work if you don't have it installed in your system, most distros already come with wget installed, if you don't have it chances are you're on some crazy non-userfriendly distro and you probably know your way around for installing it. If you don't just google.
 ******
+## Examples: searching
 Updating the PSP database and searching for a Sonic game in any region:
 >$ python3.7 main.py -c psp -u -dg sonic
 ```
@@ -114,7 +115,29 @@ Wanna return every single american DLC for the psvita? Sure, it's slow but it's 
 that's too big to output here, mate :<
 ```
 ******
+## Examples: syntax for selecting files to download
+After you make your search you'll probably want to download something, if it's a single file that's pretty easy, just type the number when asked and it'll start the download for you. If you wanna multiple downloads, you can always separate the numbers by commas. But there's an even more advance (and cool) way for downloading things, and that's using "slices", here's how to do it with some examples:
+>$ python3.7 main.py -c psv -dt -dde touhou
+```
+1  ) PCSE00947 | US   | THEMES  | Touhou Genso Rondo Theme | 6.723 MiB
+2  ) PCSE00990 | US   | THEMES  | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
+3  ) PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle 4 Theme | 4.038 MiB
+4  ) PCSB01039 | EU   | THEMES  | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
+5  ) PCSB01129 | EU   | THEMES  | Touhou Kobuto V: Burst Battle Theme 4 | 4.038 MiB
+6  ) PCSG00999 | JP   | THEMES  | Touhou Kobuto V | 2.533 MiB
+7  ) PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle Theme 3 | 5.581 MiB
+8  ) PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle Theme 2 | 5.174 MiB
+9  ) PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle Theme 1 | 2.533 MiB
+10 ) PCSG90252 | JP   | DEMOS   | Touhou Soujinengi V (DEMO) | 335.6 MiB
+Enter the number for what you want to download, you can enter multiple numbers using commas:
+```
+* To download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9
+* To download files 1 to 9, the cool-kid method, you type: 1-9
+* To download files 1 to 5 and files 8 to 10: 1-5,8-10
+* To download files 1, 4 and files 6 to 10: 1,4,6-10
+* To download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6
 
+******
 
 For more information just run:
 >$ python3.7 main.py -h
