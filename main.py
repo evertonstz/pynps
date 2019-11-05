@@ -387,19 +387,62 @@ def main():
 	maybe_download = search_db(args.console, what_to_dl, args.search, reg, DBFOLDER)
 
 	#print possible mathes to the user
-
 	process_search(maybe_download, 1, len(maybe_download))
+
+	#test if the result isn't empty
 	if len(maybe_download) == 0:
 		print("Oops, there's nothing that matches '" + args.search + "'.Try searching for something else, exiting...")
 		exit(0)
-	index_to_download = input("Enter the number for what you want to download, you can enter multiple separated by commas:")
 
-	index_to_download = index_to_download.replace(" ","").split(",")
-	try:
-		index_to_download = [int(x)-1 for x in index_to_download]
-	except:
-		print("Please, only use numbers.")
+	index_to_download_raw = input("Enter the number for what you want to download, you can enter multiple numbers using commas:")
+	
+	#check if the user didn't sent an empty request
+	if len(index_to_download_raw) == 0:
+		print("ERROR: you must select something to download")
 		exit(1)
+
+	#parsing indexes
+	index_to_download_raw = index_to_download_raw.replace(" ","").split(",")
+	index_to_download = []
+	for i in index_to_download_raw:
+		if "-" in i and i.count("-") == 1:
+			#spliting range
+			range_0, range_1 = i.split("-")
+			#test if is digit
+			if range_0.isdigit() == True and range_1.isdigit() == True:
+				#test if there's a zero
+				range_0 = int(range_0)
+				range_1 = int(range_1)
+				
+				if range_0 < 1 or range_1 < 1:
+					print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+					exit(1)
+				#test if digit 0 is bigger than digit 1
+				if range_0 < range_1:
+					print(1)
+					#populate the index list
+					for a in range(range_0, range_1+1):
+						if a not in index_to_download:
+							index_to_download.append(a)
+				elif range_0 > range_1:
+					print(1)
+					for a in range(range_1, range_0+1):
+						if a not in index_to_download:
+							index_to_download.append(a)
+				else: #range_0 == range_1
+					if range_0 not in index_to_download:
+						index_to_download.append(range_0)
+			else:
+				print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+				exit(1)			
+		elif i.isdigit() == True:
+			if int(i) not in index_to_download:
+				index_to_download.append(int(i))
+		else:
+			print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+			exit(1)
+	#fixing indexes for python syntax
+	index_to_download = [int(x)-1 for x in index_to_download]
 
 	files_to_download = [maybe_download[i] for i in index_to_download]
 
