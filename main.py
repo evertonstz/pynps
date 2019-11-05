@@ -175,20 +175,15 @@ def crop_print(text, leng):
 	elif len(text) == leng: 
 		return(text)
 
-def process_search( out, index, lenght=None ):
-	if index == True:
-		ind = 1
-		lenght_str = len(str(lenght))
+def process_search( out ):
+	#look for the biggest Index value
+	biggest_index = sorted([int(x["Index"]) for x in out])
+	lenght_str = len(str(biggest_index[-1]))
 
-		for i in out:
-			print(crop_print(str(ind), lenght_str),")",i['Title ID'], "|", crop_print(i['Region'], 4),\
-				 "|", crop_print(i['Type'],7), "|", i['Name'], "|", file_size(i['File Size']) )
-			ind += 1
-			# print(i['Title ID'], i['Region'], i['Type'], i['Name'], i['File Size'] )
-	elif index == False:
-		for i in out:
-			print(i['Title ID'], "|", crop_print(i['Region'], 4), "|", crop_print(i['Type'],7), "|", i['Name'], \
-				"|", file_size(i['File Size']) )
+	for i in out:
+		print(crop_print(str(i['Index']), lenght_str),")", i['Title ID'], "|", crop_print(i['Region'], 4), "|", crop_print(i['Type'],7), "|", i['Name'], \
+		# print(str(i['Index'])+")", i['Title ID'], "|", crop_print(i['Region'], 4), "|", crop_print(i['Type'],7), "|", i['Name'], \
+			"|", file_size(i['File Size']) )
 		
 def search_db(system, type, query, region, DBFOLDER): #OK!
 	query = query.upper()
@@ -386,13 +381,19 @@ def main():
 
 	maybe_download = search_db(args.console, what_to_dl, args.search, reg, DBFOLDER)
 
+	#adding indexes to maybe_download
+	for i in range(0, len(maybe_download)):
+		# maybe_download[i]["Index"] = str(i)
+		maybe_download[i]["Index"] = str(i+1)
+	
 	#print possible mathes to the user
-	process_search(maybe_download, 1, len(maybe_download))
+	process_search(maybe_download)
 
 	#test if the result isn't empty
 	if len(maybe_download) == 0:
 		print("Oops, there's nothing that matches '" + args.search + "'.Try searching for something else, exiting...")
 		exit(0)
+	
 
 	index_to_download_raw = input("Enter the number for what you want to download, you can enter multiple numbers using commas:")
 	
@@ -441,13 +442,14 @@ def main():
 		else:
 			print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
 			exit(1)
-	#fixing indexes for python syntax
-	index_to_download = [int(x)-1 for x in index_to_download]
+			
+	#fixing indexes for python syntax and sorting the list
+	index_to_download = sorted([int(x)-1 for x in index_to_download])
 
 	files_to_download = [maybe_download[i] for i in index_to_download]
 
 	print("\nYou're going to download the following files:")
-	process_search(files_to_download, 0)
+	process_search(files_to_download)
 
 	if input("\nDownload files? [y/n]:") != "y":
 		exit(0)
