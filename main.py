@@ -504,7 +504,8 @@ def main():
 	PKG2ZIP = check_pkg2zip(PKG2ZIP)
 	if PKG2ZIP != False:
 		for i in files_downloaded:
-			if i['Type'] not in ["THEMES"]:
+			# if i['Type'] not in ["THEMES"]:
+			if True:
 				zrif=""
 				dl_dile_loc = DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
 				dl_location = DLFOLDER+"/Extracted"
