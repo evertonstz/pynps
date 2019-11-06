@@ -21,13 +21,13 @@ Updating database per console:
 
 ******
 ## pkg2zip
-This script uses pkg2zip to handle the .pkg extractions, there's a bundled binary for the version 1.8, in case you have problems with this binary or you just don't trust it you have other options:
+This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitter.com/NoPayStation/status/1096508850080043010), to handle the .pkg extractions, there's a bundled binary for the version 2.2, in case you have problems with this binary or you just don't trust it you have other options:
 
 1. You can just delete this binary and just use this software to download the pkg, if the script don't detect a binary either in its folder or installed in the system, it'll just skip the extraction totally;
 
-2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip/), after you install it pyNPS will autodetect and use it automatically;
+2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip-fork/), after you install it pyNPS will autodetect and use it automatically;
 
-3. Or you just want to compile it yourself you can to their official repo and grab the sources [here](https://github.com/mmozeiko/pkg2zip/releases). 
+3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases). 
 ******
 ## wget
 This software uses wget to make the downloads therefore it won't work if you don't have it installed in your system, most distros already come with wget installed, if you don't have it chances are you're on some crazy non-userfriendly distro and you probably know your way around for installing it. If you don't just google.
