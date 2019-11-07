@@ -1,5 +1,4 @@
 # pyNPS
-<p align="center">
 <img src="https://octodex.github.com/images/pythocat.png" width="448" height="448">
 </p>
 
@@ -220,3 +219,8 @@ optional arguments:
   -u, --update          update database.
 
 ```
+
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HX93DYLRCWG2W)
+
+BTC: bc1qh53mg0gm6hfjsaphw3x4ct3753rr949lfpere7
