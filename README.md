@@ -8,16 +8,16 @@ PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in pytho
 Before downloading any of your legally obtained (wink wink wink) pkg file you have to update your NPS database, you don't have to do it every time you want to download something, but only in your first run to construct your initial database and after that just once in a while to get info about new pkgs NPS adds to their database:
 
 Updating all system's databases:
->$ python3.7 main.py -c _all -u
+>$ ./pynps -c _all -u
 
 <br/>
 Updating database per console:
 
->$ python3.7 main.py -c psv -u #updates only vita's db
+>$ ./pynps -c psv -u #updates only vita's db
 
->$ python3.7 main.py -c psp -u #updates only psp's db
+>$ ./pynps -c psp -u #updates only psp's db
 
->$ python3.7 main.py -c psv -u #updates only psx's db
+>$ ./pynps -c psv -u #updates only psx's db
 
 Database is located by default at: /home/USER/.config/pyNPS/database
 ******
@@ -48,7 +48,7 @@ In case you decide to store your binary outside /home/USER/.config/pyNPS/lib/ yo
 ******
 ## Examples: searching
 Updating the PSP database and searching for a Sonic game in any region:
->$ python3.7 main.py -c psp -u -dg sonic
+>$ ./pynps -c psp -u -dg sonic
 ```
 Updating Database for Playstation Portable:
 Downloading File: PSP_GAMES.tsv [###################-] 98% 550K @ 71.4K/s
@@ -67,7 +67,7 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 Search for an european release of spyro for PSX
->$ python3.7 main.py -c psx -r eur -dg spyro
+>$ ./pynps -c psx -r eur -dg spyro
 ```
 1 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer  | 343.6 MiB
 2 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer (German store)  | 343.6 MiB
@@ -82,7 +82,7 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 Search for for themes and demos related to the word "touhou in any region:
->$ python3.7 main.py -c psv -dt -dde touhou
+>$ ./pynps -c psv -dt -dde touhou
 ```
 1  ) PCSE00947 | US   | THEMES | Touhou Genso Rondo Theme | 6.723 MiB
 2  ) PCSE00990 | US   | THEMES | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
@@ -98,12 +98,12 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 Search for for everything (themes, games, demos, dlcs and updates) related to the word "knight" in any region region:
->$ python3.7 main.py -c psv knight
+>$ ./pynps -c psv knight
 
 <br/>
 Or if you like suffering:
 
->$ python3.7 main.py -c psv -dg -dd -dt -du -dde knight
+>$ ./pynps -c psv -dg -dd -dt -du -dde knight
 ```
 1  ) PCSE00244 | US   | GAMES   | Valhalla Knights 3 | 897.8 MiB
 13 ) PCSA00017 | US   | DLCS    | LittleBigPlanet Knights of Old Pre-Order Costume Pack | 100 KiB
@@ -113,7 +113,7 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 I see... you just wanna everything related to Shovel Knight? Sure:
->$ python3.7 main.py -c psv "shovel knight"
+>$ ./pynps -c psv "shovel knight"
 ```
 1 ) PCSE00640 | US   | GAMES   | Shovel Knight | 132.2 MiB
 2 ) PCSB00743 | EU   | GAMES   | Shovel Knight | 137.6 MiB
@@ -124,14 +124,14 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 Wanna return every single american DLC for the psvita? Sure, it's slow but it's a free country:
->$ python3.7 main.py -c psv -r usa -dd _all
+>$ ./pynps -c psv -r usa -dd _all
 ```
 that's too big to output here, mate :<
 ```
 ******
 ## Examples: syntax for selecting files to download
 After you make your search you'll probably want to download something, if it's a single file that's pretty easy, just type the number when asked and it'll start the download for you. If you wanna multiple downloads, you can always separate the numbers by commas. But there's an even more advance (and cool) way for downloading things, and that's using "slices", here's how to do it with some examples:
->$ python3.7 main.py -c psv -dt -dde touhou
+>$ ./pynps -c psv -dt -dde touhou
 ```
 1  ) PCSE00947 | US   | THEMES  | Touhou Genso Rondo Theme | 6.723 MiB
 2  ) PCSE00990 | US   | THEMES  | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
@@ -154,7 +154,7 @@ Enter the number for what you want to download, you can enter multiple numbers u
 ******
 
 For more information just run:
->$ python3.7 main.py -h
+>$ ./pynps -h
 
 ```
 usage: main.py [-h] [-c {psv,psp,psx,_all}] [-r {usa,eur,jap,asia}] [-dg]
