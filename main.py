@@ -2,13 +2,15 @@
 # Created by evertonstz
 
 ##IMPORTS##
-import os, sys
+import os, sys, inspect
 from csv import DictReader
+from os.path import join as joindir
 import subprocess
 import urllib.request
 from math import log2
 import argparse
 import hashlib
+import configparser
 
 ##FUNCTIONS##
 def create_folder( location ):
@@ -20,6 +22,15 @@ def create_folder( location ):
 def save_file( file, string ):
 	with open(file, 'w') as file:
 	    file.write(string)
+
+def get_script_dir(follow_symlinks=True):
+    if getattr(sys, 'frozen', False): # py2exe, PyInstaller, cx_Freeze
+        path = os.path.abspath(sys.executable)
+    else:
+        path = inspect.getabsfile(get_script_dir)
+    if follow_symlinks:
+        path = os.path.realpath(path)
+    return os.path.dirname(path)
 
 def progress_bar(number, symbol="#", fill_width=20,open_symbol="[", close_symbol="]", color=False, unfilled_symbol="-"):
 	if color == 0:
@@ -46,7 +57,7 @@ def progress_bar(number, symbol="#", fill_width=20,open_symbol="[", close_symbol
 			print('ERROR: Use a number divisible by 4 in "fill_width".')
 			exit(1)
 
-def updatedb( dict, system, DBFOLDER):
+def updatedb( dict, system, DBFOLDER, WGET):
 	#detect gaming system#
 	if system == "PSV":
 		system_name = "Playstation Vita"
@@ -62,7 +73,7 @@ def updatedb( dict, system, DBFOLDER):
 		url = dict[t]
 
 		filename = url.split("/")[-1]
-		process = subprocess.Popen( [ "wget", "-c", "-P", DBFOLDER+"/"+system+"/", url ], \
+		process = subprocess.Popen( [ WGET, "-c", "-P", DBFOLDER+"/"+system+"/", url ], \
 									stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
 		
 		saved = False
@@ -95,7 +106,7 @@ def updatedb( dict, system, DBFOLDER):
 		else:
 			print("\nunable to download file, try again later!")
 
-def dl_file( dict, system, DLFOLDER): #OK!
+def dl_file( dict, system, DLFOLDER, WGET): #OK!
 	system = system.upper()	
 	if system == "PSV":
 		system_name = "Playstation Vita"
@@ -113,7 +124,7 @@ def dl_file( dict, system, DLFOLDER): #OK!
 
 	dl_folder = DLFOLDER + "/PKG/" + system + "/" + dict['Type']
 
-	process = subprocess.Popen( [ "wget", "-c", "-P", dl_folder, url], \
+	process = subprocess.Popen( [ WGET, "-c", "-P", dl_folder, url], \
 							stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
 	
 	saved = False
@@ -263,16 +274,40 @@ def checksum_file( file ):
 			sha256.update(data)
 	return(sha256.hexdigest())
 
-def check_pkg2zip( location ): #OK!
+def check_wget( location ): #OK!
 	#check if the binary is inside de script's folder
-	if os.path.isfile(location) == False:
+	if location == "wget":
+		# print("Using system installed wget")
+		return("wget")
+	elif os.path.isfile(location) == False:
 		#try to search for a binary inside the sysem
-		if os.path.isfile("/usr/bin/pkg2zip"):
-			new_location = "/usr/bin/pkg2zip"
+		if os.path.isfile("/usr/bin/wget"):
+			# print("Using system installed wget")
+			new_location = "wget"
 			return(new_location)
 		else:
+			
 			return(False)
 	else:
+		# print("Using user provided wget")
+		return(location)
+
+def check_pkg2zip( location ): #OK!
+	#check if the binary is inside de script's folder
+	if location == "pkg2zip":
+		# print("Using system installed pkg2zip")
+		return("pkg2zip")
+	elif os.path.isfile(location) == False:
+		#try to search for a binary inside the sysem
+		if os.path.isfile("/usr/bin/pkg2zip"):
+			# print("Using system installed pkg2zip")
+			new_location = "pkg2zip"
+			return(new_location)
+		else:
+			
+			return(False)
+	else:
+		# print("Using user provided pkg2zip")
 		return(location)
 
 def run_pkg2zip( file, output_location, PKG2ZIP, zrif=False): #OK!
@@ -283,45 +318,118 @@ def run_pkg2zip( file, output_location, PKG2ZIP, zrif=False): #OK!
 	else:
 		process = subprocess.run( [PKG2ZIP,"-x",file, zrif] , cwd=output_location)
 
+def fix_folder_syntax( folder ):
+	new_folder = folder
+	if "\\" in folder:
+		new_folder = folder.replace("\\", "/")
+	if folder.endswith("/"):
+		new_folder = folder[:-1]
+	return(new_folder)
+
+#config parser functions
+def save_conf( file, conf ):
+	create_folder(os.path.dirname(file))
+	with open(file, 'w') as file:
+	    conf.write(file)
+
+def create_config( file, folder ):
+	config = configparser.ConfigParser()
+	config['pyNPS'] = {'DownloadFolder': folder.replace("/.config/pyNPS/",'/Downloads/pyNPS'), \
+		'DatabaseFolder': folder+'database/', \
+		'Pkg2zipLocation': '', \
+		'Wget_location': ''}
+	config['PSV_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSV_GAMES.tsv', \
+		'dlcs': 'https://beta.nopaystation.com/tsv/PSV_DLCS.tsv', \
+		'themes': 'https://beta.nopaystation.com/tsv/PSV_THEMES.tsv', \
+		'updates': 'https://beta.nopaystation.com/tsv/PSV_UPDATES.tsv', \
+		'demos': 'https://beta.nopaystation.com/tsv/PSV_DEMOS.tsv'
+		}
+	config['PSP_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSP_GAMES.tsv', \
+		'dlcs': 'https://beta.nopaystation.com/tsv/PSP_DLCS.tsv', \
+		'themes': 'https://beta.nopaystation.com/tsv/PSP_THEMES.tsv', \
+		'updates': 'https://beta.nopaystation.com/tsv/PSP_UPDATES.tsv'
+		}
+	config['PSX_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSX_GAMES.tsv'
+		}
+	
+	#saving file
+	save_conf(file, config)
+
 
 ##MAIN##
 def main():
 	#edit the root for your download folder here: ex "/home/user/Downloads/pyNPS"
-	MAIN_DOWNLOAD_FOLDER = None
+	# MAIN_DOWNLOAD_FOLDER = None
 
 	#this will define a download folder inside the script's folder in case you don't provide one
-	if MAIN_DOWNLOAD_FOLDER is None:
-		MAIN_DOWNLOAD_FOLDER = os.path.dirname(os.path.realpath(__file__))+"/"
+	# if MAIN_DOWNLOAD_FOLDER is None:
+	# 	MAIN_DOWNLOAD_FOLDER = get_script_dir()
 
 	#you don't need to mess with this if you have pkg2zip installed with AUR or inside /usr/binpkg2zip
-	PKG2ZIP = MAIN_DOWNLOAD_FOLDER+'pkg2zip'
+	# PKG2ZIP = joindir(MAIN_DOWNLOAD_FOLDER,'pkg2zip')
+	# WGET = joindir(MAIN_DOWNLOAD_FOLDER,'lib','wget')
 	
 	#both will make a subfolder inside your determined download's folder to handle the database and dl
 	#in case you wanna change the DB folder or the subfolder's name, feel free
-	DBFOLDER = MAIN_DOWNLOAD_FOLDER+'DATABASE'
-	DLFOLDER = MAIN_DOWNLOAD_FOLDER+"DOWNLOADS"
+	
+	# DBFOLDER = MAIN_DOWNLOAD_FOLDER+'/DATABASE'
+	# DLFOLDER = MAIN_DOWNLOAD_FOLDER+"//DOWNLOADS"
 
-	database_psv_links = {"games":"https://beta.nopaystation.com/tsv/PSV_GAMES.tsv", \
-						"dlcs":"https://beta.nopaystation.com/tsv/PSV_DLCS.tsv", \
-						"themes":"https://beta.nopaystation.com/tsv/PSV_THEMES.tsv", \
-						"updates":"https://beta.nopaystation.com/tsv/PSV_UPDATES.tsv", \
-						"demos":"https://beta.nopaystation.com/tsv/PSV_DEMOS.tsv", \
-						}
+	CONFIGFOLDER = os.getenv("HOME")+"/.config/pyNPS/"
+	config_file = joindir(CONFIGFOLDER, "settings.ini")
+	#create conf file
+	if os.path.isfile(config_file) == False:
+		create_config(config_file, CONFIGFOLDER)
 
-	database_psp_links = {"games":"https://beta.nopaystation.com/tsv/PSP_GAMES.tsv", \
-						"dlcs":"https://beta.nopaystation.com/tsv/PSP_DLCS.tsv", \
-						"themes":"https://beta.nopaystation.com/tsv/PSP_THEMES.tsv", \
-						"updates":"https://beta.nopaystation.com/tsv/PSP_UPDATES.tsv", \
-						}
+	#read conf file
+	config = configparser.ConfigParser()
+	config.read(config_file)
 
-	database_psx_links = {"games":"https://beta.nopaystation.com/tsv/PSX_GAMES.tsv"}
+	#test sections
+	if config.sections() != ['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links']:
+		print("ERROR: config file.")
+		exit(1)
+	elif list(config["PSV_Links"]) != ['games', 'dlcs', 'themes', 'updates', 'demos']:
+		print("ERROR: config file.")
+		exit(1)		
+	elif list(config["PSP_Links"]) != ['games', 'dlcs', 'themes', 'updates']:
+		print("ERROR: config file.")
+		exit(1)	
+	elif list(config["PSX_Links"]) != ['games']:
+		print("ERROR: config file.")
+		exit(1)	
 
+	#making vars
+	DBFOLDER = fix_folder_syntax(config['pyNPS']['databasefolder'])
+	DLFOLDER = fix_folder_syntax(config['pyNPS']['downloadfolder'])
+	PKG2ZIP =  fix_folder_syntax(config['pyNPS']['pkg2ziplocation'])
+	WGET =  fix_folder_syntax(config['pyNPS']['wget_location'])
+
+	#if blank use system installed binaries
+	if PKG2ZIP == '':
+		PKG2ZIP = check_pkg2zip("pkg2zip")
+	if WGET == '':
+		WGET = check_wget("wget")
+
+	#makin dicts for links
+	database_psv_links = {}
+	for key in config["PSV_Links"]:
+		database_psv_links[key] = config["PSV_Links"][key]
+	
+	database_psp_links = {}
+	for key in config["PSP_Links"]:
+		database_psp_links[key] = config["PSP_Links"][key]
+	
+	database_psx_links = {}
+	for key in config["PSX_Links"]:
+		database_psx_links[key] = config["PSX_Links"][key]
+	
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument("search", type=str, nargs="?",
 						help="search something to download, you can search by name or ID or use '_all' to return everythning.")
 	parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
-						type=str, required = False, choices=["psv", "psp", "psx", "_all"])
+						type=str, required = True, choices=["psv", "psp", "psx", "_all"])
 	parser.add_argument("-r", "--region", help="the region for the pkj you want.",
 						type=str, required = False, choices=["usa","eur","jap","asia"])
 	parser.add_argument("-dg", "--games", help="to download psv/psp/psx games.",
@@ -341,6 +449,7 @@ def main():
 	args = parser.parse_args()
 
 	#check if updating db is needed
+	
 	system = args.console.upper()
 
 	if system == "PSP" and args.demos == True:
@@ -357,11 +466,11 @@ def main():
 		if system == "_ALL":
 			print("Updating all databases:")
 		if system in ["PSV", "_ALL"]:
-			updatedb(database_psv_links, "PSV", DBFOLDER)
+			updatedb(database_psv_links, "PSV", DBFOLDER, WGET)
 		if system in ["PSP", "_ALL"]:
-			updatedb(database_psp_links, "PSP", DBFOLDER)
+			updatedb(database_psp_links, "PSP", DBFOLDER, WGET)
 		if system in ["PSX", "_ALL"]:
-			updatedb(database_psx_links, "PSX", DBFOLDER)
+			updatedb(database_psx_links, "PSX", DBFOLDER, WGET)
 		print("DONE!")
 
 		if args.search is None:
@@ -473,7 +582,7 @@ def main():
 	files_downloaded = []
 	for i in files_to_download:
 		#download file
-		dl_result = dl_file(i, args.console, DLFOLDER)
+		dl_result = dl_file(i, args.console, DLFOLDER, WGET)
 		downloaded_file_loc = DLFOLDER + "/PKG/" + system + "/" + i['Type']+"/"+i['PKG direct link'].split("/")[-1]
 		
 		#checksum

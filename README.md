@@ -19,18 +19,32 @@ Updating database per console:
 
 >$ python3.7 main.py -c psv -u #updates only psx's db
 
+Database is located by default at: /home/USER/.config/pyNPS/database
+******
+## Configuration file
+Configuration file is created at: /home/USER/.config/pyNPS/settings.ini
+
+If you delete it, it'll be recreated with default parameters in the next run. The options are pretty much self explanatory.
+
 ******
 ## pkg2zip
-This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitter.com/NoPayStation/status/1096508850080043010), to handle the .pkg extractions, there's a bundled binary for the version 2.2, in case you have problems with this binary or you just don't trust it you have other options:
+This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitter.com/NoPayStation/status/1096508850080043010), to handle the .pkg extractions, you have 3 options:
 
-1. You can just delete this binary and just use this software to download the pkg, if the script don't detect a binary either in its folder or installed in the system, it'll just skip the extraction totally;
+1. You can can a binary, compiled by myelf (version 2.2) [here](https://gofile.io/?c=ov20wF), just drop it inside /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
 
-2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip-fork/), after you install it pyNPS will autodetect and use it automatically;
+2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip-fork/), after you install it pyNPS will autodetect and use it automatically, no need to add the path to your config file;
 
-3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases). 
+3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases), drop the binary here /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
+
+In case you decide to store your binary outside /home/USER/.config/pyNPS/lib/ you'll need to specify this folder in your config file unde the "pkg2zip_location" option.
+
 ******
 ## wget
 This software uses wget to make the downloads therefore it won't work if you don't have it installed in your system, most distros already come with wget installed, if you don't have it chances are you're on some crazy non-userfriendly distro and you probably know your way around for installing it. If you don't just google.
+
+You can drop a wget binary at /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file.
+
+In case you decide to store your binary outside /home/USER/.config/pyNPS/lib/ you'll need to specify this folder in your config file unde the "wget_location" option.
 ******
 ## Examples: searching
 Updating the PSP database and searching for a Sonic game in any region:

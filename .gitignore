@@ -2,3 +2,7 @@ DATABASE/*
 DOWNLOADS/*
 __pycache__/*
 test.py
+build/*
+dist/*
+main.spec
+erros
