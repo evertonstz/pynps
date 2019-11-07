@@ -3,34 +3,50 @@
 <img src="https://octodex.github.com/images/pythocat.png" width="448" height="448">
 </p>
 
-PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in python3.7 that, with the help of [wget](https://www.gnu.org/software/wget/) and [pkg2zip](https://github.com/mmozeiko/pkg2zip/), can search, download and decrypt/extract PSVita, PSP and PSX games from Nopaystation database. It's basically a command line version of [NPSBrowser](https://nopaystation.com/vita/npsReleases/) writen by a moron (aka me).
+PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in python 3.7 that, with the help of [wget](https://www.gnu.org/software/wget/) and [pkg2zip](https://github.com/mmozeiko/pkg2zip/), can search, download and decrypt/extract PSVita, PSP and PSX games from Nopaystation database. It's basically a command line version of [NPSBrowser](https://nopaystation.com/vita/npsReleases/) writen by a moron (aka me).
 
-Before downloading any of your legally obtained (wink wink wink) pkg file you have to update your NPS database, you don't have to do it every time you want to download something, but only in your first run to construct your initial database and after that just once in a while to get info about new pkgs NPS adds to their database:
+# Table of Contents
 
-Updating all system's databases:
->$ ./pynps -c _all -u
-
-<br/>
-Updating database per console:
-
->$ ./pynps -c psv -u #updates only vita's db
-
->$ ./pynps -c psp -u #updates only psp's db
-
->$ ./pynps -c psv -u #updates only psx's db
-
-Database is located by default at: /home/USER/.config/pyNPS/database
+- [Installation](#Installation)
+  * [Manual](#Manual)
+  * [AUR - Arch/Manjaro/Suse](AUR%20-%20Arch/Manjaro/Suse)
+  * [Using dotpy file](#Using%20dotpy%20file)
+  * [pkg2zip](#pkg2zip)
+  * [wget](#wget)
+- [Updating database](#Updating%20database)
+- [Configuration file](#Configuration%20file)
+- [Examples](#Examples)
+  * [Searching](#Searching)
+  * [Syntax for selecting files to download](#Syntax%20for%20selecting%20files%20to%20download)
+  * [More information](#More%20information)
 ******
-## Configuration file
-Configuration file is created at: /home/USER/.config/pyNPS/settings.ini
+# Installation
 
-If you delete it, it'll be recreated with default parameters in the next run. The options are pretty much self explanatory.
+### Manual
+
+You can grab the latest x86_64 binary file at [releases](https://github.com/evertonstz/pyNPS/releases). The binary is made with pyinstaller, so there's no need to deal with python dependencies, just download it and use it (ofc you'll still need pkg2zip and wget installed or inside ~/.config/pynps/lib)
+
+### AUR - Arch/Manjaro/Suse
+
+You can either install it with yay:
+>$ yay -S pynps-bin
+
+or get the [pkgbuild](pynps-bin) and use makepkg.
+
+### Using dotpy file
+
+You can get the source files from github and use the pynps.py file as any other python script.
+```
+$ git clone https://github.com/evertonstz/pyNPS
+$ cd pynNPS
+$ python3.7 pynps.py
+```
 
 ******
 ## pkg2zip
 This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitter.com/NoPayStation/status/1096508850080043010), to handle the .pkg extractions, you have 3 options:
 
-1. You can can a binary, compiled by myelf (version 2.2) [here](https://gofile.io/?c=ov20wF), just drop it inside /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
+1. You use pre-compied binary, compiled by myelf (version 2.2) [here](https://gofile.io/?c=ov20wF), just drop it inside /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
 
 2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip-fork/), after you install it pyNPS will autodetect and use it automatically, no need to add the path to your config file;
 
@@ -45,10 +61,35 @@ This software uses wget to make the downloads therefore it won't work if you don
 You can drop a wget binary at /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file.
 
 In case you decide to store your binary outside /home/USER/.config/pyNPS/lib/ you'll need to specify this folder in your config file unde the "wget_location" option.
+
 ******
-## Examples: searching
+# Updating database
+Before downloading any of your legally obtained (wink wink wink) pkg file you have to update your NPS database, you don't have to do it every time you want to download something, but only in your first run to construct your initial database and after that just once in a while to get info about new pkgs NPS adds to their database:
+
+Updating all system's databases:
+>$ pynps -c _all -u
+
+<br/>
+Updating database per console:
+
+>$ pynps -c psv -u #updates only vita's db
+
+>$ pynps -c psp -u #updates only psp's db
+
+>$ pynps -c psv -u #updates only psx's db
+
+Database is located by default at: /home/USER/.config/pyNPS/database
+******
+# Configuration file
+Configuration file is created at: /home/USER/.config/pyNPS/settings.ini
+
+If you delete it, it'll be recreated with default parameters in the next run. The options are pretty much self explanatory.
+
+******
+# Examples
+## Searching
 Updating the PSP database and searching for a Sonic game in any region:
->$ ./pynps -c psp -u -dg sonic
+>$ pynps -c psp -u -dg sonic
 ```
 Updating Database for Playstation Portable:
 Downloading File: PSP_GAMES.tsv [###################-] 98% 550K @ 71.4K/s
@@ -67,7 +108,7 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 Search for an european release of spyro for PSX
->$ ./pynps -c psx -r eur -dg spyro
+>$ pynps -c psx -r eur -dg spyro
 ```
 1 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer  | 343.6 MiB
 2 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer (German store)  | 343.6 MiB
@@ -82,7 +123,7 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 Search for for themes and demos related to the word "touhou in any region:
->$ ./pynps -c psv -dt -dde touhou
+>$ pynps -c psv -dt -dde touhou
 ```
 1  ) PCSE00947 | US   | THEMES | Touhou Genso Rondo Theme | 6.723 MiB
 2  ) PCSE00990 | US   | THEMES | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
@@ -98,12 +139,12 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 Search for for everything (themes, games, demos, dlcs and updates) related to the word "knight" in any region region:
->$ ./pynps -c psv knight
+>$ pynps -c psv knight
 
 <br/>
 Or if you like suffering:
 
->$ ./pynps -c psv -dg -dd -dt -du -dde knight
+>$ pynps -c psv -dg -dd -dt -du -dde knight
 ```
 1  ) PCSE00244 | US   | GAMES   | Valhalla Knights 3 | 897.8 MiB
 13 ) PCSA00017 | US   | DLCS    | LittleBigPlanet Knights of Old Pre-Order Costume Pack | 100 KiB
@@ -113,7 +154,7 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 I see... you just wanna everything related to Shovel Knight? Sure:
->$ ./pynps -c psv "shovel knight"
+>$ pynps -c psv "shovel knight"
 ```
 1 ) PCSE00640 | US   | GAMES   | Shovel Knight | 132.2 MiB
 2 ) PCSB00743 | EU   | GAMES   | Shovel Knight | 137.6 MiB
@@ -124,14 +165,14 @@ Enter the number for what you want to download, you can enter multiple separated
 ```
 ******
 Wanna return every single american DLC for the psvita? Sure, it's slow but it's a free country:
->$ ./pynps -c psv -r usa -dd _all
+>$ pynps -c psv -r usa -dd _all
 ```
 that's too big to output here, mate :<
 ```
 ******
-## Examples: syntax for selecting files to download
+## Syntax for selecting files to download
 After you make your search you'll probably want to download something, if it's a single file that's pretty easy, just type the number when asked and it'll start the download for you. If you wanna multiple downloads, you can always separate the numbers by commas. But there's an even more advance (and cool) way for downloading things, and that's using "slices", here's how to do it with some examples:
->$ ./pynps -c psv -dt -dde touhou
+>$ pynps -c psv -dt -dde touhou
 ```
 1  ) PCSE00947 | US   | THEMES  | Touhou Genso Rondo Theme | 6.723 MiB
 2  ) PCSE00990 | US   | THEMES  | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
@@ -152,9 +193,9 @@ Enter the number for what you want to download, you can enter multiple numbers u
 * To download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6
 
 ******
-
-For more information just run:
->$ ./pynps -h
+## More information
+Just run:
+>$ pynps -h
 
 ```
 usage: main.py [-h] [-c {psv,psp,psx,_all}] [-r {usa,eur,jap,asia}] [-dg]
