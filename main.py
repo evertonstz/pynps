@@ -484,6 +484,10 @@ def main():
 
 	maybe_download = search_db(args.console, what_to_dl, args.search, reg, DBFOLDER)
 
+	if len(maybe_download) == 0:
+		print("No results found, exiting...")
+		exit(0)
+
 	#adding indexes to maybe_download
 	for i in range(0, len(maybe_download)):
 		# maybe_download[i]["Index"] = str(i)
