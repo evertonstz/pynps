@@ -274,9 +274,11 @@ def checksum_file( file ):
 			sha256.update(data)
 	return(sha256.hexdigest())
 
-def check_wget( location ): #OK!
+def check_wget( location, CONFIGFOLDER ): #OK!
 	#check if the binary is inside de script's folder
 	if location == "wget":
+		if os.path.isfile(CONFIGFOLDER+"lib/wget"):
+			return(CONFIGFOLDER+"lib/wget")
 		# print("Using system installed wget")
 		return("wget")
 	elif os.path.isfile(location) == False:
@@ -292,10 +294,11 @@ def check_wget( location ): #OK!
 		# print("Using user provided wget")
 		return(location)
 
-def check_pkg2zip( location ): #OK!
+def check_pkg2zip( location, CONFIGFOLDER): #OK!
 	#check if the binary is inside de script's folder
 	if location == "pkg2zip":
-		# print("Using system installed pkg2zip")
+		if os.path.isfile(CONFIGFOLDER+"lib/pkg2zip") == True:
+			return(CONFIGFOLDER+"lib/pkg2zip")
 		return("pkg2zip")
 	elif os.path.isfile(location) == False:
 		#try to search for a binary inside the sysem
@@ -335,9 +338,8 @@ def save_conf( file, conf ):
 def create_config( file, folder ):
 	config = configparser.ConfigParser()
 	config['pyNPS'] = {'DownloadFolder': folder.replace("/.config/pyNPS/",'/Downloads/pyNPS'), \
-		'DatabaseFolder': folder+'database/', \
-		'Pkg2zipLocation': '', \
-		'Wget_location': ''}
+		'DatabaseFolder': folder+'database/'}
+
 	config['PSV_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSV_GAMES.tsv', \
 		'dlcs': 'https://beta.nopaystation.com/tsv/PSV_DLCS.tsv', \
 		'themes': 'https://beta.nopaystation.com/tsv/PSV_THEMES.tsv', \
@@ -351,42 +353,27 @@ def create_config( file, folder ):
 		}
 	config['PSX_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSX_GAMES.tsv'
 		}
-	
+	config['BinaryLocations'] =	{'Pkg2zip_Location': '', \
+		'Wget_location': ''}
 	#saving file
 	save_conf(file, config)
 
 
 ##MAIN##
 def main():
-	#edit the root for your download folder here: ex "/home/user/Downloads/pyNPS"
-	# MAIN_DOWNLOAD_FOLDER = None
-
-	#this will define a download folder inside the script's folder in case you don't provide one
-	# if MAIN_DOWNLOAD_FOLDER is None:
-	# 	MAIN_DOWNLOAD_FOLDER = get_script_dir()
-
-	#you don't need to mess with this if you have pkg2zip installed with AUR or inside /usr/binpkg2zip
-	# PKG2ZIP = joindir(MAIN_DOWNLOAD_FOLDER,'pkg2zip')
-	# WGET = joindir(MAIN_DOWNLOAD_FOLDER,'lib','wget')
-	
-	#both will make a subfolder inside your determined download's folder to handle the database and dl
-	#in case you wanna change the DB folder or the subfolder's name, feel free
-	
-	# DBFOLDER = MAIN_DOWNLOAD_FOLDER+'/DATABASE'
-	# DLFOLDER = MAIN_DOWNLOAD_FOLDER+"//DOWNLOADS"
-
 	CONFIGFOLDER = os.getenv("HOME")+"/.config/pyNPS/"
 	config_file = joindir(CONFIGFOLDER, "settings.ini")
 	#create conf file
 	if os.path.isfile(config_file) == False:
 		create_config(config_file, CONFIGFOLDER)
+		create_folder(CONFIGFOLDER+"lib/")
 
 	#read conf file
 	config = configparser.ConfigParser()
 	config.read(config_file)
 
 	#test sections
-	if config.sections() != ['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links']:
+	if config.sections() != ['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'BinaryLocations']:
 		print("ERROR: config file.")
 		exit(1)
 	elif list(config["PSV_Links"]) != ['games', 'dlcs', 'themes', 'updates', 'demos']:
@@ -402,14 +389,14 @@ def main():
 	#making vars
 	DBFOLDER = fix_folder_syntax(config['pyNPS']['databasefolder'])
 	DLFOLDER = fix_folder_syntax(config['pyNPS']['downloadfolder'])
-	PKG2ZIP =  fix_folder_syntax(config['pyNPS']['pkg2ziplocation'])
-	WGET =  fix_folder_syntax(config['pyNPS']['wget_location'])
+	PKG2ZIP =  fix_folder_syntax(config['BinaryLocations']['pkg2zip_location'])
+	WGET =  fix_folder_syntax(config['BinaryLocations']['wget_location'])
 
 	#if blank use system installed binaries
 	if PKG2ZIP == '':
-		PKG2ZIP = check_pkg2zip("pkg2zip")
+		PKG2ZIP = check_pkg2zip("pkg2zip", CONFIGFOLDER)
 	if WGET == '':
-		WGET = check_wget("wget")
+		WGET = check_wget("wget", CONFIGFOLDER)
 
 	#makin dicts for links
 	database_psv_links = {}
@@ -424,6 +411,7 @@ def main():
 	for key in config["PSX_Links"]:
 		database_psx_links[key] = config["PSX_Links"][key]
 	
+	#create args
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument("search", type=str, nargs="?",
@@ -610,7 +598,8 @@ def main():
 			print("ERROR: skipping file, wget was unable to download, try again latter...")
 
 	#autoextract with pkg2zip
-	PKG2ZIP = check_pkg2zip(PKG2ZIP)
+	# PKG2ZIP = check_pkg2zip(PKG2ZIP)
+	# print(PKG2ZIP)
 	if PKG2ZIP != False:
 		for i in files_downloaded:
 			# if i['Type'] not in ["THEMES"]:
