@@ -18,6 +18,9 @@ PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in pytho
   * [Searching](#Searching)
   * [Syntax for selecting files to download](#Syntax%20for%20selecting%20files%20to%20download)
   * [More information](#More%20information)
+- [Make a donation](#Make%20a%20donation)
+  * [Paypal](#Paypal)
+  * [Crypto](#Crypto)
 ******
 # Installation
 
@@ -219,8 +222,16 @@ optional arguments:
   -u, --update          update database.
 
 ```
+******
+## Make a donation
+kaching kaching
 
-
+# Paypal
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HX93DYLRCWG2W)
 
+# Crypto
 BTC: bc1qh53mg0gm6hfjsaphw3x4ct3753rr949lfpere7
+
+LTC: ltc1qp6230jydx7hyht7tu5cuxkk3t7j3t8s0f5wgy8
+
+ETN: etnjyromPydDjvE6m64mvTTrtzd2k7wm3hFCAAsYBc9kdX3N5PHRA3nTescTqq7xGVBrsk8uJXwN5RnwvdbQH2KR6DbHPzE9Ey
