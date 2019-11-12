@@ -90,25 +90,25 @@ def updatedb( dict, system, DBFOLDER, WGET):
 	print("Updating Database for", system_name+":")
 
 	#spawn temporary directory
-	tmp = TmpFolder()
-	dl_tmp_folder = tmp.name+"/"
 	
-	for t in dict:
-		#detect file#
-		file = t.upper()+".tsv"
-		url = dict[t]
+	with TmpFolder() as tmp:
+		dl_tmp_folder = tmp.name+"/"
+		for t in dict:
+			#detect file#
+			file = t.upper()+".tsv"
+			url = dict[t]
 
-		filename = url.split("/")[-1]
+			filename = url.split("/")[-1]
 
-		dl_folder = DBFOLDER+"/"+system+"/"
+			dl_folder = DBFOLDER+"/"+system+"/"
 
-		#create folder
-		create_folder(dl_folder)
+			#create folder
+			create_folder(dl_folder)
 
-		process = subprocess.run( [ WGET, dl_tmp_folder, url ], cwd=dl_tmp_folder)
+			process = subprocess.run( [ WGET, dl_tmp_folder, url ], cwd=dl_tmp_folder)
 
-		print(os.path.isdir(dl_tmp_folder))
-		copyfile(dl_tmp_folder+filename, dl_folder+file)
+			print(os.path.isdir(dl_tmp_folder))
+			copyfile(dl_tmp_folder+filename, dl_folder+file)
 		
 
 		# process = subprocess.Popen( [ WGET, "-c", "-P", DBFOLDER+"/"+system+"/", url ], \
