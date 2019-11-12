@@ -160,7 +160,7 @@ def dl_file( dict, system, DLFOLDER, WGET): #OK!
 	title_id = dict['Title ID']
 
 	printft(HTML("<grey>%s</grey>" %fill_term()))
-	printft(HTML("<red>DOWNLOAD: %s</red>" % dict["Name"]))
+	printft(HTML("<green>[DOWNLOAD] %s</green>" % dict["Name"]))
 
 	dl_folder = DLFOLDER + "/PKG/" + system + "/" + dict['Type']
 
@@ -550,6 +550,7 @@ def main():
 	#print possible mathes to the user
 	if len(maybe_download) > 1:
 		printft(HTML("<grey>%s</grey>" %fill_term()))
+		printft(HTML("<green>[SEARCH] here are the matches:</green>"))
 		process_search(maybe_download)
 
 
@@ -660,7 +661,7 @@ def main():
 	# if index_to_download_raw == "1":
 	printft(HTML("<grey>%s</grey>" %fill_term()))
 
-	print("You're going to download the following files:")
+	printft(HTML("<red>You're going to download the following files:</red>"))
 	process_search(files_to_download)
 
 	#validation 2
@@ -707,7 +708,7 @@ def main():
 						print("CHECKSUM: corrupted file location:", DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1])
 						break
 					else:
-						print("CHECKSUM: downloaded file is ok!")
+										printft(HTML("<green>[CHECKSUM] downloaded file is ok!</green>"))
 			files_downloaded.append(i)
 		else:
 			print("ERROR: skipping file, wget was unable to download, try again latter...")
@@ -728,17 +729,18 @@ def main():
 					zrif = i['zRIF']
 				except:
 					pass
-
-				print("EXTRACTION:",i['Name'], "➔", DLFOLDER+"/Extracted/")
+				
+				printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %(i['Name'], DLFOLDER+"/Extracted/")))
+				# print("EXTRACTION:",i['Name'], "➔", DLFOLDER+"/Extracted/")
 
 				if system == "PSV" and zrif !="":
 					run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, zrif)
 				else:
 					run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP)
 			else:
-				print("\nEXTRACTION: this type of file can't be extracted by pkg2zip:",i['Type'].lower())
+				print("EXTRACTION: this type of file can't be extracted by pkg2zip:",i['Type'].lower())
 	else:
-		print("\nEXTRACTION: skipping extraction since there's no pkg2zip binary in your system...")
+		print("EXTRACTION: skipping extraction since there's no pkg2zip binary in your system...")
 		exit(0)
 	printft(HTML("<grey>%s</grey>" %fill_term()))
 	printft(HTML("<grey>Done!</grey>"))
