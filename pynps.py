@@ -27,6 +27,8 @@ from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit import prompt
 from prompt_toolkit import print_formatted_text as printft
 from prompt_toolkit import HTML
+from tempfile import TemporaryDirectory as TmpFolder
+from shutil import copyfile
 
 ##FUNCTIONS##
 def create_folder( location ):
@@ -86,6 +88,10 @@ def updatedb( dict, system, DBFOLDER, WGET):
 	elif system == "PSX":
 		system_name = "Playstation"
 	print("Updating Database for", system_name+":")
+
+	#spawn temporary directory
+	tmp = TmpFolder()
+	dl_tmp_folder = tmp.name+"/"
 	
 	for t in dict:
 		#detect file#
@@ -98,11 +104,12 @@ def updatedb( dict, system, DBFOLDER, WGET):
 
 		#create folder
 		create_folder(dl_folder)
-		
-		process = subprocess.Popen( [ WGET, "-c", "-P", dl_folder, url ], cwd=dl_folder)
 
-		os.rename(dl_folder+filename, dl_folder+file)
-		return True
+		process = subprocess.run( [ WGET, dl_tmp_folder, url ], cwd=dl_tmp_folder)
+
+		print(os.path.isdir(dl_tmp_folder))
+		copyfile(dl_tmp_folder+filename, dl_folder+file)
+		
 
 		# process = subprocess.Popen( [ WGET, "-c", "-P", DBFOLDER+"/"+system+"/", url ], \
 		# 							stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
