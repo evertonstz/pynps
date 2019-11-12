@@ -37,12 +37,17 @@ You can either install it with yay:
 or get the [pkgbuild](pynps-bin) and use makepkg.
 
 ### Using dotpy file
+First of all you'll need python3.7+
 
+You'll also need Prompt Toolkit
+```
+$ pip install prompt_toolkit
+```
 You can get the source files from github and use the pynps.py file as any other python script.
 ```
 $ git clone https://github.com/evertonstz/pyNPS
 $ cd pynNPS
-$ python3.7 pynps.py
+$ python pynps.py
 ```
 
 ******
