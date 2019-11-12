@@ -92,7 +92,8 @@ def updatedb( dict, system, DBFOLDER, WGET):
 	#spawn temporary directory
 	
 	with TmpFolder() as tmp:
-		dl_tmp_folder = tmp.name+"/"
+		dl_tmp_folder = tmp+"/"
+		
 		for t in dict:
 			#detect file#
 			file = t.upper()+".tsv"
