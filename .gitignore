@@ -1,9 +1,11 @@
-DATABASE/*
-DOWNLOADS/*
 __pycache__/*
-test.py
 build/*
 dist/*
 main.spec
 erros
 pynps.spec
+pyNPS/*
+.pytest_cache/*
+.vscode/*
+test_pytest.py
+test.py

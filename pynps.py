@@ -23,6 +23,10 @@ from math import log2
 import argparse
 import hashlib
 import configparser
+from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit import prompt
+from prompt_toolkit import print_formatted_text as printft
+from prompt_toolkit import HTML
 
 ##FUNCTIONS##
 def create_folder( location ):
@@ -43,6 +47,10 @@ def get_script_dir(follow_symlinks=True):
     if follow_symlinks:
         path = os.path.realpath(path)
     return os.path.dirname(path)
+
+def fill_term(symbol="-"):
+    term_size, __ = os.get_terminal_size()
+    return(term_size*symbol)
 
 def progress_bar(number, symbol="#", fill_width=20,open_symbol="[", close_symbol="]", color=False, unfilled_symbol="-"):
 	if color == 0:
@@ -85,38 +93,49 @@ def updatedb( dict, system, DBFOLDER, WGET):
 		url = dict[t]
 
 		filename = url.split("/")[-1]
-		process = subprocess.Popen( [ WGET, "-c", "-P", DBFOLDER+"/"+system+"/", url ], \
-									stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
-		
-		saved = False
-		for line in iter(process.stdout.readline, b''):
-			line = line.decode("utf-8").split(" ")
-			
-			#test if downloaded#
-			if "saved" in line:
-				saved = True
-			
-			line = [x for x in line if x != ""]
-			if '..........' in line:
-				line = [x for x in line if x != '..........']
-				#variables#
-				try:
-					percentage = int(line[1].replace("%",""))
-				except:
-					percentage = 100
-				downloaded = line[0]
-				speed = line[2].replace("\n","")
 
-				print_string = "Downloading File: " + filename + " " + progress_bar(percentage) + " " + str(percentage) + "% " + \
-								downloaded + " @ " + speed+"/s"
-				# print("", end = '')
-				sys.stdout.write("\r"+print_string)
-				sys.stdout.flush()
-		if saved:
-			print("\nrenaming file:", DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
-			os.rename(DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
-		else:
-			print("\nunable to download file, try again later!")
+		dl_folder = DBFOLDER+"/"+system+"/"
+
+		#create folder
+		create_folder(dl_folder)
+		
+		process = subprocess.Popen( [ WGET, "-c", "-P", dl_folder, url ], cwd=dl_folder)
+
+		os.rename(dl_folder+filename, dl_folder+file)
+		return True
+
+		# process = subprocess.Popen( [ WGET, "-c", "-P", DBFOLDER+"/"+system+"/", url ], \
+		# 							stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
+		
+		# saved = False
+		# for line in iter(process.stdout.readline, b''):
+		# 	line = line.decode("utf-8").split(" ")
+			
+		# 	#test if downloaded#
+		# 	if "saved" in line:
+		# 		saved = True
+			
+		# 	line = [x for x in line if x != ""]
+		# 	if '..........' in line:
+		# 		line = [x for x in line if x != '..........']
+		# 		#variables#
+		# 		try:
+		# 			percentage = int(line[1].replace("%",""))
+		# 		except:
+		# 			percentage = 100
+		# 		downloaded = line[0]
+		# 		speed = line[2].replace("\n","")
+
+		# 		print_string = "Downloading File: " + filename + " " + progress_bar(percentage) + " " + str(percentage) + "% " + \
+		# 						downloaded + " @ " + speed+"/s"
+		# 		# print("", end = '')
+		# 		sys.stdout.write("\r"+print_string)
+		# 		sys.stdout.flush()
+		# if saved:
+		# 	print("\nrenaming file:", DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
+		# 	os.rename(DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
+		# else:
+		# 	print("\nunable to download file, try again later!")
 
 def dl_file( dict, system, DLFOLDER, WGET): #OK!
 	system = system.upper()	
@@ -132,49 +151,57 @@ def dl_file( dict, system, DLFOLDER, WGET): #OK!
 	name = dict['Name']
 	title_id = dict['Title ID']
 
-	print("\nDownloading:")
+	printft(HTML("<grey>%s</grey>" %fill_term()))
+	printft(HTML("<red>DOWNLOAD: %s</red>" % dict["Name"]))
 
 	dl_folder = DLFOLDER + "/PKG/" + system + "/" + dict['Type']
 
-	process = subprocess.Popen( [ WGET, "-c", "-P", dl_folder, url], \
-							stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
-	
-	saved = False
-	downloaded = False
-	for line in iter(process.stdout.readline, b''):
-		# print(line)
-		line = line.decode("utf-8")
-		
-		#test if downloaded#
-		if "saved" in line:
-			saved = True
-		if "The file is already fully retrieved" in line:
-			downloaded = True
-		
-		line = line.split(" ")
+	#making folder
+	create_folder(dl_folder)
 
-		line = [x for x in line if x != ""]
-		if '..........' in line:
-			line = [x for x in line if x != '..........']
-			#variables#
-			try:
-				percentage = int(line[1].replace("%",""))
-			except:
-				percentage = 100
-			downloaded = line[0]
-			speed = line[2].replace("\n","")
+	process = subprocess.run( [ WGET, "-c", "-P", dl_folder, url], cwd=dl_folder )#TODO change CWD to a tempfolder
+	return True
 
-			print_string = "[" + title_id+ "] " + name + " " + progress_bar(percentage) + " " + str(percentage) + "% " + \
-							downloaded + " @ " + speed+"/s"
-			# print("", end = '')
-			sys.stdout.write("\r"+print_string)
-			sys.stdout.flush()
-	if saved:
-		print("\nsaved at:", dl_folder+"/"+filename+"\n" )
-		return(saved)
-	if downloaded:
-		print("file already in disk:", dl_folder+"/"+filename+"\n")
-		return(downloaded)
+	#TODO: universal output warapping for wget that's not bound to the english release
+	# process = subprocess.Popen( [ WGET, "-c", "-P", dl_folder, url], \
+	# 						stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=dl_folder )#
+
+	# saved = False
+	# downloaded = False
+	# for line in iter(process.stdout.readline, b''):
+	# 	print(line)
+	# 	line = line.decode("utf-8")
+		
+	# 	#test if downloaded#
+	# 	if "saved" in line:
+	# 		saved = True
+	# 	if "200 OK" in line:
+	# 		downloaded = True
+		
+	# 	line = line.split(" ")
+
+	# 	line = [x for x in line if x != ""]
+	# 	if '..........' in line:
+	# 		line = [x for x in line if x != '..........']
+	# 		#variables#
+	# 		try:
+	# 			percentage = int(line[1].replace("%",""))
+	# 		except:
+	# 			percentage = 100
+	# 		downloaded = line[0]
+	# 		speed = line[2].replace("\n","")
+
+	# 		print_string = "[" + title_id+ "] " + name + " " + progress_bar(percentage) + " " + str(percentage) + "% " + \
+	# 						downloaded + " @ " + speed+"/s"
+	# 		# print("", end = '')
+	# 		sys.stdout.write("\r"+print_string)
+	# 		sys.stdout.flush()
+	# if saved:
+	# 	print("\nsaved at:", dl_folder+"/"+filename )
+	# 	return(saved)
+	# if downloaded:
+	# 	print("file already in disk:", dl_folder+"/"+filename)
+	# 	return(downloaded)
 
 def file_size(size):
 	_suffixes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
@@ -371,6 +398,8 @@ def create_config( file, folder ):
 	save_conf(file, config)
 
 
+
+
 ##MAIN##
 def main():
 	CONFIGFOLDER = os.getenv("HOME")+"/.config/pyNPS/"
@@ -504,33 +533,76 @@ def main():
 	for i in range(0, len(maybe_download)):
 		# maybe_download[i]["Index"] = str(i)
 		maybe_download[i]["Index"] = str(i+1)
-	
-	#print possible mathes to the user
-	process_search(maybe_download)
 
 	#test if the result isn't empty
 	if len(maybe_download) == 0:
 		print("Oops, there's nothing that matches '" + args.search + "'.Try searching for something else, exiting...")
 		exit(0)
 	
+	#print possible mathes to the user
+	if len(maybe_download) > 1:
+		printft(HTML("<grey>%s</grey>" %fill_term()))
+		process_search(maybe_download)
 
-	index_to_download_raw = input("Enter the number for what you want to download, you can enter multiple numbers using commas (or type 'help'):")
-	
+
+	#validating input
+	class Check_game_input(Validator):
+		def validate(self, document):
+			text = document.text
+			if len(text) > 0:
+				#test if number being typed is bigger than the biggest number from game list
+				num_p = len(maybe_download)
+				if num_p == 1 and text != "1":
+					raise ValidationError(message="Your only option is to type 1.",
+										cursor_position=0)
+				text_processed = text.replace("-"," ").replace(",", " ").split(" ")
+				last_texttext_processed = [x for x in text_processed if x != ""]
+				last_text = text_processed[-1]
+
+				if "0" in text_processed:
+					raise ValidationError(message='Zero is an invalid entry.')
+
+				if last_text.isdigit():
+					last_text = int(last_text)
+					if last_text > num_p:
+						raise ValidationError(message='There are no entries past %i.' %num_p)
+
+				if text.startswith("-") or text.startswith(","):
+					# break
+					raise ValidationError(message='Start the input with a number. Press "h" for help.',
+										cursor_position=0)
+				
+				if "--" in text or ",," in text or ",-" in text or "-," in text:
+					raise ValidationError(message='Use only one symbol to separate numbers. Press "h" for help.')
+				
+				text = text.replace("-","").replace(",","")
+				if text.isdigit() is False and text != "h":
+					raise ValidationError(message='Do not use leters. Press "h" for help.')
+			else:
+				raise ValidationError(message='Enter something or press Ctrl+C to close.',
+										cursor_position=0)
+	if len(maybe_download) > 1:
+		index_to_download_raw = prompt("Enter the number for what you want to download, you can enter multiple numbers using commas: ", validator=Check_game_input())
+	else:
+		index_to_download_raw = "1"
+
+	#TODO: remove redundant code
 	#check if the user didn't sent an empty request
-	if len(index_to_download_raw) == 0:
-		print("ERROR: you must select something to download")
-		exit(1)
+	# if len(index_to_download_raw) == 0:
+	# 	print("ERROR: you must select something to download")
+	# 	exit(1)
 
-	if index_to_download_raw.lower() in ["'help'", "help"]:
-		print("\tSuppose you have 10 files to select from:")
-		print("\tTo download file 2, you type: 2")
-		print("\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9")
-		print("\tTo download files 1 to 9, the cool-kid method, you type: 1-9")
-		print("\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10")
-		print("\tTo download files 1, 4 and files 6 to 10: 1,4,6-10")
-		print("\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6")
-		print("Exiting...")
+	if index_to_download_raw.lower() == 'h':
+		printft(HTML("<grey>\tSuppose you have 10 files to select from:</grey>"))
+		printft(HTML("<grey>\tTo download file 2, you type: 2</grey>"))
+		printft(HTML("<grey>\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9</grey>"))
+		printft(HTML("<grey>\tTo download files 1 to 9, the cool-kid method, you type: 1-9</grey>"))
+		printft(HTML("<grey>\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10</grey>"))
+		printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10: 1,4,6-10</grey>"))
+		printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6</grey>"))
+		printft(HTML("<grey>Exiting...</grey>"))
 		exit(0)
+
 	#parsing indexes
 	index_to_download_raw = index_to_download_raw.replace(" ","").split(",")
 	index_to_download = []
@@ -577,10 +649,28 @@ def main():
 
 	files_to_download = [maybe_download[i] for i in index_to_download]
 
-	print("\nYou're going to download the following files:")
+	# if index_to_download_raw == "1":
+	printft(HTML("<grey>%s</grey>" %fill_term()))
+
+	print("You're going to download the following files:")
 	process_search(files_to_download)
 
-	if input("\nDownload files? [y/n]:") != "y":
+	#validation 2
+	class Check_game_input_y_n(Validator):
+		def validate(self, document):
+			text = document.text
+			if len(text) > 0:
+				if text.lower() not in ['y','n']:
+					# break
+					raise ValidationError(message='Use "y" for yes and "n" for no',
+										cursor_position=0)
+			else:
+				raise ValidationError(message='Enter something or press Ctrl+C to close.',
+										cursor_position=0)
+
+	accept = prompt("Download files? [y/n]: ", validator=Check_game_input_y_n())
+
+	if accept not in ['y','n']:
 		exit(0)
 
 	files_downloaded = []
@@ -592,6 +682,7 @@ def main():
 		#checksum
 		if dl_result:
 			if "SHA256" in i.keys():
+				printft(HTML("<grey>%s</grey>" %fill_term()))
 				if i["SHA256"] == "":
 					print("CHECKSUM: No checksum provided by NPS, skipping check...")
 				else:
@@ -616,6 +707,7 @@ def main():
 	#autoextract with pkg2zip
 	# PKG2ZIP = check_pkg2zip(PKG2ZIP)
 	# print(PKG2ZIP)
+	printft(HTML("<grey>%s</grey>" %fill_term()))
 	if PKG2ZIP != False:
 		for i in files_downloaded:
 			# if i['Type'] not in ["THEMES"]:
@@ -628,8 +720,8 @@ def main():
 					zrif = i['zRIF']
 				except:
 					pass
-				print("\nEXTRACTION:",i['Name'])
-				print("\nEXTRACTION: extracting files to:",DLFOLDER+"/Extracted/")
+
+				print("EXTRACTION:",i['Name'], "➔", DLFOLDER+"/Extracted/")
 
 				if system == "PSV" and zrif !="":
 					run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, zrif)
@@ -640,6 +732,8 @@ def main():
 	else:
 		print("\nEXTRACTION: skipping extraction since there's no pkg2zip binary in your system...")
 		exit(0)
+	printft(HTML("<grey>%s</grey>" %fill_term()))
+	printft(HTML("<grey>Done!</grey>"))
 
 if __name__ == '__main__':
 	main()
