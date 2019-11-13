@@ -77,7 +77,7 @@ def progress_bar(number, symbol="#", fill_width=20,open_symbol="[", close_symbol
 			return(open_symbol+chunks_dir+GREY+unfilled_symbol*(fill_width-slice)+close_symbol+NC)
 		else:
 			print('ERROR: Use a number divisible by 4 in "fill_width".')
-			exit(1)
+			sys.exit(1)
 
 def updatedb( dict, system, DBFOLDER, WGET):
 	#detect gaming system#
@@ -424,16 +424,16 @@ def main():
 	#test sections
 	if config.sections() != ['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'BinaryLocations']:
 		print("ERROR: config file.")
-		exit(1)
+		sys.exit(1)
 	elif list(config["PSV_Links"]) != ['games', 'dlcs', 'themes', 'updates', 'demos']:
 		print("ERROR: config file.")
-		exit(1)		
+		sys.exit(1)		
 	elif list(config["PSP_Links"]) != ['games', 'dlcs', 'themes', 'updates']:
 		print("ERROR: config file.")
-		exit(1)	
+		sys.exit(1)	
 	elif list(config["PSX_Links"]) != ['games']:
 		print("ERROR: config file.")
-		exit(1)	
+		sys.exit(1)	
 
 	#making vars
 	DBFOLDER = fix_folder_syntax(config['pyNPS']['databasefolder'])
@@ -491,10 +491,10 @@ def main():
 
 	if system == "PSP" and args.demos == True:
 		print("ERROR: NPS has no support for demos with the Playstation Portable (PSP), exiting...")
-		exit(1)
+		sys.exit(1)
 	if system == "PSX" and True in [args.dlcs, args.themes, args.updates, args.demos]:
 		print("ERROR: NPS only supports game downlaods for the Playstation (PSX), exiting...")
-		exit(1)
+		sys.exit(1)
 
 	if system == "_ALL" and args.search != None:
 		print("ERROR: you can't search for multiple systems, this option is only used to make a full update like:\n\tmain.py -c _all -u")
@@ -513,11 +513,11 @@ def main():
 		if args.search is None:
 			if system != "_ALL":
 				print("No search term provided, exiting...")
-			exit(0)
+			sys.exit(0)
 		
 	elif args.update == False and args.search is None:
 		print("Please, you need to search for something...")
-		exit(1)
+		sys.exit(1)
 
 	#check region
 	if args.region is None:
@@ -535,7 +535,7 @@ def main():
 
 	if len(maybe_download) == 0:
 		print("No results found, exiting...")
-		exit(0)
+		sys.exit(0)
 
 	#adding indexes to maybe_download
 	for i in range(0, len(maybe_download)):
@@ -545,7 +545,7 @@ def main():
 	#test if the result isn't empty
 	if len(maybe_download) == 0:
 		print("Oops, there's nothing that matches '" + args.search + "'.Try searching for something else, exiting...")
-		exit(0)
+		sys.exit(0)
 	
 	#print possible mathes to the user
 	if len(maybe_download) > 1:
@@ -599,7 +599,7 @@ def main():
 	#check if the user didn't sent an empty request
 	# if len(index_to_download_raw) == 0:
 	# 	print("ERROR: you must select something to download")
-	# 	exit(1)
+	# 	sys.exit(1)
 
 	if index_to_download_raw.lower() == 'h':
 		printft(HTML("<grey>\tSuppose you have 10 files to select from:</grey>"))
@@ -610,7 +610,7 @@ def main():
 		printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10: 1,4,6-10</grey>"))
 		printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6</grey>"))
 		printft(HTML("<grey>Exiting...</grey>"))
-		exit(0)
+		sys.exit(0)
 
 	#parsing indexes
 	index_to_download_raw = index_to_download_raw.replace(" ","").split(",")
@@ -627,7 +627,7 @@ def main():
 				
 				if range_0 < 1 or range_1 < 1:
 					print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
-					exit(1)
+					sys.exit(1)
 				#test if digit 0 is bigger than digit 1
 				if range_0 < range_1:
 					print(1)
@@ -645,13 +645,13 @@ def main():
 						index_to_download.append(range_0)
 			else:
 				print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
-				exit(1)			
+				sys.exit(1)			
 		elif i.isdigit() == True:
 			if int(i) not in index_to_download:
 				index_to_download.append(int(i))
 		else:
 			print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
-			exit(1)
+			sys.exit(1)
 			
 	#fixing indexes for python syntax and sorting the list
 	index_to_download = sorted([int(x)-1 for x in index_to_download])
@@ -680,7 +680,7 @@ def main():
 	accept = prompt("Download files? [y/n]: ", validator=Check_game_input_y_n())
 
 	if accept not in ['y','n']:
-		exit(0)
+		sys.exit(0)
 
 	files_downloaded = []
 	for i in files_to_download:
@@ -741,7 +741,7 @@ def main():
 				print("EXTRACTION: this type of file can't be extracted by pkg2zip:",i['Type'].lower())
 	else:
 		print("EXTRACTION: skipping extraction since there's no pkg2zip binary in your system...")
-		exit(0)
+		sys.exit(0)
 	printft(HTML("<grey>%s</grey>" %fill_term()))
 	printft(HTML("<grey>Done!</grey>"))
 
