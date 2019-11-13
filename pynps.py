@@ -422,18 +422,26 @@ def main():
 	config.read(config_file)
 
 	#test sections
-	if config.sections() != ['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'BinaryLocations']:
-		print("ERROR: config file.")
+	if config.sections() != ['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'BinaryLocations']:
+		printft(HTML("<red>[ERROR] config file: missing sections</red>"))
+		print("You need the following sections in your config file: 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'BinaryLocations'")
 		sys.exit(1)
-	elif list(config["PSV_Links"]) != ['games', 'dlcs', 'themes', 'updates', 'demos']:
-		print("ERROR: config file.")
+	if list(config["PSV_Links"]) != ['games', 'dlcs', 'themes', 'updates', 'demos']:
+		printft(HTML("<red>[ERROR] config file: missing options in the PSV_Links section</red>"))
+		print("You need the following options in your PSV_Links section: 'games', 'dlcs', 'themes', 'updates', 'demos'")
 		sys.exit(1)		
-	elif list(config["PSP_Links"]) != ['games', 'dlcs', 'themes', 'updates']:
-		print("ERROR: config file.")
+	if list(config["PSP_Links"]) != ['games', 'dlcs', 'themes', 'updates']:
+		printft(HTML("<red>[ERROR] config file: missing options in the PSP_Links section</red>"))
+		print("You need the following options in your PSP_Links section: 'games', 'dlcs', 'themes', 'updates'")
 		sys.exit(1)	
-	elif list(config["PSX_Links"]) != ['games']:
-		print("ERROR: config file.")
+	if list(config["PSX_Links"]) != ['games']:
+		printft(HTML("<red>[ERROR] config file: missing options in the PSX_Links section</red>"))
+		print("You need the following options in your PSP_Links section: 'games'")
 		sys.exit(1)	
+	# if list(config["PSM_Links"]) != ['games']:
+	# 	printft(HTML("<red>[ERROR] config file: missing options in the PSM_Links section</red>"))
+	# 	print("You need the following options in your PSM_Links section: 'games'")
+	# 	sys.exit(1)	
 
 	#making vars
 	DBFOLDER = fix_folder_syntax(config['pyNPS']['databasefolder'])
