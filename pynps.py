@@ -87,6 +87,8 @@ def updatedb( dict, system, DBFOLDER, WGET):
 		system_name = "Playstation Portable"
 	elif system == "PSX":
 		system_name = "Playstation"
+	elif system == "PSM":
+		system_name = "Playstation Mobile"
 	print("Updating Database for", system_name+":")
 
 	#spawn temporary directory
@@ -153,6 +155,8 @@ def dl_file( dict, system, DLFOLDER, WGET): #OK!
 		system_name = "Playstation Portable"
 	elif system == "PSX":
 		system_name = "Playstation"
+	elif system == "PSM":
+		system_name = "Playstation Mobile"
 
 	url = dict['PKG direct link']
 	filename = url.split("/")[-1]
@@ -400,6 +404,8 @@ def create_config( file, folder ):
 		}
 	config['PSX_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSX_GAMES.tsv'
 		}
+	config['PSM_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSM_GAMES.tsv'
+		}
 	config['BinaryLocations'] =	{'Pkg2zip_Location': '', \
 		'Wget_location': ''}
 	#saving file
@@ -436,12 +442,12 @@ def main():
 		sys.exit(1)	
 	if list(config["PSX_Links"]) != ['games']:
 		printft(HTML("<red>[ERROR] config file: missing options in the PSX_Links section</red>"))
-		print("You need the following options in your PSP_Links section: 'games'")
+		print("You need the following options in your PSX_Links section: 'games'")
 		sys.exit(1)	
-	# if list(config["PSM_Links"]) != ['games']:
-	# 	printft(HTML("<red>[ERROR] config file: missing options in the PSM_Links section</red>"))
-	# 	print("You need the following options in your PSM_Links section: 'games'")
-	# 	sys.exit(1)	
+	if list(config["PSM_Links"]) != ['games']:
+		printft(HTML("<red>[ERROR] config file: missing options in the PSM_Links section</red>"))
+		print("You need the following options in your PSM_Links section: 'games'")
+		sys.exit(1)	
 
 	#making vars
 	DBFOLDER = fix_folder_syntax(config['pyNPS']['databasefolder'])
@@ -468,16 +474,20 @@ def main():
 	for key in config["PSX_Links"]:
 		database_psx_links[key] = config["PSX_Links"][key]
 	
+	database_psm_links = {}
+	for key in config["PSM_Links"]:
+		database_psx_links[key] = config["PSM_Links"][key]
+	
 	#create args
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument("search", type=str, nargs="?",
 						help="search something to download, you can search by name or ID or use '_all' to return everythning.")
 	parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
-						type=str, required = True, choices=["psv", "psp", "psx", "_all"])
+						type=str, required = True, choices=["psv", "psp", "psx", "psm", "_all"])
 	parser.add_argument("-r", "--region", help="the region for the pkj you want.",
 						type=str, required = False, choices=["usa","eur","jap","asia"])
-	parser.add_argument("-dg", "--games", help="to download psv/psp/psx games.",
+	parser.add_argument("-dg", "--games", help="to download psv/psp/psx/psm games.",
 						action="store_true")
 	parser.add_argument("-dd", "--dlcs", help="to download psv/psp dlcs.",
 						action="store_true")
@@ -516,6 +526,9 @@ def main():
 			updatedb(database_psp_links, "PSP", DBFOLDER, WGET)
 		if system in ["PSX", "_ALL"]:
 			updatedb(database_psx_links, "PSX", DBFOLDER, WGET)
+			updatedb(database_psp_links, "PSP", DBFOLDER, WGET)
+		if system in ["PSM", "_ALL"]:
+			updatedb(database_psx_links, "PSM", DBFOLDER, WGET)
 		print("DONE!")
 
 		if args.search is None:
@@ -687,7 +700,7 @@ def main():
 
 	accept = prompt("Download files? [y/n]: ", validator=Check_game_input_y_n())
 
-	if accept not in ['y','n']:
+	if accept.lower() != "y":
 		sys.exit(0)
 
 	files_downloaded = []
