@@ -612,7 +612,14 @@ def main():
 				raise ValidationError(message='Enter something or press Ctrl+C to close.',
 										cursor_position=0)
 	if len(maybe_download) > 1:
-		index_to_download_raw = prompt("Enter the number for what you want to download, you can enter multiple numbers using commas: ", validator=Check_game_input())
+		try:
+			index_to_download_raw = prompt("Enter the number for what you want to download, you can enter multiple numbers using commas: ", validator=Check_game_input())
+		except KeyboardInterrupt:
+			printft(HTML("<grey>Interrupted by user, exiting...</grey>"))
+			sys.exit(0)
+		except:
+			printft(HTML("<grey>Interrupted by user, exiting...</grey>"))
+			sys.exit(0)
 	else:
 		index_to_download_raw = "1"
 
@@ -697,10 +704,16 @@ def main():
 			else:
 				raise ValidationError(message='Enter something or press Ctrl+C to close.',
 										cursor_position=0)
-
-	accept = prompt("Download files? [y/n]: ", validator=Check_game_input_y_n())
-
-	if accept.lower() != "y":
+	
+	try:
+		accept = prompt("Download files? [y/n]: ", validator=Check_game_input_y_n())
+		if accept.lower() != "y":
+			raise
+	except KeyboardInterrupt:
+		printft(HTML("<grey>Interrupted by user, exiting...</grey>"))
+		sys.exit(0)
+	except:
+		printft(HTML("<grey>Interrupted by user, exiting...</grey>"))
 		sys.exit(0)
 
 	files_downloaded = []
