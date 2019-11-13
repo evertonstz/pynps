@@ -9,7 +9,7 @@ PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in pytho
 
 - [Installation](#Installation)
   * [Manual](#Manual)
-  * [AUR - Arch/Manjaro/Suse](AUR%20-%20Arch/Manjaro/Suse)
+  * [AUR - Arch/Manjaro/Suse](#AUR%20-%20Arch/Manjaro/Suse)
   * [Using dotpy file](#Using%20dotpy%20file)
   * [pkg2zip](#pkg2zip)
   * [wget](#wget)
@@ -24,6 +24,7 @@ PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in pytho
   * [Crypto](#Crypto)
 ******
 # Installation
+There are tree methods you can install pyNPS:
 
 ### Manual
 
@@ -229,13 +230,13 @@ optional arguments:
 
 ```
 ******
-## Make a donation
+# Make a donation
 kaching kaching
 
-# Paypal
+## Paypal
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HX93DYLRCWG2W)
 
-# Crypto
+## Crypto
 BTC: bc1qh53mg0gm6hfjsaphw3x4ct3753rr949lfpere7
 
 LTC: ltc1qp6230jydx7hyht7tu5cuxkk3t7j3t8s0f5wgy8
