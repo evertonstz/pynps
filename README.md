@@ -207,9 +207,9 @@ Just run:
 >$ pynps -h
 
 ```
-usage: main.py [-h] [-c {psv,psp,psx,_all}] [-r {usa,eur,jap,asia}] [-dg]
-               [-dd] [-dt] [-du] [-dde] [-u]
-               [search]
+usage: pynps.py [-h] -c {psv,psp,psx,psm,_all} [-r {usa,eur,jap,asia}] [-dg]
+                [-dd] [-dt] [-du] [-dde] [-cso {1,2,3,4,5,6,7,8,9}] [-u]
+                [search]
 
 positional arguments:
   search                search something to download, you can search by name
@@ -217,17 +217,21 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -c {psv,psp,psx,_all}, --console {psv,psp,psx,_all}
+  -c {psv,psp,psx,psm,_all}, --console {psv,psp,psx,psm,_all}
                         the console you wanna get content with NPS.
   -r {usa,eur,jap,asia}, --region {usa,eur,jap,asia}
                         the region for the pkj you want.
-  -dg, --games          to download psv/psp/psx games.
-  -dd, --dlcs           to download psv/psp dlcs.
-  -dt, --themes         to download psv/psp themes.
-  -du, --updates        to download psv/psp game updates.
-  -dde, --demos         to download psv demos.
+  -dg, --games          to download PSV/PSP/PSX/PSM games.
+  -dd, --dlcs           to download PSV/PSP dlcs.
+  -dt, --themes         to download PSV/PSP themes.
+  -du, --updates        to download PSV/PSP game updates.
+  -dde, --demos         to download PSV demos.
+  -cso {1,2,3,4,5,6,7,8,9}, --compress_cso {1,2,3,4,5,6,7,8,9}
+                        use this argument to compress PSP games as .cso files.
+                        You can use any number beetween 1 and 9 for
+                        compression factors, were 1 is less compressed and 9
+                        is more compressed.
   -u, --update          update database.
-
 ```
 ******
 # Make a donation
