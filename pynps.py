@@ -755,6 +755,7 @@ def main():
 					except:
 						sha256_exp = ""
 
+					
 					if sha256_dl != sha256_exp:
 						print("CHECKSUM: checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg.")
 						print("CHECKSUM: corrupted file location:", DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1])
@@ -781,15 +782,16 @@ def main():
 					zrif = i['zRIF']
 				except:
 					pass
-				
+				#TODO: expose the exact directory were the pkg was extracted!
 				printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %(i['Name'], DLFOLDER+"/Extracted/")))
-				# print("EXTRACTION:",i['Name'], "➔", DLFOLDER+"/Extracted/")
 				
 				#-x is default argument to no create .zip files
 				args = ["-x"]
-				if cso_factor != False: #TODO: research on what type of PSP files support ISO/CSO FIles
+				if cso_factor != False and i["Type"] == "games":
 					args.append("-c"+cso_factor)
-				#append more commands here!
+				elif cso_factor != False and i["Type"] != "games":
+					printft(HTML("<orange>[EXTRACTION] cso is only supported for PSP games, since you're downloading a PSP %s the compression will be skipped.</orange>" %i["Type"][:-1].lower()))
+				#append more commands here if needed!
 
 				if system == "PSV" and zrif !="":
 					run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, args, zrif)
