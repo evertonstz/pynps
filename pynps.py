@@ -364,13 +364,21 @@ def check_pkg2zip( location, CONFIGFOLDER): #OK!
 		# print("Using user provided pkg2zip")
 		return(location)
 
-def run_pkg2zip( file, output_location, PKG2ZIP, zrif=False): #OK!
+def run_pkg2zip( file, output_location, PKG2ZIP, args, zrif=False): #OK!
 	create_folder(output_location)
-	
+
+	#reversing list
+	args.reverse()
 	if zrif == False:
-		process = subprocess.run( [PKG2ZIP,"-x",file] , cwd=output_location)
+		run_lst = [PKG2ZIP,file]
+		for x in args:
+			run_lst.insert(1,x)
+		process = subprocess.run( run_lst, cwd=output_location)
 	else:
-		process = subprocess.run( [PKG2ZIP,"-x",file, zrif] , cwd=output_location)
+		run_lst = [PKG2ZIP,file, zrif]
+		for x in args:
+			run_lst.insert(1,x)
+		process = subprocess.run(run_lst , cwd=output_location)
 
 def fix_folder_syntax( folder ):
 	new_folder = folder
@@ -487,26 +495,36 @@ def main():
 						type=str, required = True, choices=["psv", "psp", "psx", "psm", "_all"])
 	parser.add_argument("-r", "--region", help="the region for the pkj you want.",
 						type=str, required = False, choices=["usa","eur","jap","asia"])
-	parser.add_argument("-dg", "--games", help="to download psv/psp/psx/psm games.",
+	parser.add_argument("-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
 						action="store_true")
-	parser.add_argument("-dd", "--dlcs", help="to download psv/psp dlcs.",
+	parser.add_argument("-dd", "--dlcs", help="to download PSV/PSP dlcs.",
 						action="store_true")
-	parser.add_argument("-dt", "--themes", help="to download psv/psp themes.",
+	parser.add_argument("-dt", "--themes", help="to download PSV/PSP themes.",
 						action="store_true")
-	parser.add_argument("-du", "--updates", help="to download psv/psp game updates.",
+	parser.add_argument("-du", "--updates", help="to download PSV/PSP game updates.",
 						action="store_true")	
-	parser.add_argument("-dde", "--demos", help="to download psv demos.",
+	parser.add_argument("-dde", "--demos", help="to download PSV demos.",
 						action="store_true")				
+	parser.add_argument("-cso", "--compress_cso", help="use this argument to compress PSP games as .cso files. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
+						type=str, required = False, choices=["1", "2", "3", "4", "5", "6", "7", "8", "9"])
 
 	parser.add_argument("-u", "--update", help="update database.",
 						action="store_true")
 
 	args = parser.parse_args()
+	system = args.console.upper()
+	#check if -cso was called outside psp console
+	cso_factor= False
+	if args.compress_cso != None and system != "PSP":
+		printft(HTML("<red>[ERROR] cso compression is only available for PSP games.</red>"))
+		sys.exit(1)
+	else:
+		cso_factor = args.compress_cso
+		if cso_factor == None:
+			cso_factor = False
 
 	#check if updating db is needed
 	
-	system = args.console.upper()
-
 	if system == "PSP" and args.demos == True:
 		print("ERROR: NPS has no support for demos with the Playstation Portable (PSP), exiting...")
 		sys.exit(1)
@@ -727,7 +745,7 @@ def main():
 			if "SHA256" in i.keys():
 				printft(HTML("<grey>%s</grey>" %fill_term()))
 				if i["SHA256"] == "":
-					print("CHECKSUM: No checksum provided by NPS, skipping check...")
+					printft(HTML("<orange>[CHECKSUM] No checksum provided by NPS, skipping check...</orange>"))
 				else:
 					
 					sha256_dl = checksum_file(downloaded_file_loc)
@@ -742,7 +760,7 @@ def main():
 						print("CHECKSUM: corrupted file location:", DLFOLDER + "/PKG/" + system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1])
 						break
 					else:
-										printft(HTML("<green>[CHECKSUM] downloaded file is ok!</green>"))
+						printft(HTML("<green>[CHECKSUM] downloaded file is ok!</green>"))
 			files_downloaded.append(i)
 		else:
 			print("ERROR: skipping file, wget was unable to download, try again latter...")
@@ -766,18 +784,24 @@ def main():
 				
 				printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %(i['Name'], DLFOLDER+"/Extracted/")))
 				# print("EXTRACTION:",i['Name'], "➔", DLFOLDER+"/Extracted/")
+				
+				#-x is default argument to no create .zip files
+				args = ["-x"]
+				if cso_factor != False: #TODO: research on what type of PSP files support ISO/CSO FIles
+					args.append("-c"+cso_factor)
+				#append more commands here!
 
 				if system == "PSV" and zrif !="":
-					run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, zrif)
+					run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, args, zrif)
 				else:
-					run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP)
+					run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, args)
 			else:
 				print("EXTRACTION: this type of file can't be extracted by pkg2zip:",i['Type'].lower())
 	else:
-		print("EXTRACTION: skipping extraction since there's no pkg2zip binary in your system...")
+		printft(HTML("<orange>[EXTRACTION] skipping extraction since there's no pkg2zip binary in your system.</orange>"))
 		sys.exit(0)
 	printft(HTML("<grey>%s</grey>" %fill_term()))
-	printft(HTML("<grey>Done!</grey>"))
+	printft(HTML("<blue>Done!</blue>"))
 
 if __name__ == '__main__':
 	main()
