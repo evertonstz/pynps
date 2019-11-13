@@ -428,7 +428,7 @@ def main():
 	config.read(config_file)
 
 	#test sections
-	if sorted(ordered(config.sections()) != sorted(['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'BinaryLocations']):
+	if sorted(config.sections()) != sorted(['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'BinaryLocations']):
 		printft(HTML("<red>[ERROR] config file: missing sections</red>"))
 		print("You need the following sections in your config file: 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'BinaryLocations'")
 		sys.exit(1)
