@@ -509,7 +509,7 @@ def main():
 	parser.add_argument("-dde", "--demos", help="to download PSV demos.",
 						action="store_true")				
 	parser.add_argument("-cso", "--compress_cso", help="use this argument to compress PSP games as .cso files. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
-						type=str, required = False, const="9", nargs="?", choices=["1", "2", "3", "4", "5", "6", "7", "8", "9"])
+						type=str, required = False, choices=["1", "2", "3", "4", "5", "6", "7", "8", "9"])
 	parser.add_argument("-u", "--update", help="update database.",
 						action="store_true")
 
