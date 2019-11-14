@@ -80,6 +80,7 @@ def progress_bar(number, symbol="#", fill_width=20,open_symbol="[", close_symbol
 			sys.exit(1)
 
 def updatedb( dict, system, DBFOLDER, WGET):
+
 	#detect gaming system#
 	if system == "PSV":
 		system_name = "Playstation Vita"
@@ -89,7 +90,6 @@ def updatedb( dict, system, DBFOLDER, WGET):
 		system_name = "Playstation"
 	elif system == "PSM":
 		system_name = "Playstation Mobile"
-	print("Updating Database for", system_name+":")
 
 	#spawn temporary directory
 	
@@ -107,10 +107,9 @@ def updatedb( dict, system, DBFOLDER, WGET):
 
 			#create folder
 			create_folder(dl_folder)
+			process = subprocess.run( [ WGET, "-q", "--show-progress", url ], cwd=dl_tmp_folder)
 
-			process = subprocess.run( [ WGET, dl_tmp_folder, url ], cwd=dl_tmp_folder)
-
-			print(os.path.isdir(dl_tmp_folder))
+			# print(os.path.isdir(dl_tmp_folder))
 			copyfile(dl_tmp_folder+filename, dl_folder+file)
 		
 
@@ -164,14 +163,18 @@ def dl_file( dict, system, DLFOLDER, WGET): #OK!
 	title_id = dict['Title ID']
 
 	printft(HTML("<grey>%s</grey>" %fill_term()))
-	printft(HTML("<green>[DOWNLOAD] %s</green>" % dict["Name"]))
+	printft(HTML("<green>[DOWNLOAD] %s (%s) [%s] for %s</green>" %(name, dict['Region'], title_id, system) ))
 
 	dl_folder = DLFOLDER + "/PKG/" + system + "/" + dict['Type']
 
 	#making folder
 	create_folder(dl_folder)
 
-	process = subprocess.run( [ WGET, "-c", "-P", dl_folder, url], cwd=dl_folder )#TODO change CWD to a tempfolder
+	#check if file exists
+	if os.path.isfile(dl_folder+"/"+filename):
+		printft(HTML("<orange>[DOWNLOAD] file exists, wget will decide if the file is completely downloaded, if it's not the download will be resumed</orange>" ))
+
+	process = subprocess.run( [ WGET, "-q", "--show-progress", "-c", "-P", dl_folder, url], cwd=dl_folder )#TODO change CWD to a tempfolder
 	return True
 
 	#TODO: universal output warapping for wget that's not bound to the english release
@@ -484,7 +487,7 @@ def main():
 	
 	database_psm_links = {}
 	for key in config["PSM_Links"]:
-		database_psx_links[key] = config["PSM_Links"][key]
+		database_psm_links[key] = config["PSM_Links"][key]
 	
 	#create args
 	parser = argparse.ArgumentParser()
@@ -537,25 +540,39 @@ def main():
 
 	if args.update == True:
 		if system == "_ALL":
-			print("Updating all databases:")
+			printft(HTML("<grey>%s</grey>" %fill_term()))
+			printft(HTML("<green>[UPDATEDB] all databases:</green>"))
+		else:
+			printft(HTML("<grey>%s</grey>" %fill_term()))
+
 		if system in ["PSV", "_ALL"]:
+			# printft(HTML("<grey>%s</grey>" %fill_term()))
+			printft(HTML("<green>[UPDATEDB] Playstation Vita:</green>"))
 			updatedb(database_psv_links, "PSV", DBFOLDER, WGET)
+
 		if system in ["PSP", "_ALL"]:
+			# printft(HTML("<grey>%s</grey>" %fill_term()))
+			printft(HTML("<green>[UPDATEDB] Playstation Portable:</green>"))
 			updatedb(database_psp_links, "PSP", DBFOLDER, WGET)
+
 		if system in ["PSX", "_ALL"]:
+			# printft(HTML("<grey>%s</grey>" %fill_term()))
+			printft(HTML("<green>[UPDATEDB] Playstation:</green>"))
 			updatedb(database_psx_links, "PSX", DBFOLDER, WGET)
-			updatedb(database_psp_links, "PSP", DBFOLDER, WGET)
+
 		if system in ["PSM", "_ALL"]:
-			updatedb(database_psx_links, "PSM", DBFOLDER, WGET)
-		print("DONE!")
+			# printft(HTML("<grey>%s</grey>" %fill_term()))
+			printft(HTML("<green>[UPDATEDB] Playstation Mobile:</green>"))
+			updatedb(database_psm_links, "PSM", DBFOLDER, WGET)
 
 		if args.search is None:
 			if system != "_ALL":
-				print("No search term provided, exiting...")
+				printft(HTML("<grey>%s</grey>" %fill_term()))
+				printft(HTML("<orange>[SEARCH] No search term provided, exiting.</orange>"))
 			sys.exit(0)
 		
 	elif args.update == False and args.search is None:
-		print("Please, you need to search for something...")
+		printft(HTML("<red>[SEARCH] No search term provided, you need to search for something, exiting.</red>"))
 		sys.exit(1)
 
 	#check region
@@ -707,7 +724,7 @@ def main():
 	# if index_to_download_raw == "1":
 	printft(HTML("<grey>%s</grey>" %fill_term()))
 
-	printft(HTML("<red>You're going to download the following files:</red>"))
+	printft(HTML("<green>[SEARCH] you're going to download the following files:</green>"))
 	process_search(files_to_download)
 
 	#validation 2
