@@ -35,7 +35,7 @@ You can grab the latest x86_64 binary file at [releases](https://github.com/ever
 You can either install it with yay:
 >$ yay -S pynps-bin
 
-or get the [pkgbuild](pynps-bin) and use makepkg.
+or get the [pkgbuild](https://aur.archlinux.org/packages/pynps-bin/) and use makepkg.
 
 ### Using dotpy file
 First of all you'll need python3.7+
