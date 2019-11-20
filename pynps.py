@@ -517,7 +517,7 @@ def main():
         database_psm_links[key] = config["PSM_Links"][key]
 
     # create args
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='pyNPS is a Nopaystation client writen in python 3.7 that, with the help of wget and pkg2zip, can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database.')
 
     parser.add_argument("search", type=str, nargs="?",
                         help="search something to download, you can search by name or ID or use '_all' to return everythning.")
@@ -535,14 +535,30 @@ def main():
                         action="store_true")
     parser.add_argument("-dde", "--demos", help="to download PSV demos.",
                         action="store_true")
-    parser.add_argument("-cso", "--compress_cso", help="use this argument to compress PSP games as .cso files. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
+    parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP games as EBOOT.PBP",
+                        action="store_true")
+    parser.add_argument("-cso", "--compress_cso", help="use this argument to unpack PSP games as a compressed .cso file. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
                         type=str, required=False, choices=["1", "2", "3", "4", "5", "6", "7", "8", "9"])
     parser.add_argument("-u", "--update", help="update database.",
                         action="store_true")
+    parser.add_argument('--version', action='version', version='%(prog)s v0.5')
 
     args = parser.parse_args()
     system = args.console.upper()
     # check if -cso was called outside psp console
+    if args.eboot == True and args.compress_cso != None:
+        printft(
+            HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time.</red>"))
+        sys.exit(1)      
+    
+    use_eboot = False
+    if args.eboot == True and system != "PSP":
+        printft(
+            HTML("<red>[ERROR] EBOOT.PBP extractiong is only available for PSP games.</red>"))
+        sys.exit(1)
+    else:
+        use_eboot = args.eboot
+    
     cso_factor = False
     if args.compress_cso != None and system != "PSP":
         printft(
