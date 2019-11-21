@@ -262,7 +262,7 @@ def process_search(out):
     lenght_str = len(str(biggest_index[-1]))
 
     for i in out:
-        print(crop_print(str(i['Index']), lenght_str), ")", i['Title ID'], "|", crop_print(i['Region'], 4), "|", crop_print(i['Type'], 7), "|", i['Name'], \
+        print(crop_print(str(i['Index']), lenght_str), ")", i['System'], "|",i['Title ID'], "|", crop_print(i['Region'], 4), "|", crop_print(i['Type'], 7), "|", i['Name'], \
               # print(str(i['Index'])+")", i['Title ID'], "|", crop_print(i['Region'], 4), "|", crop_print(i['Type'],7), "|", i['Name'], \
               "|", file_size(i['File Size']))
 
@@ -304,6 +304,7 @@ def search_db(system, type, query, region, DBFOLDER):  # OK!
                 except:
                     i["Upper Name"] = i["Name"]
                 i["Type"] = f.split("/")[-1].replace(".tsv", "")
+                i["System"] = system
 
             if query == "_ALL":
                 for row in file:
@@ -447,6 +448,17 @@ def create_config(file, folder):
     # saving file
     save_conf(file, config)
 
+def get_full_system_name( sys ):
+    if sys == "PSV":
+        return("Playstation Vita")
+    elif sys == "PSP":
+        return("Playstation Portable")
+    elif sys == "PSX":
+        return("Playstation")
+    elif sys == "PSM":
+        return("Playstation Mobile")
+    else:
+        return None
 
 ##MAIN##
 def main():
@@ -522,7 +534,7 @@ def main():
     parser.add_argument("search", type=str, nargs="?",
                         help="search something to download, you can search by name or ID or use '_all' to return everythning.")
     parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
-                        type=str, required=True, choices=["psv", "psp", "psx", "psm", "_all"])
+                        type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm"])
     parser.add_argument("-r", "--region", help="the region for the pkj you want.",
                         type=str, required=False, choices=["usa", "eur", "jap", "asia"])
     parser.add_argument("-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
@@ -544,82 +556,57 @@ def main():
     parser.add_argument('--version', action='version', version='%(prog)s v0.5')
 
     args = parser.parse_args()
-    system = args.console.upper()
-    # check if -cso was called outside psp console
+
+    if args.console:
+        system = [x.upper() for x in args.console]
+    else:
+        system = ["PSV","PSP","PSX","PSM"]
+        
     if args.eboot == True and args.compress_cso != None:
         printft(
             HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time.</red>"))
         sys.exit(1)      
-    
-    use_eboot = False
-    if args.eboot == True and system != "PSP":
-        printft(
-            HTML("<red>[ERROR] EBOOT.PBP extractiong is only available for PSP games.</red>"))
-        sys.exit(1)
-    else:
-        use_eboot = args.eboot
-    
-    cso_factor = False
-    if args.compress_cso != None and system != "PSP":
-        printft(
-            HTML("<red>[ERROR] cso compression is only available for PSP games.</red>"))
-        sys.exit(1)
-    else:
+
+    if args.compress_cso:
         cso_factor = args.compress_cso
-        if cso_factor == None:
-            cso_factor = False
+    else:
+        cso_factor = False
 
-    # check if updating db is needed
-
-    if system == "PSP" and args.demos == True:
-        print("ERROR: NPS has no support for demos with the Playstation Portable (PSP), exiting...")
-        sys.exit(1)
-    if system == "PSX" and True in [args.dlcs, args.themes, args.updates, args.demos]:
-        print(
-            "ERROR: NPS only supports game downlaods for the Playstation (PSX), exiting...")
-        sys.exit(1)
-
-    if system == "_ALL" and args.search != None:
-        print("ERROR: you can't search for multiple systems, this option is only used to make a full update like:\n\tmain.py -c _all -u")
+    # TODO: check if updating db is needed
 
     if args.update == True:
-        if system == "_ALL":
-            printft(HTML("<grey>%s</grey>" % fill_term()))
-            printft(HTML("<green>[UPDATEDB] all databases:</green>"))
-        else:
-            printft(HTML("<grey>%s</grey>" % fill_term()))
-
-        if system in ["PSV", "_ALL"]:
-            # printft(HTML("<grey>%s</grey>" %fill_term()))
-            printft(HTML("<green>[UPDATEDB] Playstation Vita:</green>"))
-            updatedb(database_psv_links, "PSV", DBFOLDER, WGET)
-
-        if system in ["PSP", "_ALL"]:
-            # printft(HTML("<grey>%s</grey>" %fill_term()))
-            printft(HTML("<green>[UPDATEDB] Playstation Portable:</green>"))
-            updatedb(database_psp_links, "PSP", DBFOLDER, WGET)
-
-        if system in ["PSX", "_ALL"]:
-            # printft(HTML("<grey>%s</grey>" %fill_term()))
-            printft(HTML("<green>[UPDATEDB] Playstation:</green>"))
-            updatedb(database_psx_links, "PSX", DBFOLDER, WGET)
-
-        if system in ["PSM", "_ALL"]:
-            # printft(HTML("<grey>%s</grey>" %fill_term()))
-            printft(HTML("<green>[UPDATEDB] Playstation Mobile:</green>"))
-            updatedb(database_psm_links, "PSM", DBFOLDER, WGET)
-
+        printft(HTML("<grey>%s</grey>" % fill_term()))
+        for i in system:     
+            printft(HTML("<green>[UPDATEDB] %s:</green>" %get_full_system_name(i)))
+            if i == "PSV":
+                db = database_psv_links
+            elif i == "PSP":
+                db = database_psp_links
+            elif i == "PSX":
+                db = database_psx_links
+            elif i == "PSM":
+                db = database_psm_links
+            updatedb(db, i, DBFOLDER, WGET)
+        
+        printft(HTML("<grey>%s</grey>" % fill_term()))
         if args.search is None:
-            if system != "_ALL":
-                printft(HTML("<grey>%s</grey>" % fill_term()))
-                printft(
-                    HTML("<orange>[SEARCH] No search term provided, exiting.</orange>"))
+            printft(
+                HTML("<orange>[SEARCH] No search term provided.</orange>"))
+            printft(HTML("<grey>%s</grey>" % fill_term()))
+            printft(HTML("<blue>Done!</blue>"))
             sys.exit(0)
 
+    
     elif args.update == False and args.search is None:
         printft(HTML(
             "<red>[SEARCH] No search term provided, you need to search for something, exiting.</red>"))
         sys.exit(1)
+    
+    #check if unsupported downloads were called
+    if "PSP" in system and args.demos == True:
+        printft(HTML("<oragen>[SEARCH] NPS has no support for demos with the Playstation Portable (PSP)</oragen>"))
+    if "PSX" in system and True in [args.dlcs, args.themes, args.updates, args.demos]:
+        printft(HTML("<oragen>[SEARCH] NPS only supports game downlaods for the Playstation (PSX)</oragen>"))
 
     # check region
     if args.region is None:
@@ -633,24 +620,20 @@ def main():
     if list(what_to_dl.values()) == [False, False, False, False, False]:
         what_to_dl = {"games": True, "dlcs": True,
                       "themes": True, "updates": True, "demos": True}
-
-    maybe_download = search_db(
-        args.console, what_to_dl, args.search, reg, DBFOLDER)
-
+   
+    maybe_download = []
+    for a in system:
+        maybe_download = maybe_download + search_db(a, what_to_dl, args.search, reg, DBFOLDER)
+    
+    # test if the result isn't empty
     if len(maybe_download) == 0:
-        print("No results found, exiting...")
+        printft(HTML("<oragen>[SEARCH] No results found, try searching for something else or updating your database</oragen>"))
         sys.exit(0)
 
     # adding indexes to maybe_download
     for i in range(0, len(maybe_download)):
         # maybe_download[i]["Index"] = str(i)
         maybe_download[i]["Index"] = str(i+1)
-
-    # test if the result isn't empty
-    if len(maybe_download) == 0:
-        print("Oops, there's nothing that matches '" + args.search +
-              "'.Try searching for something else, exiting...")
-        sys.exit(0)
 
     # print possible mathes to the user
     if len(maybe_download) > 1:
@@ -700,6 +683,7 @@ def main():
             else:
                 raise ValidationError(message='Enter something or press Ctrl+C to close.',
                                       cursor_position=0)
+    
     if len(maybe_download) > 1:
         try:
             index_to_download_raw = prompt(
@@ -713,12 +697,7 @@ def main():
     else:
         index_to_download_raw = "1"
 
-    # TODO: remove redundant code
-    # check if the user didn't sent an empty request
-    # if len(index_to_download_raw) == 0:
-    # 	print("ERROR: you must select something to download")
-    # 	sys.exit(1)
-
+    #provides help
     if index_to_download_raw.lower() == 'h':
         printft(HTML("<grey>\tSuppose you have 10 files to select from:</grey>"))
         printft(HTML("<grey>\tTo download file 2, you type: 2</grey>"))
@@ -818,8 +797,8 @@ def main():
     files_downloaded = []
     for i in files_to_download:
         # download file
-        dl_result = dl_file(i, args.console, DLFOLDER, WGET)
-        downloaded_file_loc = DLFOLDER + "/PKG/" + system + "/" + \
+        dl_result = dl_file(i,  i["System"], DLFOLDER, WGET)
+        downloaded_file_loc = DLFOLDER + "/PKG/" + i["System"] + "/" + \
             i['Type']+"/"+i['PKG direct link'].split("/")[-1]
 
         # checksum
@@ -839,10 +818,9 @@ def main():
                         sha256_exp = ""
 
                     if sha256_dl != sha256_exp:
-                        print(
-                            "CHECKSUM: checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg.")
-                        print("CHECKSUM: corrupted file location:", DLFOLDER + "/PKG/" +
-                              system + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1])
+                        loc = DLFOLDER + "/PKG/" + i["System"] + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
+                        printft(HTML("<red>[CHECKSUM] checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg</red>"))
+                        printft(HTML("<red>[CHECKSUM] corrupted file location: %s</red>" %loc))
                         break
                     else:
                         printft(
@@ -858,37 +836,33 @@ def main():
     printft(HTML("<grey>%s</grey>" % fill_term()))
     if PKG2ZIP != False:
         for i in files_downloaded:
-            # if i['Type'] not in ["THEMES"]:
-            if True:
-                zrif = ""
-                dl_dile_loc = DLFOLDER + "/PKG/" + system + "/" + \
-                    i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
-                dl_location = DLFOLDER+"/Extracted"
+            zrif = ""
+            dl_dile_loc = DLFOLDER + "/PKG/" + i["System"] + "/" + \
+                i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
+            dl_location = DLFOLDER+"/Extracted"
 
-                try:
-                    zrif = i['zRIF']
-                except:
-                    pass
-                # TODO: expose the exact directory were the pkg was extracted!
-                printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                             (i['Name'], DLFOLDER+"/Extracted/")))
+            try:
+                zrif = i['zRIF']
+            except:
+                pass
+            # TODO: expose the exact directory were the pkg was extracted!
+            printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                            (i['Name'], DLFOLDER+"/Extracted/")))
 
-                # -x is default argument to no create .zip files
-                args = ["-x"]
-                if cso_factor != False and i["Type"] == "GAMES":
-                    args.append("-c"+cso_factor)
-                elif cso_factor != False and i["Type"] != "GAMES":
-                    printft(HTML(
-                        "<orange>[EXTRACTION] cso is only supported for PSP games, since you're downloading a PSP %s the compression will be skipped.</orange>" % i["Type"][:-1].lower()))
-                # append more commands here if needed!
+            # -x is default argument to not create .zip files
+            args = ["-x"]
+            if cso_factor != False and i["Type"] == "GAMES" and i["System"] == "PSP":
+                args.append("-c"+cso_factor)
+            elif cso_factor != False and i["Type"] != "GAMES" and i["System"] != "PSP":
+                printft(HTML(
+                    "<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped.</orange>" %(i["System"], i["Type"][:-1].lower()) ))
+            # append more commands here if needed!
 
-                if system == "PSV" and zrif != "":
-                    run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, args, zrif)
-                else:
-                    run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, args)
+            if i["System"] == "PSV" and zrif != "":
+                run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, args, zrif)
             else:
-                print(
-                    "EXTRACTION: this type of file can't be extracted by pkg2zip:", i['Type'].lower())
+                run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, args)
+
     else:
         printft(HTML(
             "<orange>[EXTRACTION] skipping extraction since there's no pkg2zip binary in your system.</orange>"))
