@@ -689,10 +689,10 @@ def main():
             index_to_download_raw = prompt(
                 "Enter the number for what you want to download, you can enter multiple numbers using commas: ", validator=Check_game_input())
         except KeyboardInterrupt:
-            printft(HTML("<grey>Interrupted by user, exiting...</grey>"))
+            printft(HTML("<grey>Interrupted by user, exiting.</grey>"))
             sys.exit(0)
         except:
-            printft(HTML("<grey>Interrupted by user, exiting...</grey>"))
+            printft(HTML("<grey>Interrupted by user, exiting.</grey>"))
             sys.exit(0)
     else:
         index_to_download_raw = "1"
@@ -710,7 +710,7 @@ def main():
         printft(
             HTML("<grey>\tTo download files 1, 4 and files 6 to 10: 1,4,6-10</grey>"))
         printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6</grey>"))
-        printft(HTML("<grey>Exiting...</grey>"))
+        printft(HTML("<grey>Exiting</grey>"))
         sys.exit(0)
 
     # parsing indexes
@@ -788,10 +788,10 @@ def main():
         if accept.lower() != "y":
             raise
     except KeyboardInterrupt:
-        printft(HTML("<grey>Interrupted by user, exiting...</grey>"))
+        printft(HTML("<grey>Interrupted by user, exiting.</grey>"))
         sys.exit(0)
     except:
-        printft(HTML("<grey>Interrupted by user, exiting...</grey>"))
+        printft(HTML("<grey>Interrupted by user, exiting.</grey>"))
         sys.exit(0)
 
     files_downloaded = []
@@ -807,7 +807,7 @@ def main():
                 printft(HTML("<grey>%s</grey>" % fill_term()))
                 if i["SHA256"] == "":
                     printft(HTML(
-                        "<orange>[CHECKSUM] No checksum provided by NPS, skipping check...</orange>"))
+                        "<orange>[CHECKSUM] No checksum provided by NPS, skipping check.</orange>"))
                 else:
 
                     sha256_dl = checksum_file(downloaded_file_loc)
@@ -828,7 +828,7 @@ def main():
             files_downloaded.append(i)
         else:
             print(
-                "ERROR: skipping file, wget was unable to download, try again latter...")
+                "ERROR: skipping file, wget was unable to download, try again latter.")
 
     # autoextract with pkg2zip
     # PKG2ZIP = check_pkg2zip(PKG2ZIP)
