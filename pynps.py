@@ -587,9 +587,9 @@ def main():
             elif i == "PSM":
                 db = database_psm_links
             updatedb(db, i, DBFOLDER, WGET)
-        
-        printft(HTML("<grey>%s</grey>" % fill_term()))
+         
         if args.search is None:
+            printft(HTML("<grey>%s</grey>" % fill_term()))
             printft(
                 HTML("<orange>[SEARCH] No search term provided.</orange>"))
             printft(HTML("<grey>%s</grey>" % fill_term()))
@@ -824,7 +824,7 @@ def main():
                         break
                     else:
                         printft(
-                            HTML("<green>[CHECKSUM] downloaded file is ok!</green>"))
+                            HTML("<green>[CHECKSUM] downloaded is not corrupted!</green>"))
             files_downloaded.append(i)
         else:
             print(
