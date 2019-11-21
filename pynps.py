@@ -31,8 +31,10 @@ from prompt_toolkit import HTML
 from tempfile import TemporaryDirectory as TmpFolder
 from shutil import copyfile
 
-##FUNCTIONS##
+##Versioning
+VERSION = "0.5"
 
+##FUNCTIONS##
 
 def create_folder(location):
     try:
@@ -553,7 +555,7 @@ def main():
                         type=str, required=False, choices=["1", "2", "3", "4", "5", "6", "7", "8", "9"])
     parser.add_argument("-u", "--update", help="update database.",
                         action="store_true")
-    parser.add_argument('--version', action='version', version='%(prog)s v0.5')
+    parser.add_argument('--version', action='version', version='%(prog)s v'+VERSION)
 
     args = parser.parse_args()
 
