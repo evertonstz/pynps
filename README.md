@@ -76,7 +76,7 @@ In case you decide to store your binary outside /home/USER/.config/pyNPS/lib/ yo
 Before downloading any of your legally obtained (wink wink wink) pkg file you have to update your NPS database, you don't have to do it every time you want to download something, but only in your first run to construct your initial database and after that just once in a while to get info about new pkgs NPS adds to their database:
 
 Updating all system's databases:
->$ pynps -c _all -u
+>$ pynps -u
 
 <br/>
 Updating database per console:
@@ -86,6 +86,8 @@ Updating database per console:
 >$ pynps -c psp -u #updates only psp's db
 
 >$ pynps -c psv -u #updates only psx's db
+
+>$ pynps -c psv -c psm -u #updates only psx's and psm's db
 
 Database is located by default at: /home/USER/.config/pyNPS/database
 ******
@@ -97,7 +99,7 @@ If you delete it, it'll be recreated with default parameters in the next run. Th
 ******
 # Examples
 ## Searching
-Updating the PSP database and searching for a Sonic game in any region:
+If you wanna update the PSP's database before searching for a PSP Sonic game in any region:
 >$ pynps -c psp -u -dg sonic
 ```
 Updating Database for Playstation Portable:
@@ -109,68 +111,91 @@ Downloading File: PSP_THEMES.tsv [####################] 100% 0K @ 100%/s
 renaming file: ./DATABASE/PSP/PSP_THEMES.tsv ./DATABASE/PSP/THEMES.tsv
 Downloading File: PSP_UPDATES.tsv [####################] 100% 0K @ 928K=0.02s/s
 renaming file: ./DATABASE/PSP/PSP_UPDATES.tsv ./DATABASE/PSP/UPDATES.tsv
-1 ) ULUS10323 | US   | GAMES | Sonic Rivals 2 | 455.7 MiB
-2 ) ULES00622 | EU   | GAMES | Sonic Rivals | 195.1 MiB
-3 ) ULES00940 | EU   | GAMES | Sonic Rivals 2 | 219.8 MiB
-4 ) ULUS10195 | US   | GAMES | Sonic Rivals | 196.8 MiB
+1 ) PSP | ULUS10323 | US   | GAMES | Sonic Rivals 2 | 455.7 MiB
+2 ) PSP | ULES00622 | EU   | GAMES | Sonic Rivals | 195.1 MiB
+3 ) PSP | ULES00940 | EU   | GAMES | Sonic Rivals 2 | 219.8 MiB
+4 ) PSP | ULUS10195 | US   | GAMES | Sonic Rivals | 196.8 MiB
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
-Search for an european release of spyro for PSX
->$ pynps -c psx -r eur -dg spyro
+Search for an european release of Crash for PSX and PSP
+>$ pynps -c psp -c psx -r eur -dg crash
 ```
-1 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer  | 343.6 MiB
-2 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer (German store)  | 343.6 MiB
-3 ) NPEE00074 | EU   | GAMES | Spyro 2: Gateway to Glimmer (Russian store)  | 343.6 MiB
-4 ) NPEE00075 | EU   | GAMES | Spyro: Year of The Dragon  | 339.6 MiB
-5 ) NPEE00075 | EU   | GAMES | Spyro: Year of The Dragon (German store)  | 339.7 MiB
-6 ) NPEE00075 | EU   | GAMES | Spyro: Year of The Dragon (Russian store)  | 339.6 MiB
-7 ) NPEE00076 | EU   | GAMES | Spyro the Dragon  | 329.8 MiB
-8 ) NPEE00076 | EU   | GAMES | Spyro the Dragon (German store)  | 329.8 MiB
-9 ) NPEE00076 | EU   | GAMES | Spyro the Dragon (Russian store)  | 329.8 MiB
-Enter the number for what you want to download, you can enter multiple separated by commas:
+1  ) PSP | NPEG00020 | EU   | GAMES   | Gravity Crash Portable | 46.09 MiB
+2  ) PSP | NPEZ00305 | EU   | GAMES   | 3,2,1…SuperCrash! (Minis) | 22.4 MiB
+3  ) PSX | NPEE00001 | EU   | GAMES   | Crash Bandicoot  | 461.2 MiB
+4  ) PSX | NPEE00001 | EU   | GAMES   | Crash Bandicoot (German store)  | 461.2 MiB
+5  ) PSX | NPEE00008 | EU   | GAMES   | Crash Bandicoot 2: Cortex Strikes Back  | 133.6 MiB
+6  ) PSX | NPEE00008 | EU   | GAMES   | Crash Bandicoot 2: Cortex Strikes Back (German store)  | 133.6 MiB
+7  ) PSX | NPEE00014 | EU   | GAMES   | Crash Bandicoot 3: Warped  | 133.7 MiB
+8  ) PSX | NPEE00014 | EU   | GAMES   | Crash Bandicoot 3: Warped (German store)  | 133.7 MiB
+9  ) PSX | NPEE00014 | EU   | GAMES   | Crash Bandicoot 3: Warped (Italian Store)  | 133.7 MiB
+10 ) PSX | NPEE00014 | EU   | GAMES   | Crash Bandicoot 3: Warped (Spanish)  | 133.7 MiB
+11 ) PSX | NPEE00026 | EU   | GAMES   | Crash Team Racing  | 323.2 MiB
+12 ) PSX | NPEE00026 | EU   | GAMES   | Crash Team Racing (German Store)  | 323.3 MiB
+13 ) PSX | NPEE00026 | EU   | GAMES   | Crash Team Racing (Italian Store)  | 323.3 MiB
+Enter the number for what you want to download, you can enter multiple numbers using commas: 
 ```
 ******
 Search for for themes and demos related to the word "touhou in any region:
 >$ pynps -c psv -dt -dde touhou
 ```
-1  ) PCSE00947 | US   | THEMES | Touhou Genso Rondo Theme | 6.723 MiB
-2  ) PCSE00990 | US   | THEMES | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
-3  ) PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle 4 Theme | 4.038 MiB
-4  ) PCSB01039 | EU   | THEMES | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
-5  ) PCSB01129 | EU   | THEMES | Touhou Kobuto V: Burst Battle Theme 4 | 4.038 MiB
-6  ) PCSG00999 | JP   | THEMES | Touhou Kobuto V | 2.533 MiB
-7  ) PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle Theme 3 | 5.581 MiB
-8  ) PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle Theme 2 | 5.174 MiB
-9  ) PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle Theme 1 | 2.533 MiB
-10 ) PCSG90252 | JP   | DEMOS  | Touhou Soujinengi V (DEMO) | 335.6 MiB
+1  ) PSV | PCSE00947 | US   | THEMES | Touhou Genso Rondo Theme | 6.723 MiB
+2  ) PSV | PCSE00990 | US   | THEMES | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
+3  ) PSV | PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle 4 Theme | 4.038 MiB
+4  ) PSV | PCSB01039 | EU   | THEMES | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
+5  ) PSV | PCSB01129 | EU   | THEMES | Touhou Kobuto V: Burst Battle Theme 4 | 4.038 MiB
+6  ) PSV | PCSG00999 | JP   | THEMES | Touhou Kobuto V | 2.533 MiB
+7  ) PSV | PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle Theme 3 | 5.581 MiB
+8  ) PSV | PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle Theme 2 | 5.174 MiB
+9  ) PSV | PCSE01104 | US   | THEMES | Touhou Kobuto V: Burst Battle Theme 1 | 2.533 MiB
+10 ) PSV | PCSG90252 | JP   | DEMOS  | Touhou Soujinengi V (DEMO) | 335.6 MiB
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
-Search for for everything (themes, games, demos, dlcs and updates) related to the word "knight" in any region region:
+Search for for everything (themes, games, demos, dlcs and updates) related to the word "knight" in any region region on the psvita database:
 >$ pynps -c psv knight
 
 <br/>
-Or if you like suffering:
+Or if you like suffering (I cropped the output because it returned 53 results):
 
 >$ pynps -c psv -dg -dd -dt -du -dde knight
 ```
-1  ) PCSE00244 | US   | GAMES   | Valhalla Knights 3 | 897.8 MiB
-13 ) PCSA00017 | US   | DLCS    | LittleBigPlanet Knights of Old Pre-Order Costume Pack | 100 KiB
-49 ) PCSB00861 | EU   | THEMES  | Digimon Story Cyber Sleuth Custom Theme: Royal Knights Set | 4.999 MiB
-53 ) PCSB00743 | EU   | UPDATES | Shovel Knight | 120.8 MiB
+1  ) PSV | PCSE00244 | US   | GAMES   | Valhalla Knights 3 | 897.8 MiB
+13 ) PSV | PCSA00017 | US   | DLCS    | LittleBigPlanet Knights of Old Pre-Order Costume Pack | 100 KiB
+49 ) PSV | PCSB00861 | EU   | THEMES  | Digimon Story Cyber Sleuth Custom Theme: Royal Knights Set | 4.999 MiB
+53 ) PSV | PCSB00743 | EU   | UPDATES | Shovel Knight | 120.8 MiB
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
 ******
-I see... you just wanna everything related to Shovel Knight? Sure:
->$ pynps -c psv "shovel knight"
+If you just wanna everything related to God of War in all systems (psp, psv, psx and psm)? Sure, you can omit "-c/--console" and it will assume you want every gaming system:
+>$ pynps "god of war"
+
+Or
+
+>$ pynps -c psv -c psp -c psx -c psm "god of war"
 ```
-1 ) PCSE00640 | US   | GAMES   | Shovel Knight | 132.2 MiB
-2 ) PCSB00743 | EU   | GAMES   | Shovel Knight | 137.6 MiB
-3 ) PCSE00640 | US   | THEMES  | Shovel Knight Theme | 4.34 MiB
-4 ) PCSE00640 | US   | UPDATES | Shovel Knight | 124.1 MiB
-5 ) PCSB00743 | EU   | UPDATES | Shovel Knight | 120.8 MiB
-Enter the number for what you want to download, you can enter multiple separated by commas:
+1  ) PSV | PCSA00017 | US   | DLCS    | LittleBigPlanet PS Vita God of War Kratos Costume | 100 KiB
+2  ) PSV | PCSA00069 | US   | DLCS    | PS All-Stars PS Vita God of War's Zeus | 100 KiB
+3  ) PSV | PCSA00069 | US   | DLCS    | PS All-Stars PS Vita God of War's Warrior of Apollo Costume | 100 KiB
+4  ) PSV | PCSA00069 | US   | DLCS    | PS All-Stars PS Vita God of War's Hades Minion | 100 KiB
+5  ) PSV | PCSF00021 | EU   | DLCS    | God of War - Level Kit (PS Vita) | 100 KiB
+6  ) PSV | PCSA00017 | US   | DLCS    | LittleBigPlanet™ PS Vita God of War™ minipack | 100 KiB
+7  ) PSV | PCSA00126 | US   | GAMES   | God of War Collection | 3.108 GiB
+8  ) PSV | PCSC00059 | JP   | GAMES   | God of War Collection | 2.435 GiB
+9  ) PSV | PCSF00438 | EU   | GAMES   | God of War Collection | 3.301 GiB
+10 ) PSP | NPJH50170 | JP   | GAMES   | God of War: Rakujitsu no Hisoukyoku | 1.278 GiB
+11 ) PSP | NPEG00023 | EU   | GAMES   | God of War: Chains of Olympus | 1.095 GiB
+12 ) PSP | NPEG00044 | EU   | GAMES   | God of War: Ghost of Sparta | 1.117 GiB
+13 ) PSP | NPHG00027 | ASIA | GAMES   | God of War: Chains of Olympus | 1.289 GiB
+14 ) PSP | NPHG00092 | ASIA | GAMES   | God of War: Ghost of Sparta | 1.078 GiB
+15 ) PSP | NPEG00045 | EU   | GAMES   | God of War®: Ghost of Sparta | 1024 MiB
+16 ) PSP | NPUG80325 | US   | GAMES   | God of War: Chains of Olympus | 1.287 GiB
+17 ) PSP | NPUG80508 | US   | GAMES   | God of War Ghost of Sparta | 1.087 GiB
+18 ) PSP | NPHG00091 | ASIA | GAMES   | God of War™ Ghost of Sparta 體驗版 | 96.54 MiB
+19 ) PSP | NPEW00072 | EU   | THEMES  | God of War: Ghost of Sparta Theme (pre-order bundle) | 370.5 KiB
+20 ) PSP | NPEW00072 | EU   | THEMES  | God of War Ghost of Sparta PSP Theme | 370.5 KiB
+Enter the number for what you want to download, you can enter multiple numbers using commas:                                                                       
 ```
 ******
 Wanna return every single american DLC for the psvita? Sure, it's slow but it's a free country:
@@ -183,16 +208,16 @@ that's too big to output here, mate :<
 After you make your search you'll probably want to download something, if it's a single file that's pretty easy, just type the number when asked and it'll start the download for you. If you wanna multiple downloads, you can always separate the numbers by commas. But there's an even more advance (and cool) way for downloading things, and that's using "slices", here's how to do it with some examples:
 >$ pynps -c psv -dt -dde touhou
 ```
-1  ) PCSE00947 | US   | THEMES  | Touhou Genso Rondo Theme | 6.723 MiB
-2  ) PCSE00990 | US   | THEMES  | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
-3  ) PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle 4 Theme | 4.038 MiB
-4  ) PCSB01039 | EU   | THEMES  | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
-5  ) PCSB01129 | EU   | THEMES  | Touhou Kobuto V: Burst Battle Theme 4 | 4.038 MiB
-6  ) PCSG00999 | JP   | THEMES  | Touhou Kobuto V | 2.533 MiB
-7  ) PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle Theme 3 | 5.581 MiB
-8  ) PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle Theme 2 | 5.174 MiB
-9  ) PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle Theme 1 | 2.533 MiB
-10 ) PCSG90252 | JP   | DEMOS   | Touhou Soujinengi V (DEMO) | 335.6 MiB
+1  ) PSV | PCSE00947 | US   | THEMES  | Touhou Genso Rondo Theme | 6.723 MiB
+2  ) PSV | PCSE00990 | US   | THEMES  | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
+3  ) PSV | PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle 4 Theme | 4.038 MiB
+4  ) PSV | PCSB01039 | EU   | THEMES  | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
+5  ) PSV | PCSB01129 | EU   | THEMES  | Touhou Kobuto V: Burst Battle Theme 4 | 4.038 MiB
+6  ) PSV | PCSG00999 | JP   | THEMES  | Touhou Kobuto V | 2.533 MiB
+7  ) PSV | PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle Theme 3 | 5.581 MiB
+8  ) PSV | PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle Theme 2 | 5.174 MiB
+9  ) PSV | PCSE01104 | US   | THEMES  | Touhou Kobuto V: Burst Battle Theme 1 | 2.533 MiB
+10 ) PSV | PCSG90252 | JP   | DEMOS   | Touhou Soujinengi V (DEMO) | 335.6 MiB
 Enter the number for what you want to download, you can enter multiple numbers using commas:
 ```
 * To download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9
@@ -207,9 +232,14 @@ Just run:
 >$ pynps -h
 
 ```
-usage: pynps.py [-h] -c {psv,psp,psx,psm,_all} [-r {usa,eur,jap,asia}] [-dg]
-                [-dd] [-dt] [-du] [-dde] [-cso {1,2,3,4,5,6,7,8,9}] [-u]
+usage: pynps    [-h] [-c {psv,psp,psx,psm}] [-r {usa,eur,jap,asia}] [-dg]
+                [-dd] [-dt] [-du] [-dde] [-eb] [-cso {1,2,3,4,5,6,7,8,9}] [-u]
+                [--version]
                 [search]
+
+pyNPS is a Nopaystation client writen in python 3.7 that, with the help of
+wget and pkg2zip, can search, download and decrypt/extract PSVita, PSP, PSX
+and PSM games from Nopaystation database.
 
 positional arguments:
   search                search something to download, you can search by name
@@ -217,7 +247,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -c {psv,psp,psx,psm,_all}, --console {psv,psp,psx,psm,_all}
+  -c {psv,psp,psx,psm}, --console {psv,psp,psx,psm}
                         the console you wanna get content with NPS.
   -r {usa,eur,jap,asia}, --region {usa,eur,jap,asia}
                         the region for the pkj you want.
@@ -226,12 +256,15 @@ optional arguments:
   -dt, --themes         to download PSV/PSP themes.
   -du, --updates        to download PSV/PSP game updates.
   -dde, --demos         to download PSV demos.
+  -eb, --eboot          use this argument to unpack PSP games as EBOOT.PBP
   -cso {1,2,3,4,5,6,7,8,9}, --compress_cso {1,2,3,4,5,6,7,8,9}
-                        use this argument to compress PSP games as .cso files.
-                        You can use any number beetween 1 and 9 for
+                        use this argument to unpack PSP games as a compressed
+                        .cso file. You can use any number beetween 1 and 9 for
                         compression factors, were 1 is less compressed and 9
                         is more compressed.
   -u, --update          update database.
+  --version             show program's version number and exit
+
 ```
 ******
 # Make a donation
