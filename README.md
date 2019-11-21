@@ -27,8 +27,28 @@ PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in pytho
 There are tree methods you can install pyNPS:
 
 ### Manual
+This will work in any 64bits Linux distro.
 
-You can grab the latest x86_64 binary file at [releases](https://github.com/evertonstz/pyNPS/releases). The binary is made with pyinstaller, so there's no need to deal with python dependencies, just download it and use it (ofc you'll still need pkg2zip and wget installed or inside ~/.config/pynps/lib)
+You can grab the latest x86/usr/bin/_64 binary file at [releases](https://github.com/evertonstz/pyNPS/releases). The binary is made with pyinstaller, so there's no need to deal with python dependencies, just download it and use it (ofc you'll still need pkg2zip and wget installed or inside ~/.config/pynps/lib)
+
+If you want to just use it by typing "pynps" in your terminal, you have to copy your binary to /usr/bin/
+
+Here's a full guide:
+- download the latest release [here](https://github.com/evertonstz/pyNPS/releases), last time time this readme was updated it was the v0.5, so you'll need to download the file named  pynps-v0.5-linux-x86_64;
+
+- enter your terminal and cd to were you downloaded the file, usually it's:
+>$ cd ~/Download
+
+- move the downloaded file to the /usr/bin folder by runing (don't forget to change the version if you're installing a newer release):
+>$ sudo mv pynps-v0.5-linux-x86_64 /usr/bin/pynps
+
+- make sure the moved file is marked as executable:
+>$ sudo chmod +x /usr/bin/pynps
+
+- test the newly installed binary, pynps should output the version:
+>$ pynps --version
+
+After this proceed to the [pkg2zip](#pkg2zip) section, you'll also need to install that.
 
 ### AUR - Arch/Manjaro/Suse
 
@@ -55,11 +75,13 @@ $ python pynps.py
 ## pkg2zip
 This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitter.com/NoPayStation/status/1096508850080043010), to handle the .pkg extractions, you have 3 options:
 
-1. You use pre-compied binary, compiled by myelf (version 2.2) [here](https://gofile.io/?c=ov20wF), just drop it inside /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
+1. Use pre-compied binary, compiled by myelf (version 2.2) [here](https://gofile.io/?c=ov20wF), just drop it inside /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
 
-2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip-fork/), after you install it pyNPS will autodetect and use it automatically, no need to add the path to your config file;
+2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip-fork/) after you install it pyNPS will autodetect and use it automatically, no need to add the path to your config file, the yay command is:
 
-3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases), drop the binary here /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
+>$ yay -S pkg2zip-fork/
+
+3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases) and move  the binary into this folder /home/USER/.config/pyNPS/lib/ (USER is your username) after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
 
 In case you decide to store your binary outside /home/USER/.config/pyNPS/lib/ you'll need to specify this folder in your config file unde the "pkg2zip_location" option.
 
