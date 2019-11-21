@@ -323,7 +323,7 @@ def search_db(system, type, query, region, DBFOLDER):  # OK!
                         if data == None:
                             data = "None"
                         if query in data and row not in o:
-                            if row['PKG direct link'] != "MISSING":
+                            if row['PKG direct link'] not in ["", "MISSING", None]:
                                 if region == "all":
                                     o.append(row)
                                 else:
@@ -850,18 +850,21 @@ def main():
                             (i['Name'], DLFOLDER+"/Extracted/")))
 
             # -x is default argument to not create .zip files
-            args = ["-x"]
+            pkg2zip_args = ["-x"]
             if cso_factor != False and i["Type"] == "GAMES" and i["System"] == "PSP":
-                args.append("-c"+cso_factor)
+                pkg2zip_args.append("-c"+cso_factor)
             elif cso_factor != False and i["Type"] != "GAMES" and i["System"] != "PSP":
                 printft(HTML(
                     "<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped.</orange>" %(i["System"], i["Type"][:-1].lower()) ))
-            # append more commands here if needed!
 
-            if i["System"] == "PSV" and zrif != "":
-                run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, args, zrif)
+            if args.eboot == True and i["Type"] == "GAMES" and i["System"] == "PSP":
+                pkg2zip_args.append("-p")
+            # append more commands here if needed!
+            print(zrif)
+            if i["System"] == "PSV" and zrif not in ["", "MISSING", None]:
+                run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, zrif)
             else:
-                run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, args)
+                run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args)
 
     else:
         printft(HTML(
