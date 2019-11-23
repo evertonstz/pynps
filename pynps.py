@@ -461,6 +461,23 @@ def get_full_system_name( sys ):
         return("Playstation Mobile")
     else:
         return None
+    
+def get_theme_folder_name( loc ):
+    a = os.listdir(loc)
+    a = sorted([int(x) for x in a])
+    comp = list(range(1,a[-1]+1))
+    diff = list(set(comp) - set(a))
+
+    if len(diff) > 0:
+        selected = diff[0]
+    else: # == 0
+        selected = a[-1]+1
+    #put the zeros in the name 00000005 len = 8
+    selected = str(selected)
+    zero_lst = [0]*(8-len(selected))
+    return_lst = [str(x) for x in zero_lst]
+    return_lst.append(selected)
+    return(''.join(return_lst))
 
 ##MAIN##
 def main():
@@ -552,7 +569,7 @@ def main():
     parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP games as EBOOT.PBP",
                         action="store_true")
     parser.add_argument("-cso", "--compress_cso", help="use this argument to unpack PSP games as a compressed .cso file. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
-                        type=str, required=False, choices=["1", "2", "3", "4", "5", "6", "7", "8", "9"])
+                        type=str, required=False, choices=[str(x) for x in range(1,10)])
     parser.add_argument("-u", "--update", help="update database.",
                         action="store_true")
     parser.add_argument('--version', action='version', version='%(prog)s v'+VERSION)
@@ -683,7 +700,7 @@ def main():
                     raise ValidationError(
                         message='Do not use leters. Press "h" for help.')
             else:
-                raise ValidationError(message='Enter something or press Ctrl+C to close.',
+                raise ValidationError(message='Enter something or press Ctrl+C to close. Press "h" for help.',
                                       cursor_position=0)
     
     if len(maybe_download) > 1:
@@ -847,15 +864,57 @@ def main():
                 zrif = i['zRIF']
             except:
                 pass
-            # TODO: expose the exact directory were the pkg was extracted!
-            printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                            (i['Name'], DLFOLDER+"/Extracted/")))
+            
+            # expose the exact directory were the pkg was extracted!
+            if i["System"] == "PSV":
+                if i["Type"] in ["GAMES", "DEMOS"]:
+                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                    (i['Name'], DLFOLDER+"/Extracted/app/"+i['Title ID'])))
+                if i["Type"] == "UPDATES":
+                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                    (i['Name'], DLFOLDER+"/Extracted/patch/"+i['Title ID'])))
+                if i["Type"] == "DLCS":
+                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                    (i['Name'], DLFOLDER+"/Extracted/addcont/"+i['Title ID'])))
+                if i["Type"] == "THEMES":
+                    theme_folder_name = get_theme_folder_name(DLFOLDER+"/Extracted/bgdl/t/")
+                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                    (i['Name'], DLFOLDER+"/Extracted/bgdl/t/"+theme_folder_name+"/"+i['Title ID'])))
+                    
+            if i["System"] == "PSP":
+                if i["Type"] == "GAMES":
+                    if cso_factor == False and args.eboot == False:
+                        printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                        (i['Name'], DLFOLDER+"/Extracted/pspemu/ISO/<i>game_name</i> ["+i['Title ID']+"].iso")))                
+                    elif cso_factor in [str(x) for x in range(1,10)]:
+                        printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                        (i['Name'], DLFOLDER+"/Extracted/pspemu/ISO/<i>game_name</i> ["+i['Title ID']+"].cso")))                
+                    elif args.eboot == True:
+                        printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                        (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))                
+                if i["Type"] == "DLCS":
+                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                    (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))
+                if i["Type"] == "THEMES":
+                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                    (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/THEME/<i>theme_name</i>.PTF")))
+                if i["Type"] == "UPDATES":
+                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                    (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID']))) 
+                    
+            if i["System"] == "PSX":
+                printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                    (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID']))) 
+                
+            if i["System"] == "PSM":
+                printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
+                                    (i['Name'], DLFOLDER+"/Extracted/psm/"+i['Title ID']))) 
 
             # -x is default argument to not create .zip files
             pkg2zip_args = ["-x"]
             if cso_factor != False and i["Type"] == "GAMES" and i["System"] == "PSP":
                 pkg2zip_args.append("-c"+cso_factor)
-            elif cso_factor != False and i["Type"] != "GAMES" and i["System"] != "PSP":
+            elif cso_factor != False and i["Type"] != "UPDATES" and i["System"] != "PSP":
                 printft(HTML(
                     "<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped.</orange>" %(i["System"], i["Type"][:-1].lower()) ))
 
