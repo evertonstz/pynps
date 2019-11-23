@@ -862,7 +862,6 @@ def main():
             if args.eboot == True and i["Type"] == "GAMES" and i["System"] == "PSP":
                 pkg2zip_args.append("-p")
             # append more commands here if needed!
-            print(zrif)
             if i["System"] == "PSV" and zrif not in ["", "MISSING", None]:
                 run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, zrif)
             else:
