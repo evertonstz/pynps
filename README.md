@@ -9,7 +9,8 @@ PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in pytho
 
 - [Installation](#Installation)
   * [Manual](#Manual)
-  * [AUR - Arch/Manjaro/Suse](#AUR%20-%20Arch/Manjaro/Suse)
+  * [Fedora](#Fedora)
+  * [Arch/Manjaro](#Arch/Manjaro)
   * [Using dotpy file](#Using%20dotpy%20file)
   * [pkg2zip](#pkg2zip)
   * [wget](#wget)
@@ -26,8 +27,8 @@ PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in pytho
 # Installation
 There are tree methods you can install pyNPS:
 
-### Manual
-This will work in any 64bits Linux distro.
+## Manual
+This is only for 64bits systems.
 
 You can grab the latest x86/usr/bin/_64 binary file at [releases](https://github.com/evertonstz/pyNPS/releases). The binary is made with pyinstaller, so there's no need to deal with python dependencies, just download it and use it (ofc you'll still need pkg2zip and wget installed or inside ~/.config/pynps/lib)
 
@@ -50,14 +51,21 @@ Here's a full guide:
 
 After this proceed to the [pkg2zip](#pkg2zip) section, you'll also need to install that.
 
-### AUR - Arch/Manjaro/Suse
+## Fedora
+This is for both 32 and 64bits systems.
 
-You can either install it with yay:
->$ yay -S pynps-bin
+There's a .rpm installer in [releases](https://github.com/evertonstz/pyNPS/releases), just grab the latest one and double click it to install.
 
-or get the [pkgbuild](https://aur.archlinux.org/packages/pynps-bin/) and use makepkg.
+## Arch/Manjaro
+This is only for 64bits systems.
 
-### Using dotpy file
+AUR is deprecated since I simply can't maintain it. If anyone is interested in maintaning it, go ahead!
+
+A pkg.tar.xz installer for Arch/Manjaro can be found at [releases](https://github.com/evertonstz/pyNPS/releases). Arch users problably know how to handle it, Manjaro users can just double click it to install.
+
+## Using dotpy file
+This is for both 32 and 64bits systems.
+
 First of all you'll need python3.7+
 
 You'll also need Prompt Toolkit
@@ -72,7 +80,7 @@ $ python pynps.py
 ```
 
 ******
-## pkg2zip
+# pkg2zip
 This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitter.com/NoPayStation/status/1096508850080043010), to handle the .pkg extractions, you have 3 options:
 
 1. Use pre-compied binary, compiled by myelf (version 2.2) [here](https://pixeldrain.com/u/qJ05A7Si), just drop it inside /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
@@ -86,7 +94,7 @@ This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitt
 In case you decide to store your binary outside /home/USER/.config/pyNPS/lib/ you'll need to specify this folder in your config file unde the "pkg2zip_location" option.
 
 ******
-## wget
+# wget
 This software uses wget to make the downloads therefore it won't work if you don't have it installed in your system, most distros already come with wget installed, if you don't have it chances are you're on some crazy non-userfriendly distro and you probably know your way around for installing it. If you don't just google.
 
 You can drop a wget binary at /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file.
