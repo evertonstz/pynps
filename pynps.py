@@ -32,7 +32,7 @@ from tempfile import TemporaryDirectory as TmpFolder
 from shutil import copyfile
 
 ##Versioning
-VERSION = "0.5"
+VERSION = "1.0.0"
 
 ##FUNCTIONS##
 
@@ -572,7 +572,7 @@ def main():
                         type=str, required=False, choices=[str(x) for x in range(1,10)])
     parser.add_argument("-u", "--update", help="update database.",
                         action="store_true")
-    parser.add_argument('--version', action='version', version='%(prog)s v'+VERSION)
+    parser.add_argument('--version', action='version', version='%(prog)s version '+VERSION)
 
     args = parser.parse_args()
 
