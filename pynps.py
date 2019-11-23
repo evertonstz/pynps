@@ -619,6 +619,7 @@ def main():
     elif args.update == False and args.search is None:
         printft(HTML(
             "<red>[SEARCH] No search term provided, you need to search for something, exiting.</red>"))
+        parser.print_help()
         sys.exit(1)
     
     #check if unsupported downloads were called
