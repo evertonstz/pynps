@@ -4,7 +4,7 @@ dist/*
 main.spec
 erros
 pynps.spec
-pyNPS/*
+pynps/*
 .pytest_cache/*
 .vscode/*
 test_pytest.py
