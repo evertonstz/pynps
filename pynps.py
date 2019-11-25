@@ -284,7 +284,7 @@ def process_search(out):
         biggest_type = 2-1
 
     try:
-        if sorted([len(x['Region']) for x in out])[-1] == 2:
+        if sorted([len(x['Region']) for x in out])[-1] in [2, 3]:
             biggest_reg = 3
         elif sorted([len(x['Region']) for x in out])[-1] == 4:
             biggest_reg = 4
@@ -303,7 +303,7 @@ def process_search(out):
         size_str = crop_print(file_size(i['File Size']), 9, center=False, align="right")
 
         head = number_str + ") " + system_str + " | " + id_str + " | " + reg_str + " | " + type_str + " | "
-        tail = " | " + size_str
+        tail = " [" + size_str+"]"
         
         head_name = head + i['Name']
         term_cols = get_terminal_columns()
@@ -323,15 +323,8 @@ def process_search(out):
 def search_db(system, type, query, region, DBFOLDER):  # OK!
     query = query.upper()
     #process query#
-
-    if region == "usa":
-        region = "US"
-    if region == "jap":
-        region = "JP"
-    if region == "eur":
-        region = "EU"
-    if region == "asia":
-        region = "ASIA"
+    reg_index = {"usa":"US", "jap":"JP", "eur":"EU", "asia":"ASIA", "int":"INT"}
+    region = reg_index[region]
 
     # define the files to search
     files_to_search_raw = []
@@ -606,7 +599,7 @@ def main():
     parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
                         type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm"])
     parser.add_argument("-r", "--region", help="the region for the pkj you want.",
-                        type=str, required=False, choices=["usa", "eur", "jap", "asia"])
+                        type=str, required=False, choices=["usa", "eur", "jap", "asia", "int"])
     parser.add_argument("-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
                         action="store_true")
     parser.add_argument("-dd", "--dlcs", help="to download PSV/PSP dlcs.",
