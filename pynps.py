@@ -58,10 +58,11 @@ def get_script_dir(follow_symlinks=True):
         path = os.path.realpath(path)
     return os.path.dirname(path)
 
+def get_terminal_columns():
+    return os.get_terminal_size().columns
 
 def fill_term(symbol="-"):
-    term_size, __ = os.get_terminal_size()
-    return(term_size*symbol)
+    return(get_terminal_columns()*symbol)
 
 
 def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbol="]", color=False, unfilled_symbol="-"):
@@ -106,7 +107,7 @@ def updatedb(dict, system, DBFOLDER, WGET):
 
     with TmpFolder() as tmp:
         dl_tmp_folder = tmp+"/"
-
+        
         for t in dict:
             #detect file#
             file = t.upper()+".tsv"
@@ -251,10 +252,24 @@ def file_size(size):
     return '{:.4g} {}'.format(size / (1 << (order * 10)), _suffixes[order])
 
 
-def crop_print(text, leng):
+def crop_print(text, leng, center=False, align="left"):
     if len(text) < leng:
-        add = (leng-len(text))*" "
-        return(text+add)
+        if center == False:
+            if align == "left":
+                add = (leng-len(text))*" "
+                return(text+add)
+            elif align == "right":
+                add = (leng-len(text))*" "
+                return(add+text)
+        else:
+            # if len(text)%2 == 0: #par
+            #     add = (leng-len(text))*" "
+            #     return(text+add)
+            if True: #impar
+                add1 = int((leng-len(text))/2)
+                # print(add1)
+                add2 = (leng-len(text))-add1
+                return(add1*" "+text+add2*" ")
     elif len(text) == leng:
         return(text)
 
@@ -263,11 +278,46 @@ def process_search(out):
     # look for the biggest Index value
     biggest_index = sorted([int(x["Index"]) for x in out])
     lenght_str = len(str(biggest_index[-1]))
+    try:
+        biggest_type = sorted([len(x['Type']) for x in out])[-1]-1
+    except:
+        biggest_type = 2-1
+
+    try:
+        if sorted([len(x['Region']) for x in out])[-1] == 2:
+            biggest_reg = 3
+        elif sorted([len(x['Region']) for x in out])[-1] == 4:
+            biggest_reg = 4
+    except:
+        biggest_reg = 2
+    
+    type_dict = {"GAMES":"Game", "THEMES":"Theme", "DLCS":"DLC", "DEMOS":"Demo", "UPDATES":"Update"}
+    reg_dict = {"US":"USA", "EU":"EUR", "JP":"JAP","ASIA":"ASIA", "INT":"INT"}
 
     for i in out:
-        print(crop_print(str(i['Index']), lenght_str), ")", i['System'], "|",i['Title ID'], "|", crop_print(i['Region'], 4), "|", crop_print(i['Type'], 7), "|", i['Name'], \
-              # print(str(i['Index'])+")", i['Title ID'], "|", crop_print(i['Region'], 4), "|", crop_print(i['Type'],7), "|", i['Name'], \
-              "|", file_size(i['File Size']))
+        number_str = crop_print(str(i['Index']), lenght_str)
+        system_str = i['System']
+        id_str = i['Title ID']
+        reg_str = crop_print(reg_dict[i['Region']], biggest_reg, center=True)
+        type_str = crop_print(type_dict[i['Type']], biggest_type, center=False)
+        size_str = crop_print(file_size(i['File Size']), 9, center=False, align="right")
+
+        head = number_str + ") " + system_str + " | " + id_str + " | " + reg_str + " | " + type_str + " | "
+        tail = " | " + size_str
+        
+        head_name = head + i['Name']
+        term_cols = get_terminal_columns()
+        if len(head_name + tail) <= term_cols: #no neet to crop
+            rest = term_cols - len(head_name + tail)
+            print(head_name + rest*" " + tail)
+        else:
+            thats_more = len(head_name + tail) - term_cols
+            remove = len(i['Name'])-thats_more
+            if remove > 10:
+                head_name = head + i['Name'][:remove]
+            else:
+                head_name = head + i['Name']
+            print(head_name + tail)
 
 
 def search_db(system, type, query, region, DBFOLDER):  # OK!
@@ -431,23 +481,23 @@ def create_config(file, folder):
     config['pyNPS'] = {'DownloadFolder': folder.replace("/.config/pyNPS/", '/Downloads/pyNPS'),
                        'DatabaseFolder': folder+'database/'}
 
-    config['PSV_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSV_GAMES.tsv',
-                           'dlcs': 'https://beta.nopaystation.com/tsv/PSV_DLCS.tsv',
-                           'themes': 'https://beta.nopaystation.com/tsv/PSV_THEMES.tsv',
-                           'updates': 'https://beta.nopaystation.com/tsv/PSV_UPDATES.tsv',
-                           'demos': 'https://beta.nopaystation.com/tsv/PSV_DEMOS.tsv'
+    config['PSV_Links'] = {'games': 'https://nopaystation.com/tsv/PSV_GAMES.tsv',
+                           'dlcs': 'https://nopaystation.com/tsv/PSV_DLCS.tsv',
+                           'themes': 'https://nopaystation.com/tsv/PSV_THEMES.tsv',
+                           'updates': 'https://nopaystation.com/tsv/PSV_UPDATES.tsv',
+                           'demos': 'https://nopaystation.com/tsv/PSV_DEMOS.tsv'
                            }
-    config['PSP_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSP_GAMES.tsv',
-                           'dlcs': 'https://beta.nopaystation.com/tsv/PSP_DLCS.tsv',
-                           'themes': 'https://beta.nopaystation.com/tsv/PSP_THEMES.tsv',
-                           'updates': 'https://beta.nopaystation.com/tsv/PSP_UPDATES.tsv'
+    config['PSP_Links'] = {'games': 'https://nopaystation.com/tsv/PSP_GAMES.tsv',
+                           'dlcs': 'https://nopaystation.com/tsv/PSP_DLCS.tsv',
+                           'themes': 'https://nopaystation.com/tsv/PSP_THEMES.tsv',
+                           'updates': 'https://nopaystation.com/tsv/PSP_UPDATES.tsv'
                            }
-    config['PSX_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSX_GAMES.tsv'
+    config['PSX_Links'] = {'games': 'https://nopaystation.com/tsv/PSX_GAMES.tsv'
                            }
-    config['PSM_Links'] = {'games': 'https://beta.nopaystation.com/tsv/PSM_GAMES.tsv'
+    config['PSM_Links'] = {'games': 'https://nopaystation.com/tsv/PSM_GAMES.tsv'
                            }
-    config['BinaryLocations'] = {'Pkg2zip_Location': '',
-                                 'Wget_location': ''}
+    config['BinaryLocations'] = {'Pkg2zip_Location': folder+"lib/pkg2zip",
+                                 'Wget_location': folder+"lib/wget"}
     # saving file
     save_conf(file, config)
 
