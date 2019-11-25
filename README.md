@@ -83,13 +83,18 @@ $ python pynps.py
 # pkg2zip
 This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitter.com/NoPayStation/status/1096508850080043010), to handle the .pkg extractions, you have 3 options:
 
-1. Use pre-compied binary, compiled by myelf (version 2.2) [here](https://pixeldrain.com/u/qJ05A7Si), just drop it inside /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
+1. Use pre-compied binary, compiled by myelf (version 2.2) [here](https://pixeldrain.com/u/qJ05A7Si), just drop it inside /home/USER/.config/pyNPS/lib/ and make it executable by runing:
+
+> chmod -R +x /home/USER/.config/pyNPS/lib/pkg2zip
+
 
 2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip-fork/) after you install it pyNPS will autodetect and use it automatically, no need to add the path to your config file, the yay command is:
 
 >$ yay -S pkg2zip-fork/
 
-3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases) and move  the binary into this folder /home/USER/.config/pyNPS/lib/ (USER is your username) after that pyNPS will autodetect and use it automatically, no need to add the path to your config file;
+3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases) and move  the binary into this folder /home/USER/.config/pyNPS/lib/ (USER is your username);
+
+For methods 1 and 3 pyNPS will autodetect and use it automatically, so there's no need to add the path to your config file
 
 In case you decide to store your binary outside /home/USER/.config/pyNPS/lib/ you'll need to specify this folder in your config file unde the "pkg2zip_location" option.
 

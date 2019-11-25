@@ -10,4 +10,3 @@ pynps/*
 test_pytest.py
 test.py
 release.py
-setup.py
