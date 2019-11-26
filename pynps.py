@@ -17,94 +17,81 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 import os
 import sys
 import inspect
-from shutil import which
-from csv import DictReader
-from os.path import join as joindir
 import subprocess
-import urllib.request
-from math import log2
 import argparse
 import hashlib
 import configparser
+from shutil import copyfile, which
+from csv import DictReader
+from os.path import join as joindir
+from math import log2
 from prompt_toolkit.validation import Validator, ValidationError
-from prompt_toolkit import prompt
-from prompt_toolkit import print_formatted_text as printft
-from prompt_toolkit import HTML
+from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
-from shutil import copyfile
+
 
 ##Versioning
 VERSION = "1.0.0"
+
+##STATIC DICTS AND LISTS##
+_FULL_SYSTEM_NAME = {"PSV":"Playstation Vita", "PSP":"Playstation Portable",
+                                "PSX":"Playstation", "PSM":"Playstation Mobile"}
+
+_SUFFIXES = ['bytes', 'KiB', 'MiB', 'GiB',
+                'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+
+_TYPE_DICT = {"GAMES":"Game", "THEMES":"Theme", 
+                "DLCS":"DLC", "DEMOS":"Demo", "UPDATES":"Update"}
+
+_REGION_DICT = {"US":"USA", "EU":"EUR", "JP":"JAP","ASIA":"ASIA", 
+                    "INT":"INT", "usa":"US", "jap":"JP", "eur":"EU", 
+                                            "asia":"ASIA", "int":"INT"}
+
+_CONF_PSV_LINKS = {'games': 'https://nopaystation.com/tsv/PSV_GAMES.tsv',
+                           'dlcs': 'https://nopaystation.com/tsv/PSV_DLCS.tsv',
+                           'themes': 'https://nopaystation.com/tsv/PSV_THEMES.tsv',
+                           'updates': 'https://nopaystation.com/tsv/PSV_UPDATES.tsv',
+                           'demos': 'https://nopaystation.com/tsv/PSV_DEMOS.tsv'
+                           }
+
+_CONF_PSP_LINKS = {'games': 'https://nopaystation.com/tsv/PSP_GAMES.tsv',
+                           'dlcs': 'https://nopaystation.com/tsv/PSP_DLCS.tsv',
+                           'themes': 'https://nopaystation.com/tsv/PSP_THEMES.tsv',
+                           'updates': 'https://nopaystation.com/tsv/PSP_UPDATES.tsv'
+                           }
+
+_CONF_PSX_LINKS = {'games': 'https://nopaystation.com/tsv/PSX_GAMES.tsv'
+                           }
+
+_CONF_PSM_LINKS = {'games': 'https://nopaystation.com/tsv/PSM_GAMES.tsv'
+                           }
 
 ##FUNCTIONS##
 
 def create_folder(location):
     try:
         os.makedirs(location)
+        return True
     except:
-        pass
-
-
-def save_file(file, string):
-    with open(file, 'w') as file:
-        file.write(string)
-
-
-def get_script_dir(follow_symlinks=True):
-    if getattr(sys, 'frozen', False):  # py2exe, PyInstaller, cx_Freeze
-        path = os.path.abspath(sys.executable)
-    else:
-        path = inspect.getabsfile(get_script_dir)
-    if follow_symlinks:
-        path = os.path.realpath(path)
-    return os.path.dirname(path)
+        return False
 
 def get_terminal_columns():
+    """this function returns the columns' 
+    numbers in the terminal"""
+
     return os.get_terminal_size().columns
 
 def fill_term(symbol="-"):
+    """this function fills a line in the 
+    terminal with given symbol"""
+
     return(get_terminal_columns()*symbol)
 
-
-def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbol="]", color=False, unfilled_symbol="-"):
-    if color == 0:
-        slice = int(number*fill_width/100)
-        return(open_symbol+symbol*slice+unfilled_symbol*(fill_width-slice)+close_symbol)
-    else:
-
-        slice = int(number*fill_width/100)
-        if fill_width % 4 == 0:
-            chunks = int(fill_width/4)
-            chunks_dir = ""
-            for i in range(0, slice):
-                if i in range(0, chunks):
-                    chunks_dir += LBLUE+symbol
-                elif i in range(chunks, chunks*2):
-                    chunks_dir += LGREEN+symbol
-                elif i in range(chunks*2, chunks*3):
-                    chunks_dir += YELLOW+symbol
-                elif i in range(chunks*3, chunks*4):
-                    chunks_dir += LRED+symbol
-
-            return(open_symbol+chunks_dir+GREY+unfilled_symbol*(fill_width-slice)+close_symbol+NC)
-        else:
-            print('ERROR: Use a number divisible by 4 in "fill_width".')
-            sys.exit(1)
-
-
 def updatedb(dict, system, DBFOLDER, WGET):
+    """this function downloads the tsvs databases from nps' website"""
 
     #detect gaming system#
-    if system == "PSV":
-        system_name = "Playstation Vita"
-    elif system == "PSP":
-        system_name = "Playstation Portable"
-    elif system == "PSX":
-        system_name = "Playstation"
-    elif system == "PSM":
-        system_name = "Playstation Mobile"
-
-    # spawn temporary directory
+    system_name = _FULL_SYSTEM_NAME[system]
 
     with TmpFolder() as tmp:
         dl_tmp_folder = tmp+"/"
@@ -125,51 +112,12 @@ def updatedb(dict, system, DBFOLDER, WGET):
 
             # print(os.path.isdir(dl_tmp_folder))
             copyfile(dl_tmp_folder+filename, dl_folder+file)
+            
 
-        # process = subprocess.Popen( [ WGET, "-c", "-P", DBFOLDER+"/"+system+"/", url ], \
-        # 							stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
+def dl_file(dict, system, DLFOLDER, WGET):
+    """this function downloads the games"""
 
-        # saved = False
-        # for line in iter(process.stdout.readline, b''):
-        # 	line = line.decode("utf-8").split(" ")
-
-        # 	#test if downloaded#
-        # 	if "saved" in line:
-        # 		saved = True
-
-        # 	line = [x for x in line if x != ""]
-        # 	if '..........' in line:
-        # 		line = [x for x in line if x != '..........']
-        # 		#variables#
-        # 		try:
-        # 			percentage = int(line[1].replace("%",""))
-        # 		except:
-        # 			percentage = 100
-        # 		downloaded = line[0]
-        # 		speed = line[2].replace("\n","")
-
-        # 		print_string = "Downloading File: " + filename + " " + progress_bar(percentage) + " " + str(percentage) + "% " + \
-        # 						downloaded + " @ " + speed+"/s"
-        # 		# print("", end = '')
-        # 		sys.stdout.write("\r"+print_string)
-        # 		sys.stdout.flush()
-        # if saved:
-        # 	print("\nrenaming file:", DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
-        # 	os.rename(DBFOLDER+"/"+system+"/"+filename, DBFOLDER+"/"+system+"/"+file)
-        # else:
-        # 	print("\nunable to download file, try again later!")
-
-
-def dl_file(dict, system, DLFOLDER, WGET):  # OK!
-    system = system.upper()
-    if system == "PSV":
-        system_name = "Playstation Vita"
-    elif system == "PSP":
-        system_name = "Playstation Portable"
-    elif system == "PSX":
-        system_name = "Playstation"
-    elif system == "PSM":
-        system_name = "Playstation Mobile"
+    system_name = _FULL_SYSTEM_NAME[system.upper()]
 
     url = dict['PKG direct link']
     filename = url.split("/")[-1]
@@ -194,51 +142,11 @@ def dl_file(dict, system, DLFOLDER, WGET):  # OK!
                               dl_folder, url], cwd=dl_folder)  # TODO change CWD to a tempfolder
     return True
 
-    # TODO: universal output warapping for wget that's not bound to the english release
-    # process = subprocess.Popen( [ WGET, "-c", "-P", dl_folder, url], \
-    # 						stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=dl_folder )#
-
-    # saved = False
-    # downloaded = False
-    # for line in iter(process.stdout.readline, b''):
-    # 	print(line)
-    # 	line = line.decode("utf-8")
-
-    # 	#test if downloaded#
-    # 	if "saved" in line:
-    # 		saved = True
-    # 	if "200 OK" in line:
-    # 		downloaded = True
-
-    # 	line = line.split(" ")
-
-    # 	line = [x for x in line if x != ""]
-    # 	if '..........' in line:
-    # 		line = [x for x in line if x != '..........']
-    # 		#variables#
-    # 		try:
-    # 			percentage = int(line[1].replace("%",""))
-    # 		except:
-    # 			percentage = 100
-    # 		downloaded = line[0]
-    # 		speed = line[2].replace("\n","")
-
-    # 		print_string = "[" + title_id+ "] " + name + " " + progress_bar(percentage) + " " + str(percentage) + "% " + \
-    # 						downloaded + " @ " + speed+"/s"
-    # 		# print("", end = '')
-    # 		sys.stdout.write("\r"+print_string)
-    # 		sys.stdout.flush()
-    # if saved:
-    # 	print("\nsaved at:", dl_folder+"/"+filename )
-    # 	return(saved)
-    # if downloaded:
-    # 	print("file already in disk:", dl_folder+"/"+filename)
-    # 	return(downloaded)
-
 
 def file_size(size):
-    _suffixes = ['bytes', 'KiB', 'MiB', 'GiB',
-                 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+    """this function formats bytes into 
+    human readable"""
+
     if type(size) != int:
         try:
             size = int(size)
@@ -250,10 +158,12 @@ def file_size(size):
     # format file size
     # (.4g results in rounded numbers for exact matches and max 3 decimals,
     # should never resort to exponent values)
-    return '{:.4g} {}'.format(size / (1 << (order * 10)), _suffixes[order])
+    return '{:.4g} {}'.format(size / (1 << (order * 10)), _SUFFIXES[order])
 
 
 def crop_print(text, leng, center=False, align="left"):
+    """this function is helper for process_search()"""
+
     if len(text) < leng:
         if center == False:
             if align == "left":
@@ -276,6 +186,9 @@ def crop_print(text, leng, center=False, align="left"):
 
 
 def process_search(out):
+    """this function prints the search result for the 
+    user in a human friendly format"""
+
     # look for the biggest Index value
     biggest_index = sorted([int(x["Index"]) for x in out])
     lenght_str = len(str(biggest_index[-1]))
@@ -292,15 +205,12 @@ def process_search(out):
     except:
         biggest_reg = 2
     
-    type_dict = {"GAMES":"Game", "THEMES":"Theme", "DLCS":"DLC", "DEMOS":"Demo", "UPDATES":"Update"}
-    reg_dict = {"US":"USA", "EU":"EUR", "JP":"JAP","ASIA":"ASIA", "INT":"INT"}
-
     for i in out:
         number_str = crop_print(str(i['Index']), lenght_str)
         system_str = i['System']
         id_str = i['Title ID']
-        reg_str = crop_print(reg_dict[i['Region']], biggest_reg, center=True)
-        type_str = crop_print(type_dict[i['Type']], biggest_type, center=False)
+        reg_str = crop_print(_REGION_DICT[i['Region']], biggest_reg, center=True)
+        type_str = crop_print(_TYPE_DICT[i['Type']], biggest_type, center=False)
         size_str = crop_print(file_size(i['File Size']), 9, center=False, align="right")
 
         head = number_str + ") " + system_str + " | " + id_str + " | " + reg_str + " | " + type_str + " | "
@@ -321,11 +231,13 @@ def process_search(out):
             print(head_name + tail)
 
 
-def search_db(system, type, query, region, DBFOLDER):  # OK!
+def search_db(system, type, query, region, DBFOLDER):
+    """this function searchs in the tsv databases 
+    provided by nps"""
+
     query = query.upper()
     #process query#
-    reg_index = {"usa":"US", "jap":"JP", "eur":"EU", "asia":"ASIA", "int":"INT"}
-    region = reg_index[region]
+    region = _REGION_DICT[region]
 
     # define the files to search
     files_to_search_raw = []
@@ -381,6 +293,8 @@ def search_db(system, type, query, region, DBFOLDER):  # OK!
 
 
 def checksum_file(file):
+    """this fuction is used to calculate a sha256 
+    checksum for a file"""
 
     BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
 
@@ -395,14 +309,19 @@ def checksum_file(file):
     return(sha256.hexdigest())
 
 def is_tool(name):
-    """Check whether `name` is on PATH and marked as executable."""
+    """Check whether `name` is on PATH and marked 
+    as executable."""
+
     ret = which(name)
     if ret == None:
         return False
     else:
         return ret
 
-def check_wget(location, CONFIGFOLDER):  # OK!
+def check_wget(location, CONFIGFOLDER):
+    """this fuction is used to detect a wget 
+    installation in the users system"""
+
     # check if wget is on path and prefer this one
     if is_tool("wget") != False:
         # can be run as wget
@@ -419,7 +338,10 @@ def check_wget(location, CONFIGFOLDER):  # OK!
             else:
                 return False
 
-def check_pkg2zip(location, CONFIGFOLDER):  # OK!
+def check_pkg2zip(location, CONFIGFOLDER):
+    """this function is used to detect a pkg2zip 
+    installation in the users system"""
+
     if is_tool("pkg2zip") != False:
         return(is_tool("pkg2zip"))
     else:
@@ -432,6 +354,8 @@ def check_pkg2zip(location, CONFIGFOLDER):  # OK!
                 return False          
 
 def run_pkg2zip(file, output_location, PKG2ZIP, args, zrif=False):  # OK!
+    """this fuction is used to extract a pkg with pkg2zip"""
+
     create_folder(output_location)
 
     # reversing list
@@ -449,6 +373,9 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, zrif=False):  # OK!
 
 
 def fix_folder_syntax(folder):
+    """this function is used to fix slashes in the 
+    directories provided by the user's settings.ini"""
+
     new_folder = folder
     if "\\" in folder:
         new_folder = folder.replace("\\", "/")
@@ -456,53 +383,39 @@ def fix_folder_syntax(folder):
         new_folder = folder[:-1]
     return(new_folder)
 
-# config parser functions
-
-
 def save_conf(file, conf):
-    create_folder(os.path.dirname(file))
+    """this function is used to save files"""
+
+    #TODO remove create folder from function!
+    create_folder(os.path.dirname(file)) 
     with open(file, 'w') as file:
         conf.write(file)
 
 
 def create_config(file, folder):
+    """this function is used to create a configuration 
+    file on first run"""
+
     config = configparser.ConfigParser()
     config['pyNPS'] = {'DownloadFolder': folder.replace("/.config/pyNPS/", '/Downloads/pyNPS'),
                        'DatabaseFolder': folder+'database/'}
 
-    config['PSV_Links'] = {'games': 'https://nopaystation.com/tsv/PSV_GAMES.tsv',
-                           'dlcs': 'https://nopaystation.com/tsv/PSV_DLCS.tsv',
-                           'themes': 'https://nopaystation.com/tsv/PSV_THEMES.tsv',
-                           'updates': 'https://nopaystation.com/tsv/PSV_UPDATES.tsv',
-                           'demos': 'https://nopaystation.com/tsv/PSV_DEMOS.tsv'
-                           }
-    config['PSP_Links'] = {'games': 'https://nopaystation.com/tsv/PSP_GAMES.tsv',
-                           'dlcs': 'https://nopaystation.com/tsv/PSP_DLCS.tsv',
-                           'themes': 'https://nopaystation.com/tsv/PSP_THEMES.tsv',
-                           'updates': 'https://nopaystation.com/tsv/PSP_UPDATES.tsv'
-                           }
-    config['PSX_Links'] = {'games': 'https://nopaystation.com/tsv/PSX_GAMES.tsv'
-                           }
-    config['PSM_Links'] = {'games': 'https://nopaystation.com/tsv/PSM_GAMES.tsv'
-                           }
+    config['PSV_Links'] = _CONF_PSV_LINKS
+    config['PSP_Links'] = _CONF_PSP_LINKS
+    config['PSX_Links'] = _CONF_PSX_LINKS
+    config['PSM_Links'] = _CONF_PSM_LINKS
+
     config['BinaryLocations'] = {'Pkg2zip_Location': folder+"lib/pkg2zip",
                                  'Wget_location': folder+"lib/wget"}
     # saving file
     save_conf(file, config)
 
-def get_full_system_name( sys ):
-    if sys == "PSV":
-        return("Playstation Vita")
-    elif sys == "PSP":
-        return("Playstation Portable")
-    elif sys == "PSX":
-        return("Playstation")
-    elif sys == "PSM":
-        return("Playstation Mobile")
-    else:
-        return None
+
     
 def get_theme_folder_name( loc ):
+    """this function helps to print the exact folder 
+    name for extracted PSV themes"""
+
     a = os.listdir(loc)
     a = sorted([int(x) for x in a])
     comp = list(range(1,a[-1]+1))
@@ -519,8 +432,17 @@ def get_theme_folder_name( loc ):
     return_lst.append(selected)
     return(''.join(return_lst))
 
-##MAIN##
+
+
+
+
+
+
+
+
 def main():
+    """main function"""
+
     CONFIGFOLDER = os.getenv("HOME")+"/.config/pyNPS/"
     config_file = joindir(CONFIGFOLDER, "settings.ini")
     # create conf file
@@ -644,7 +566,7 @@ def main():
     if args.update == True:
         printft(HTML("<grey>%s</grey>" % fill_term()))
         for i in system:     
-            printft(HTML("<green>[UPDATEDB] %s:</green>" %get_full_system_name(i)))
+            printft(HTML("<green>[UPDATEDB] %s:</green>" %_FULL_SYSTEM_NAME[i]))
             if i == "PSV":
                 db = database_psv_links
             elif i == "PSP":
