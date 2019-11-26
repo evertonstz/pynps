@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 import os
 import sys
 import inspect
+from shutil import which
 from csv import DictReader
 from os.path import join as joindir
 import subprocess
@@ -393,47 +394,42 @@ def checksum_file(file):
             sha256.update(data)
     return(sha256.hexdigest())
 
+def is_tool(name):
+    """Check whether `name` is on PATH and marked as executable."""
+    ret = which(name)
+    if ret == None:
+        return False
+    else:
+        return ret
 
 def check_wget(location, CONFIGFOLDER):  # OK!
-    # check if the binary is inside de script's folder
-    if location == "wget":
+    # check if wget is on path and prefer this one
+    if is_tool("wget") != False:
+        # can be run as wget
+        return(is_tool("wget"))
+    else:
+        # if not on patch, check if it's on lib and prefer this one
         if os.path.isfile(CONFIGFOLDER+"lib/wget"):
             return(CONFIGFOLDER+"lib/wget")
-        # print("Using system installed wget")
-        return("wget")
-    elif os.path.isfile(location) == False:
-        # try to search for a binary inside the sysem
-        if os.path.isfile("/usr/bin/wget"):
-            # print("Using system installed wget")
-            new_location = "wget"
-            return(new_location)
         else:
-
-            return(False)
-    else:
-        # print("Using user provided wget")
-        return(location)
-
+            # last resort is check for user provided binary in settings.ini
+            # check if exists
+            if os.path.isfile(location):
+                return(location)
+            else:
+                return False
 
 def check_pkg2zip(location, CONFIGFOLDER):  # OK!
-    # check if the binary is inside de script's folder
-    if location == "pkg2zip":
-        if os.path.isfile(CONFIGFOLDER+"lib/pkg2zip") == True:
-            return(CONFIGFOLDER+"lib/pkg2zip")
-        return("pkg2zip")
-    elif os.path.isfile(location) == False:
-        # try to search for a binary inside the sysem
-        if os.path.isfile("/usr/bin/pkg2zip"):
-            # print("Using system installed pkg2zip")
-            new_location = "pkg2zip"
-            return(new_location)
-        else:
-
-            return(False)
+    if is_tool("pkg2zip") != False:
+        return(is_tool("pkg2zip"))
     else:
-        # print("Using user provided pkg2zip")
-        return(location)
-
+        if os.path.isfile(CONFIGFOLDER+"lib/pkg2zip"):
+            return(CONFIGFOLDER+"lib/pkg2zip")
+        else:
+            if os.path.isfile(location):
+                return(location)
+            else:
+                return False          
 
 def run_pkg2zip(file, output_location, PKG2ZIP, args, zrif=False):  # OK!
     create_folder(output_location)
@@ -568,11 +564,19 @@ def main():
     PKG2ZIP = fix_folder_syntax(config['BinaryLocations']['pkg2zip_location'])
     WGET = fix_folder_syntax(config['BinaryLocations']['wget_location'])
 
-    # if blank use system installed binaries
-    if PKG2ZIP == '':
-        PKG2ZIP = check_pkg2zip("pkg2zip", CONFIGFOLDER)
-    if WGET == '':
-        WGET = check_wget("wget", CONFIGFOLDER)
+    # tests existence of pkg2zip
+    PKG2ZIP = check_pkg2zip(PKG2ZIP, CONFIGFOLDER)
+    if PKG2ZIP == False:
+        printft(HTML("<red>[ERROR] you don't have a valid pkg2zip installation or binary in your system.</red>"))
+        sys.exit(1)
+
+    # tests existence of wget
+    WGET = check_wget(WGET, CONFIGFOLDER)
+    if WGET == False:
+        printft(HTML("<red>[ERROR] you don't have a valid wget installation or binary in your system.</red>"))
+        sys.exit(1)
+   
+
 
     # makin dicts for links
     database_psv_links = {}
