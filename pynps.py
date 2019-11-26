@@ -30,43 +30,44 @@ from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
 
 
-##Versioning
+# Versioning
 VERSION = "1.0.0"
 
 ##STATIC DICTS AND LISTS##
-_FULL_SYSTEM_NAME = {"PSV":"Playstation Vita", "PSP":"Playstation Portable",
-                                "PSX":"Playstation", "PSM":"Playstation Mobile"}
+_FULL_SYSTEM_NAME = {"PSV": "Playstation Vita", "PSP": "Playstation Portable",
+                     "PSX": "Playstation", "PSM": "Playstation Mobile"}
 
 _SUFFIXES = ['bytes', 'KiB', 'MiB', 'GiB',
-                'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+             'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
 
-_TYPE_DICT = {"GAMES":"Game", "THEMES":"Theme", 
-                "DLCS":"DLC", "DEMOS":"Demo", "UPDATES":"Update"}
+_TYPE_DICT = {"GAMES": "Game", "THEMES": "Theme",
+              "DLCS": "DLC", "DEMOS": "Demo", "UPDATES": "Update"}
 
-_REGION_DICT = {"US":"USA", "EU":"EUR", "JP":"JAP","ASIA":"ASIA", 
-                    "INT":"INT", "usa":"US", "jap":"JP", "eur":"EU", 
-                                            "asia":"ASIA", "int":"INT"}
+_REGION_DICT = {"US": "USA", "EU": "EUR", "JP": "JAP", "ASIA": "ASIA",
+                "INT": "INT", "usa": "US", "jap": "JP", "eur": "EU",
+                "asia": "ASIA", "int": "INT"}
 
 _CONF_PSV_LINKS = {'games': 'https://nopaystation.com/tsv/PSV_GAMES.tsv',
-                           'dlcs': 'https://nopaystation.com/tsv/PSV_DLCS.tsv',
+                   'dlcs': 'https://nopaystation.com/tsv/PSV_DLCS.tsv',
                            'themes': 'https://nopaystation.com/tsv/PSV_THEMES.tsv',
                            'updates': 'https://nopaystation.com/tsv/PSV_UPDATES.tsv',
                            'demos': 'https://nopaystation.com/tsv/PSV_DEMOS.tsv'
-                           }
+                   }
 
 _CONF_PSP_LINKS = {'games': 'https://nopaystation.com/tsv/PSP_GAMES.tsv',
-                           'dlcs': 'https://nopaystation.com/tsv/PSP_DLCS.tsv',
+                   'dlcs': 'https://nopaystation.com/tsv/PSP_DLCS.tsv',
                            'themes': 'https://nopaystation.com/tsv/PSP_THEMES.tsv',
                            'updates': 'https://nopaystation.com/tsv/PSP_UPDATES.tsv'
-                           }
+                   }
 
 _CONF_PSX_LINKS = {'games': 'https://nopaystation.com/tsv/PSX_GAMES.tsv'
-                           }
+                   }
 
 _CONF_PSM_LINKS = {'games': 'https://nopaystation.com/tsv/PSM_GAMES.tsv'
-                           }
+                   }
 
 ##FUNCTIONS##
+
 
 def create_folder(location):
     try:
@@ -75,17 +76,20 @@ def create_folder(location):
     except:
         return False
 
+
 def get_terminal_columns():
     """this function returns the columns' 
     numbers in the terminal"""
 
     return os.get_terminal_size().columns
 
+
 def fill_term(symbol="-"):
     """this function fills a line in the 
     terminal with given symbol"""
 
     return(get_terminal_columns()*symbol)
+
 
 def updatedb(dict, system, DBFOLDER, WGET):
     """this function downloads the tsvs databases from nps' website"""
@@ -95,7 +99,7 @@ def updatedb(dict, system, DBFOLDER, WGET):
 
     with TmpFolder() as tmp:
         dl_tmp_folder = tmp+"/"
-        
+
         for t in dict:
             #detect file#
             file = t.upper()+".tsv"
@@ -112,7 +116,7 @@ def updatedb(dict, system, DBFOLDER, WGET):
 
             # print(os.path.isdir(dl_tmp_folder))
             copyfile(dl_tmp_folder+filename, dl_folder+file)
-            
+
 
 def dl_file(dict, system, DLFOLDER, WGET):
     """this function downloads the games"""
@@ -176,7 +180,7 @@ def crop_print(text, leng, center=False, align="left"):
             # if len(text)%2 == 0: #par
             #     add = (leng-len(text))*" "
             #     return(text+add)
-            if True: #impar
+            if True:  # impar
                 add1 = int((leng-len(text))/2)
                 # print(add1)
                 add2 = (leng-len(text))-add1
@@ -204,21 +208,25 @@ def process_search(out):
             biggest_reg = 4
     except:
         biggest_reg = 2
-    
+
     for i in out:
         number_str = crop_print(str(i['Index']), lenght_str)
         system_str = i['System']
         id_str = i['Title ID']
-        reg_str = crop_print(_REGION_DICT[i['Region']], biggest_reg, center=True)
-        type_str = crop_print(_TYPE_DICT[i['Type']], biggest_type, center=False)
-        size_str = crop_print(file_size(i['File Size']), 9, center=False, align="right")
+        reg_str = crop_print(
+            _REGION_DICT[i['Region']], biggest_reg, center=True)
+        type_str = crop_print(
+            _TYPE_DICT[i['Type']], biggest_type, center=False)
+        size_str = crop_print(
+            file_size(i['File Size']), 9, center=False, align="right")
 
-        head = number_str + ") " + system_str + " | " + id_str + " | " + reg_str + " | " + type_str + " | "
+        head = number_str + ") " + system_str + " | " + \
+            id_str + " | " + reg_str + " | " + type_str + " | "
         tail = " [" + size_str+"]"
-        
+
         head_name = head + i['Name']
         term_cols = get_terminal_columns()
-        if len(head_name + tail) <= term_cols: #no neet to crop
+        if len(head_name + tail) <= term_cols:  # no neet to crop
             rest = term_cols - len(head_name + tail)
             print(head_name + rest*" " + tail)
         else:
@@ -308,6 +316,7 @@ def checksum_file(file):
             sha256.update(data)
     return(sha256.hexdigest())
 
+
 def is_tool(name):
     """Check whether `name` is on PATH and marked 
     as executable."""
@@ -317,6 +326,7 @@ def is_tool(name):
         return False
     else:
         return ret
+
 
 def check_wget(location, CONFIGFOLDER):
     """this fuction is used to detect a wget 
@@ -338,6 +348,7 @@ def check_wget(location, CONFIGFOLDER):
             else:
                 return False
 
+
 def check_pkg2zip(location, CONFIGFOLDER):
     """this function is used to detect a pkg2zip 
     installation in the users system"""
@@ -351,7 +362,8 @@ def check_pkg2zip(location, CONFIGFOLDER):
             if os.path.isfile(location):
                 return(location)
             else:
-                return False          
+                return False
+
 
 def run_pkg2zip(file, output_location, PKG2ZIP, args, zrif=False):  # OK!
     """this fuction is used to extract a pkg with pkg2zip"""
@@ -383,11 +395,12 @@ def fix_folder_syntax(folder):
         new_folder = folder[:-1]
     return(new_folder)
 
+
 def save_conf(file, conf):
     """this function is used to save files"""
 
-    #TODO remove create folder from function!
-    create_folder(os.path.dirname(file)) 
+    # TODO remove create folder from function!
+    create_folder(os.path.dirname(file))
     with open(file, 'w') as file:
         conf.write(file)
 
@@ -411,33 +424,25 @@ def create_config(file, folder):
     save_conf(file, config)
 
 
-    
-def get_theme_folder_name( loc ):
+def get_theme_folder_name(loc):
     """this function helps to print the exact folder 
     name for extracted PSV themes"""
 
     a = os.listdir(loc)
     a = sorted([int(x) for x in a])
-    comp = list(range(1,a[-1]+1))
+    comp = list(range(1, a[-1]+1))
     diff = list(set(comp) - set(a))
 
     if len(diff) > 0:
         selected = diff[0]
-    else: # == 0
+    else:  # == 0
         selected = a[-1]+1
-    #put the zeros in the name 00000005 len = 8
+    # put the zeros in the name 00000005 len = 8
     selected = str(selected)
     zero_lst = [0]*(8-len(selected))
     return_lst = [str(x) for x in zero_lst]
     return_lst.append(selected)
     return(''.join(return_lst))
-
-
-
-
-
-
-
 
 
 def main():
@@ -489,16 +494,16 @@ def main():
     # tests existence of pkg2zip
     PKG2ZIP = check_pkg2zip(PKG2ZIP, CONFIGFOLDER)
     if PKG2ZIP == False:
-        printft(HTML("<red>[ERROR] you don't have a valid pkg2zip installation or binary in your system.</red>"))
+        printft(HTML(
+            "<red>[ERROR] you don't have a valid pkg2zip installation or binary in your system.</red>"))
         sys.exit(1)
 
     # tests existence of wget
     WGET = check_wget(WGET, CONFIGFOLDER)
     if WGET == False:
-        printft(HTML("<red>[ERROR] you don't have a valid wget installation or binary in your system.</red>"))
+        printft(HTML(
+            "<red>[ERROR] you don't have a valid wget installation or binary in your system.</red>"))
         sys.exit(1)
-   
-
 
     # makin dicts for links
     database_psv_links = {}
@@ -518,7 +523,8 @@ def main():
         database_psm_links[key] = config["PSM_Links"][key]
 
     # create args
-    parser = argparse.ArgumentParser(description='pyNPS is a Nopaystation client writen in python 3.7 that, with the help of wget and pkg2zip, can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database.')
+    parser = argparse.ArgumentParser(
+        description='pyNPS is a Nopaystation client writen in python 3.7 that, with the help of wget and pkg2zip, can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database.')
 
     parser.add_argument("search", type=str, nargs="?",
                         help="search something to download, you can search by name or ID or use '_all' to return everythning.")
@@ -539,22 +545,23 @@ def main():
     parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP games as EBOOT.PBP",
                         action="store_true")
     parser.add_argument("-cso", "--compress_cso", help="use this argument to unpack PSP games as a compressed .cso file. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
-                        type=str, required=False, choices=[str(x) for x in range(1,10)])
+                        type=str, required=False, choices=[str(x) for x in range(1, 10)])
     parser.add_argument("-u", "--update", help="update database.",
                         action="store_true")
-    parser.add_argument('--version', action='version', version='%(prog)s version '+VERSION)
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s version '+VERSION)
 
     args = parser.parse_args()
 
     if args.console:
         system = [x.upper() for x in args.console]
     else:
-        system = ["PSV","PSP","PSX","PSM"]
-        
+        system = ["PSV", "PSP", "PSX", "PSM"]
+
     if args.eboot == True and args.compress_cso != None:
         printft(
             HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time.</red>"))
-        sys.exit(1)      
+        sys.exit(1)
 
     if args.compress_cso:
         cso_factor = args.compress_cso
@@ -565,8 +572,9 @@ def main():
 
     if args.update == True:
         printft(HTML("<grey>%s</grey>" % fill_term()))
-        for i in system:     
-            printft(HTML("<green>[UPDATEDB] %s:</green>" %_FULL_SYSTEM_NAME[i]))
+        for i in system:
+            printft(HTML("<green>[UPDATEDB] %s:</green>" %
+                         _FULL_SYSTEM_NAME[i]))
             if i == "PSV":
                 db = database_psv_links
             elif i == "PSP":
@@ -576,7 +584,7 @@ def main():
             elif i == "PSM":
                 db = database_psm_links
             updatedb(db, i, DBFOLDER, WGET)
-         
+
         if args.search is None:
             printft(HTML("<grey>%s</grey>" % fill_term()))
             printft(
@@ -585,18 +593,19 @@ def main():
             printft(HTML("<blue>Done!</blue>"))
             sys.exit(0)
 
-    
     elif args.update == False and args.search is None:
         printft(HTML(
             "<red>[SEARCH] No search term provided, you need to search for something, exiting.</red>"))
         parser.print_help()
         sys.exit(1)
-    
-    #check if unsupported downloads were called
+
+    # check if unsupported downloads were called
     if "PSP" in system and args.demos == True:
-        printft(HTML("<oragen>[SEARCH] NPS has no support for demos with the Playstation Portable (PSP)</oragen>"))
+        printft(HTML(
+            "<oragen>[SEARCH] NPS has no support for demos with the Playstation Portable (PSP)</oragen>"))
     if "PSX" in system and True in [args.dlcs, args.themes, args.updates, args.demos]:
-        printft(HTML("<oragen>[SEARCH] NPS only supports game downlaods for the Playstation (PSX)</oragen>"))
+        printft(HTML(
+            "<oragen>[SEARCH] NPS only supports game downlaods for the Playstation (PSX)</oragen>"))
 
     # check region
     if args.region is None:
@@ -610,14 +619,16 @@ def main():
     if list(what_to_dl.values()) == [False, False, False, False, False]:
         what_to_dl = {"games": True, "dlcs": True,
                       "themes": True, "updates": True, "demos": True}
-   
+
     maybe_download = []
     for a in system:
-        maybe_download = maybe_download + search_db(a, what_to_dl, args.search, reg, DBFOLDER)
-    
+        maybe_download = maybe_download + \
+            search_db(a, what_to_dl, args.search, reg, DBFOLDER)
+
     # test if the result isn't empty
     if len(maybe_download) == 0:
-        printft(HTML("<oragen>[SEARCH] No results found, try searching for something else or updating your database</oragen>"))
+        printft(HTML(
+            "<oragen>[SEARCH] No results found, try searching for something else or updating your database</oragen>"))
         sys.exit(0)
 
     # adding indexes to maybe_download
@@ -673,7 +684,7 @@ def main():
             else:
                 raise ValidationError(message='Enter something or press Ctrl+C to close. Press "h" for help.',
                                       cursor_position=0)
-    
+
     if len(maybe_download) > 1:
         try:
             index_to_download_raw = prompt(
@@ -687,7 +698,7 @@ def main():
     else:
         index_to_download_raw = "1"
 
-    #provides help
+    # provides help
     if index_to_download_raw.lower() == 'h':
         printft(HTML("<grey>\tSuppose you have 10 files to select from:</grey>"))
         printft(HTML("<grey>\tTo download file 2, you type: 2</grey>"))
@@ -808,9 +819,13 @@ def main():
                         sha256_exp = ""
 
                     if sha256_dl != sha256_exp:
-                        loc = DLFOLDER + "/PKG/" + i["System"] + "/" + i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
-                        printft(HTML("<red>[CHECKSUM] checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg</red>"))
-                        printft(HTML("<red>[CHECKSUM] corrupted file location: %s</red>" %loc))
+                        loc = DLFOLDER + "/PKG/" + \
+                            i["System"] + "/" + i['Type'] + "/" + \
+                            i['PKG direct link'].split("/")[-1]
+                        printft(HTML(
+                            "<red>[CHECKSUM] checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg</red>"))
+                        printft(
+                            HTML("<red>[CHECKSUM] corrupted file location: %s</red>" % loc))
                         break
                     else:
                         printft(
@@ -835,51 +850,52 @@ def main():
                 zrif = i['zRIF']
             except:
                 pass
-            
+
             # expose the exact directory were the pkg was extracted!
             if i["System"] == "PSV":
                 if i["Type"] in ["GAMES", "DEMOS"]:
                     printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                    (i['Name'], DLFOLDER+"/Extracted/app/"+i['Title ID'])))
+                                 (i['Name'], DLFOLDER+"/Extracted/app/"+i['Title ID'])))
                 if i["Type"] == "UPDATES":
                     printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                    (i['Name'], DLFOLDER+"/Extracted/patch/"+i['Title ID'])))
+                                 (i['Name'], DLFOLDER+"/Extracted/patch/"+i['Title ID'])))
                 if i["Type"] == "DLCS":
                     printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                    (i['Name'], DLFOLDER+"/Extracted/addcont/"+i['Title ID'])))
+                                 (i['Name'], DLFOLDER+"/Extracted/addcont/"+i['Title ID'])))
                 if i["Type"] == "THEMES":
-                    theme_folder_name = get_theme_folder_name(DLFOLDER+"/Extracted/bgdl/t/")
+                    theme_folder_name = get_theme_folder_name(
+                        DLFOLDER+"/Extracted/bgdl/t/")
                     printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                    (i['Name'], DLFOLDER+"/Extracted/bgdl/t/"+theme_folder_name+"/"+i['Title ID'])))
-                    
+                                 (i['Name'], DLFOLDER+"/Extracted/bgdl/t/"+theme_folder_name+"/"+i['Title ID'])))
+
             if i["System"] == "PSP":
                 if i["Type"] == "GAMES":
                     if cso_factor == False and args.eboot == False:
                         printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                        (i['Name'], DLFOLDER+"/Extracted/pspemu/ISO/<i>game_name</i> ["+i['Title ID']+"].iso")))                
-                    elif cso_factor in [str(x) for x in range(1,10)]:
+                                     (i['Name'], DLFOLDER+"/Extracted/pspemu/ISO/<i>game_name</i> ["+i['Title ID']+"].iso")))
+                    elif cso_factor in [str(x) for x in range(1, 10)]:
                         printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                        (i['Name'], DLFOLDER+"/Extracted/pspemu/ISO/<i>game_name</i> ["+i['Title ID']+"].cso")))                
+                                     (i['Name'], DLFOLDER+"/Extracted/pspemu/ISO/<i>game_name</i> ["+i['Title ID']+"].cso")))
                     elif args.eboot == True:
                         printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                        (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))                
+                                     (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))
                 if i["Type"] == "DLCS":
                     printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                    (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))
+                                 (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))
                 if i["Type"] == "THEMES":
                     printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                    (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/THEME/<i>theme_name</i>.PTF")))
+                                 (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/THEME/<i>theme_name</i>.PTF")))
                 if i["Type"] == "UPDATES":
                     printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                    (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID']))) 
-                    
+                                 (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))
+
             if i["System"] == "PSX":
                 printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                    (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID']))) 
-                
+                             (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))
+
             if i["System"] == "PSM":
                 printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                    (i['Name'], DLFOLDER+"/Extracted/psm/"+i['Title ID']))) 
+                             (i['Name'], DLFOLDER+"/Extracted/psm/"+i['Title ID'])))
 
             # -x is default argument to not create .zip files
             pkg2zip_args = ["-x"]
@@ -887,13 +903,14 @@ def main():
                 pkg2zip_args.append("-c"+cso_factor)
             elif cso_factor != False and i["Type"] != "UPDATES" and i["System"] != "PSP":
                 printft(HTML(
-                    "<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped.</orange>" %(i["System"], i["Type"][:-1].lower()) ))
+                    "<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped.</orange>" % (i["System"], i["Type"][:-1].lower())))
 
             if args.eboot == True and i["Type"] == "GAMES" and i["System"] == "PSP":
                 pkg2zip_args.append("-p")
             # append more commands here if needed!
             if i["System"] == "PSV" and zrif not in ["", "MISSING", None]:
-                run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, zrif)
+                run_pkg2zip(dl_dile_loc, dl_location,
+                            PKG2ZIP, pkg2zip_args, zrif)
             else:
                 run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args)
 
