@@ -31,7 +31,7 @@ from tempfile import TemporaryDirectory as TmpFolder
 
 
 # Versioning
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 ##STATIC DICTS AND LISTS##
 _FULL_SYSTEM_NAME = {"PSV": "Playstation Vita", "PSP": "Playstation Portable",
