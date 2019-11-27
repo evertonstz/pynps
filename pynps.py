@@ -45,7 +45,7 @@ _TYPE_DICT = {"GAMES": "Game", "THEMES": "Theme",
 
 _REGION_DICT = {"US": "USA", "EU": "EUR", "JP": "JAP", "ASIA": "ASIA",
                 "INT": "INT", "usa": "US", "jap": "JP", "eur": "EU",
-                "asia": "ASIA", "int": "INT"}
+                "asia": "ASIA", "int": "INT", "all":"all"}
 
 _CONF_PSV_LINKS = {'games': 'https://nopaystation.com/tsv/PSV_GAMES.tsv',
                    'dlcs': 'https://nopaystation.com/tsv/PSV_DLCS.tsv',
