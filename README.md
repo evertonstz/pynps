@@ -3,7 +3,7 @@
 <img src="https://octodex.github.com/images/pythocat.png" width="448" height="448">
 </p>
 
-PyNPS is a [Nopaystation](https://beta.nopaystation.com/) client writen in python 3.7 that, with the help of [wget](https://www.gnu.org/software/wget/) and [pkg2zip](https://github.com/mmozeiko/pkg2zip/), can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database. It's basically a command line version of [NPSBrowser](https://nopaystation.com/vita/npsReleases/) writen by a moron (aka me).
+PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3.7 that, with the help of [wget](https://www.gnu.org/software/wget/) and [pkg2zip](https://github.com/mmozeiko/pkg2zip/), can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database. It's basically a command line version of [NPSBrowser](https://nopaystation.com/vita/npsReleases/) writen by a moron (aka me).
 
 # Table of Contents
 
@@ -30,26 +30,26 @@ There are tree methods you can install pyNPS:
 ## Manual
 This is only for 64bits systems.
 
-You can grab the latest x86/usr/bin/_64 binary file at [releases](https://github.com/evertonstz/pyNPS/releases). The binary is made with pyinstaller, so there's no need to deal with python dependencies, just download it and use it (ofc you'll still need pkg2zip and wget installed or inside ~/.config/pynps/lib)
+You can grab the latest x86_64 binary file at [releases](https://github.com/evertonstz/pyNPS/releases). The binary is made with pyinstaller, so there's no need to deal with python dependencies, just download it and use it (ofc you'll still need pkg2zip and wget installed or inside `/home/$USER/.config/pyNPS/lib`
 
-If you want to just use it by typing "pynps" in your terminal, you have to copy your binary to /usr/bin/
+If you want to just use it by typing "pynps" in your terminal, you'll have to copy your binary to /usr/bin/
 
 Here's a full guide:
-- download the latest release [here](https://github.com/evertonstz/pyNPS/releases), last time time this readme was updated it was the v0.5, so you'll need to download the file named  pynps-v0.5-linux-x86_64;
+- download the latest release [here](https://github.com/evertonstz/pyNPS/releases), last time time this readme was updated it was 1.1.0, so you'll need to download the file named `pynps-1.1.0-1.x86_64.linux`;
 
 - enter your terminal and cd to were you downloaded the file, usually it's:
->$ cd ~/Download
+  >$ cd ~/Download
 
 - move the downloaded file to the /usr/bin folder by runing (don't forget to change the version if you're installing a newer release):
->$ sudo mv pynps-v0.5-linux-x86_64 /usr/bin/pynps
+  >$ sudo mv pynps-1.1.0-1.x86_64.linux /usr/bin/pynps
 
 - make sure the moved file is marked as executable:
->$ sudo chmod +x /usr/bin/pynps
+  >$ sudo chmod +x /usr/bin/pynps
 
 - test the newly installed binary, pynps should output the version:
->$ pynps --version
+  >$ pynps --version
 
-After this proceed to the [pkg2zip](#pkg2zip) section, you'll also need to install that.
+If everything was done correctly, pynps should print the version in your terminal. After this proceed to the [pkg2zip](#pkg2zip) section, you'll also need to install that.
 
 ## Fedora
 This is for both 32 and 64bits systems.
@@ -69,42 +69,44 @@ This is for both 32 and 64bits systems.
 First of all you'll need python3.7+
 
 You'll also need Prompt Toolkit
-```
-$ pip install prompt_toolkit
-```
+
+>$ pip install prompt_toolkit
+
 You can get the source files from github and use the pynps.py file as any other python script.
-```
-$ git clone https://github.com/evertonstz/pyNPS
-$ cd pynNPS
-$ python pynps.py
-```
+
+>$ git clone https://github.com/evertonstz/pyNPS
+
+>$ cd pynNPS
+
+>$ python pynps.py
+
 
 ******
 # pkg2zip
 This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitter.com/NoPayStation/status/1096508850080043010), to handle the .pkg extractions, you have 3 options:
 
-1. Use pre-compied binary, compiled by myelf (version 2.2) [here](https://pixeldrain.com/u/qJ05A7Si), just drop it inside /home/USER/.config/pyNPS/lib/ and make it executable by runing:
+1. Use pre-compied binary, compiled by myelf (version 2.2) [here](https://pixeldrain.com/u/qJ05A7Si), just drop it inside `/home/$USER/.config/pyNPS/lib/` and make it executable by runing:
 
-> chmod -R +x /home/USER/.config/pyNPS/lib/pkg2zip
+    > chmod -R +x /home/$USER/.config/pyNPS/lib/pkg2zip
 
 
 2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip-fork/) after you install it pyNPS will autodetect and use it automatically, no need to add the path to your config file, the yay command is:
 
->$ yay -S pkg2zip-fork/
+    >$ yay -S pkg2zip-fork
 
-3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases) and move  the binary into this folder /home/USER/.config/pyNPS/lib/ (USER is your username);
+3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases) and move  the binary into this folder `/home/$USER/.config/pyNPS/lib/`.
 
 For methods 1 and 3 pyNPS will autodetect and use it automatically, so there's no need to add the path to your config file
 
-In case you decide to store your binary outside /home/USER/.config/pyNPS/lib/ you'll need to specify this folder in your config file unde the "pkg2zip_location" option.
+In case you decide to store your binary outside `/home/$USER/.config/pyNPS/lib/` you'll need to specify this folder in your config file unde the "pkg2zip_location" option.
 
 ******
 # wget
 This software uses wget to make the downloads therefore it won't work if you don't have it installed in your system, most distros already come with wget installed, if you don't have it chances are you're on some crazy non-userfriendly distro and you probably know your way around for installing it. If you don't just google.
 
-You can drop a wget binary at /home/USER/.config/pyNPS/lib/ after that pyNPS will autodetect and use it automatically, no need to add the path to your config file.
+You can drop a wget binary at `/home/$USER/.config/pyNPS/lib/` after that pyNPS will autodetect and use it automatically, no need to add the path to your config file.
 
-In case you decide to store your binary outside /home/USER/.config/pyNPS/lib/ you'll need to specify this folder in your config file unde the "wget_location" option.
+In case you decide to store your binary outside `/home/$USER/.config/pyNPS/lib/` you'll need to specify this folder in your config file unde the "wget_location" option.
 
 ******
 # Updating database
@@ -124,10 +126,10 @@ Updating database per console:
 
 >$ pynps -c psv -c psm -u #updates only psx's and psm's db
 
-Database is located by default at: /home/USER/.config/pyNPS/database
+Database is located by default at `/home/$USER/.config/pyNPS/database`
 ******
 # Configuration file
-Configuration file is created at: /home/USER/.config/pyNPS/settings.ini
+Configuration file is created at `/home/$USER/.config/pyNPS/settings.ini`
 
 If you delete it, it'll be recreated with default parameters in the next run. The options are pretty much self explanatory.
 
@@ -312,5 +314,7 @@ kaching kaching
 BTC: bc1qh53mg0gm6hfjsaphw3x4ct3753rr949lfpere7
 
 LTC: ltc1qp6230jydx7hyht7tu5cuxkk3t7j3t8s0f5wgy8
+
+XLM: evertonstz*keybase.io
 
 ETN: etnjyromPydDjvE6m64mvTTrtzd2k7wm3hFCAAsYBc9kdX3N5PHRA3nTescTqq7xGVBrsk8uJXwN5RnwvdbQH2KR6DbHPzE9Ey
