@@ -47,23 +47,23 @@ _REGION_DICT = {"US": "USA", "EU": "EUR", "JP": "JAP", "ASIA": "ASIA",
                 "INT": "INT", "usa": "US", "jap": "JP", "eur": "EU",
                 "asia": "ASIA", "int": "INT", "all":"all"}
 
-_CONF_PSV_LINKS = {'games': 'https://nopaystation.com/tsv/PSV_GAMES.tsv',
-                   'dlcs': 'https://nopaystation.com/tsv/PSV_DLCS.tsv',
-                           'themes': 'https://nopaystation.com/tsv/PSV_THEMES.tsv',
-                           'updates': 'https://nopaystation.com/tsv/PSV_UPDATES.tsv',
-                           'demos': 'https://nopaystation.com/tsv/PSV_DEMOS.tsv'
+_CONF_PSV_LINKS = {'games': 'http://nopaystation.com/tsv/PSV_GAMES.tsv',
+                   'dlcs': 'http://nopaystation.com/tsv/PSV_DLCS.tsv',
+                           'themes': 'http://nopaystation.com/tsv/PSV_THEMES.tsv',
+                           'updates': 'http://nopaystation.com/tsv/PSV_UPDATES.tsv',
+                           'demos': 'http://nopaystation.com/tsv/PSV_DEMOS.tsv'
                    }
 
-_CONF_PSP_LINKS = {'games': 'https://nopaystation.com/tsv/PSP_GAMES.tsv',
-                   'dlcs': 'https://nopaystation.com/tsv/PSP_DLCS.tsv',
-                           'themes': 'https://nopaystation.com/tsv/PSP_THEMES.tsv',
-                           'updates': 'https://nopaystation.com/tsv/PSP_UPDATES.tsv'
+_CONF_PSP_LINKS = {'games': 'http://nopaystation.com/tsv/PSP_GAMES.tsv',
+                   'dlcs': 'http://nopaystation.com/tsv/PSP_DLCS.tsv',
+                           'themes': 'http://nopaystation.com/tsv/PSP_THEMES.tsv',
+                           'updates': 'http://nopaystation.com/tsv/PSP_UPDATES.tsv'
                    }
 
-_CONF_PSX_LINKS = {'games': 'https://nopaystation.com/tsv/PSX_GAMES.tsv'
+_CONF_PSX_LINKS = {'games': 'http://nopaystation.com/tsv/PSX_GAMES.tsv'
                    }
 
-_CONF_PSM_LINKS = {'games': 'https://nopaystation.com/tsv/PSM_GAMES.tsv'
+_CONF_PSM_LINKS = {'games': 'http://nopaystation.com/tsv/PSM_GAMES.tsv'
                    }
 
 ##FUNCTIONS##
