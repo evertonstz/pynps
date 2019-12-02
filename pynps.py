@@ -585,15 +585,15 @@ def main():
                         type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm"])
     parser.add_argument("-r", "--region", help="the region for the pkj you want.",
                         type=str, required=False, action='append', choices=["usa", "eur", "jap", "asia", "int"])
-    parser.add_argument("-dg", "-G", "--games", help="to download PSV/PSP/PSX/PSM games.",
+    parser.add_argument("-G", "-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
                         action="store_true")
-    parser.add_argument("-dd", "-D", "--dlcs", help="to download PSV/PSP dlcs.",
+    parser.add_argument("-D", "-dd", "--dlcs", help="to download PSV/PSP dlcs.",
                         action="store_true")
-    parser.add_argument("-dt", "-T", "--themes", help="to download PSV/PSP themes.",
+    parser.add_argument("-T", "-dt", "--themes", help="to download PSV/PSP themes.",
                         action="store_true")
-    parser.add_argument("-du", "-U", "--updates", help="to download PSV/PSP game updates.",
+    parser.add_argument("-U", "-du", "--updates", help="to download PSV/PSP game updates.",
                         action="store_true")
-    parser.add_argument("-dde", "-E", "--demos", help="to download PSV demos.",
+    parser.add_argument("-E", "-dde", "--demos", help="to download PSV demos.",
                         action="store_true")
     parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP games as EBOOT.PBP",
                         action="store_true")
