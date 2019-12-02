@@ -31,10 +31,8 @@ from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
 
-import time
-
 # Versioning
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 ##STATIC DICTS AND LISTS##
 _FULL_SYSTEM_NAME = {"PSV": "Playstation Vita", "PSP": "Playstation Portable",
