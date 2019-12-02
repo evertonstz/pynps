@@ -593,7 +593,7 @@ def main():
                         action="store_true")
     parser.add_argument("-du", "-U", "--updates", help="to download PSV/PSP game updates.",
                         action="store_true")
-    parser.add_argument("-dde", "-DE", "--demos", help="to download PSV demos.",
+    parser.add_argument("-dde", "-E", "--demos", help="to download PSV demos.",
                         action="store_true")
     parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP games as EBOOT.PBP",
                         action="store_true")
