@@ -556,15 +556,15 @@ def main():
                         type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm"])
     parser.add_argument("-r", "--region", help="the region for the pkj you want.",
                         type=str, required=False, action='append', choices=["usa", "eur", "jap", "asia", "int"])
-    parser.add_argument("-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
+    parser.add_argument("-dg", "-G", "--games", help="to download PSV/PSP/PSX/PSM games.",
                         action="store_true")
-    parser.add_argument("-dd", "--dlcs", help="to download PSV/PSP dlcs.",
+    parser.add_argument("-dd", "-D", "--dlcs", help="to download PSV/PSP dlcs.",
                         action="store_true")
-    parser.add_argument("-dt", "--themes", help="to download PSV/PSP themes.",
+    parser.add_argument("-dt", "-T", "--themes", help="to download PSV/PSP themes.",
                         action="store_true")
-    parser.add_argument("-du", "--updates", help="to download PSV/PSP game updates.",
+    parser.add_argument("-du", "-U", "--updates", help="to download PSV/PSP game updates.",
                         action="store_true")
-    parser.add_argument("-dde", "--demos", help="to download PSV demos.",
+    parser.add_argument("-dde", "-DE", "--demos", help="to download PSV demos.",
                         action="store_true")
     parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP games as EBOOT.PBP",
                         action="store_true")
@@ -574,7 +574,7 @@ def main():
                         action="store_true")
     parser.add_argument('--version', action='version',
                         version='%(prog)s version '+VERSION)
-
+    
     args = parser.parse_args()
 
     if args.console:
@@ -595,6 +595,10 @@ def main():
     # TODO: check if updating db is needed
 
     if args.update == True:
+        if [args.region, args.search, args.eboot, args.compress_cso] != [None, None, False, None]:
+            printft(HTML("<red>[UPDATEDB] you can't search while updating the database</red>"))
+            sys.exit(1)
+
         printft(HTML("<grey>%s</grey>" % fill_term()))
         for i in system:
             printft(HTML("<green>[UPDATEDB] %s:</green>" %
@@ -607,14 +611,8 @@ def main():
                 db = database_psx_links
             elif i == "PSM":
                 db = database_psm_links
-            exit()
-            updatedb(db, i, DBFOLDER, WGET)
+            # updatedb(db, i, DBFOLDER, WGET)
 
-        if args.search is None:
-            printft(HTML("<grey>%s</grey>" % fill_term()))
-            printft(
-                HTML("<orange>[SEARCH] No search term provided.</orange>"))
-            printft(HTML("<grey>%s</grey>" % fill_term()))
             printft(HTML("<blue>Done!</blue>"))
             sys.exit(0)
 
@@ -756,13 +754,11 @@ def main():
                     sys.exit(1)
                 # test if digit 0 is bigger than digit 1
                 if range_0 < range_1:
-                    print(1)
                     # populate the index list
                     for a in range(range_0, range_1+1):
                         if a not in index_to_download:
                             index_to_download.append(a)
                 elif range_0 > range_1:
-                    print(1)
                     for a in range(range_1, range_0+1):
                         if a not in index_to_download:
                             index_to_download.append(a)
