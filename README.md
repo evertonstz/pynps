@@ -7,20 +7,24 @@ PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3.7
 
 # Table of Contents
 
-- [Installation](#Installation)
-  * [Manual](#Manual)
-  * [Fedora](#Fedora)
-  * [Arch/Manjaro](#Arch/Manjaro)
-  * [Using dotpy file](#Using%20dotpy%20file)
+- [Installation](#installation)
+  * [Manual](#manual)
+  * [Fedora](#fedora)
+  * [Arch and Manjaro](#arch-and-manjaro)
+  * [Using dotpy file](#using-dotpy-file)
   * [pkg2zip](#pkg2zip)
   * [wget](#wget)
-- [Updating database](#Updating%20database)
-- [Configuration file](#Configuration%20file)
-- [Examples](#Examples)
-  * [Searching](#Searching)
-  * [Syntax for selecting files to download](#Syntax%20for%20selecting%20files%20to%20download)
-  * [More information](#More%20information)
-- [Make a donation](#Make%20a%20donation)
+- [Updating database](#updating-database)
+  * [Updating all databases](#updating-all-databases)
+  * [Updating database per console](#updating-database-per-console)
+  * [Updating database, even more fragmented](#updating-database,-even-more-fragmented)
+  * [Database file](#database-file)
+- [Configuration file](#configuration-file)
+- [Examples](#examples)
+  * [Searching](#searching)
+  * [Syntax for selecting files to download](#syntax-for-selecting-files-to-download)
+  * [More information](#more-information)
+- [Make a donation](#make-a-donation)
   * [Paypal](#Paypal)
   * [Crypto](#Crypto)
 ******
@@ -56,7 +60,7 @@ This is for both 32 and 64bits systems.
 
 There's a .rpm installer in [releases](https://github.com/evertonstz/pyNPS/releases), just grab the latest one and double click it to install.
 
-## Arch/Manjaro
+## Arch and Manjaro
 This is only for 64bits systems.
 
 AUR is deprecated since I simply can't maintain it. If anyone is interested in maintaning it, go ahead!
@@ -112,21 +116,35 @@ In case you decide to store your binary outside `/home/$USER/.config/pyNPS/lib/`
 # Updating database
 Before downloading any of your legally obtained (wink wink wink) pkg file you have to update your NPS database, you don't have to do it every time you want to download something, but only in your first run to construct your initial database and after that just once in a while to get info about new pkgs NPS adds to their database:
 
-Updating all system's databases:
+## Updating all databases
 >$ pynps -u
 
-<br/>
-Updating database per console:
 
->$ pynps -c psv -u #updates only vita's db
+## Updating database per console
 
->$ pynps -c psp -u #updates only psp's db
+updates only vita's db
+>$ pynps -c psv -u
 
->$ pynps -c psv -u #updates only psx's db
+updates only psp's db
+>$ pynps -c psp -u
 
->$ pynps -c psv -c psm -u #updates only psx's and psm's db
+updates only psx's db
+>$ pynps -c psv -u
 
-Database is located by default at `/home/$USER/.config/pyNPS/database`
+updates only psx's and psm's db
+>$ pynps -c psv -c psm -u
+
+## Updating database, even more fragmented
+
+Updates only games and themes database for psp and psx (note: since there's no themes database for psx, only the games db will be updated for this system):
+>$ pynps -c psp -u -GT
+
+updates only games database for every system
+>$ pynps -u -G
+
+## Database file
+
+Database is located by default at `/home/$USER/.config/pyNPS/database/pynps.db`
 ******
 # Configuration file
 Configuration file is created at `/home/$USER/.config/pyNPS/settings.ini`
@@ -136,27 +154,12 @@ If you delete it, it'll be recreated with default parameters in the next run. Th
 ******
 # Examples
 ## Searching
-If you wanna update the PSP's database before searching for a PSP Sonic game in any region:
->$ pynps -c psp -u -dg sonic
-```
-Updating Database for Playstation Portable:
-Downloading File: PSP_GAMES.tsv [###################-] 98% 550K @ 71.4K/s
-renaming file: ./DATABASE/PSP/PSP_GAMES.tsv ./DATABASE/PSP/GAMES.tsv
-Downloading File: PSP_DLCS.tsv [####################] 100% 450K @ 100%/s
-renaming file: ./DATABASE/PSP/PSP_DLCS.tsv ./DATABASE/PSP/DLCS.tsv
-Downloading File: PSP_THEMES.tsv [####################] 100% 0K @ 100%/s
-renaming file: ./DATABASE/PSP/PSP_THEMES.tsv ./DATABASE/PSP/THEMES.tsv
-Downloading File: PSP_UPDATES.tsv [####################] 100% 0K @ 928K=0.02s/s
-renaming file: ./DATABASE/PSP/PSP_UPDATES.tsv ./DATABASE/PSP/UPDATES.tsv
-1 ) PSP | ULUS10323 | US   | GAMES | Sonic Rivals 2 | 455.7 MiB
-2 ) PSP | ULES00622 | EU   | GAMES | Sonic Rivals | 195.1 MiB
-3 ) PSP | ULES00940 | EU   | GAMES | Sonic Rivals 2 | 219.8 MiB
-4 ) PSP | ULUS10195 | US   | GAMES | Sonic Rivals | 196.8 MiB
-Enter the number for what you want to download, you can enter multiple separated by commas:
-```
 ******
 Search for an european release of Crash for PSX and PSP
->$ pynps -c psp -c psx -r eur -dg crash
+>$ pynps --console psp --console psx --region eur --games crash
+
+Or:
+>$ pynps -c psp -c psx -r eur -G crash
 ```
 1  ) PSP | NPEG00020 | EU   | GAMES   | Gravity Crash Portable | 46.09 MiB
 2  ) PSP | NPEZ00305 | EU   | GAMES   | 3,2,1…SuperCrash! (Minis) | 22.4 MiB
@@ -175,7 +178,16 @@ Enter the number for what you want to download, you can enter multiple numbers u
 ```
 ******
 Search for for themes and demos related to the word "touhou in any region:
->$ pynps -c psv -dt -dde touhou
+>$ pynps --console psv --themes --demos touhou
+
+Or:
+>$ pynps -c psv -T -E touhou
+
+Or:
+>$ pynps -c psv -TE touhou
+
+Orrrr (note that c must always be last in such cases because it has to accept the "psv"):
+>$ pynps -TEc psv touhou
 ```
 1  ) PSV | PCSE00947 | US   | THEMES | Touhou Genso Rondo Theme | 6.723 MiB
 2  ) PSV | PCSE00990 | US   | THEMES | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
@@ -193,10 +205,19 @@ Enter the number for what you want to download, you can enter multiple separated
 Search for for everything (themes, games, demos, dlcs and updates) related to the word "knight" in any region region on the psvita database:
 >$ pynps -c psv knight
 
-<br/>
-Or if you like suffering (I cropped the output because it returned 53 results):
+Or if you like high suffering :
+>$ pynps --console psv --games --dlcs --themes --updates --demos knight
 
->$ pynps -c psv -dg -dd -dt -du -dde knight
+Or if you like medium suffering:
+>$ pynps -c psv -G -D -T -U -E knight
+
+Low suffering:
+
+>$ pynps -c psv -GDTUE knight
+
+Alternative low suffering:
+>$ pynps -GDTUEc psv knight
+
 ```
 1  ) PSV | PCSE00244 | US   | GAMES   | Valhalla Knights 3 | 897.8 MiB
 13 ) PSV | PCSA00017 | US   | DLCS    | LittleBigPlanet Knights of Old Pre-Order Costume Pack | 100 KiB
@@ -204,6 +225,7 @@ Or if you like suffering (I cropped the output because it returned 53 results):
 53 ) PSV | PCSB00743 | EU   | UPDATES | Shovel Knight | 120.8 MiB
 Enter the number for what you want to download, you can enter multiple separated by commas:
 ```
+`I cropped the output because it returned 53 results`
 ******
 If you just wanna everything related to God of War in all systems (psp, psv, psx and psm)? Sure, you can omit "-c/--console" and it will assume you want every gaming system:
 >$ pynps "god of war"
@@ -235,15 +257,21 @@ Or
 Enter the number for what you want to download, you can enter multiple numbers using commas:                                                                       
 ```
 ******
-Wanna return every single american DLC for the psvita? Sure, it's slow but it's a free country:
->$ pynps -c psv -r usa -dd _all
+Wanna return every single american DLC for the psvita? Sure, ~~it's slow but~~ (not slow anymore on versions 1.2.0 or newer) it's a free country:
+>$ pynps -c psv -r usa -D _all
+```
+that's too big to output here, mate :<
+```
+******
+You can even return the entire database if you're crazy enough:
+>$ pynps _all
 ```
 that's too big to output here, mate :<
 ```
 ******
 ## Syntax for selecting files to download
 After you make your search you'll probably want to download something, if it's a single file that's pretty easy, just type the number when asked and it'll start the download for you. If you wanna multiple downloads, you can always separate the numbers by commas. But there's an even more advance (and cool) way for downloading things, and that's using "slices", here's how to do it with some examples:
->$ pynps -c psv -dt -dde touhou
+>$ pynps -c psv -TE touhou
 ```
 1  ) PSV | PCSE00947 | US   | THEMES  | Touhou Genso Rondo Theme | 6.723 MiB
 2  ) PSV | PCSE00990 | US   | THEMES  | Touhou Genso Wanderer PlayStation Vita Theme | 4.514 MiB
@@ -269,7 +297,7 @@ Just run:
 >$ pynps -h
 
 ```
-usage: pynps    [-h] [-c {psv,psp,psx,psm}] [-r {usa,eur,jap,asia}] [-dg]
+usage: pynps.py [-h] [-c {psv,psp,psx,psm}] [-r {usa,eur,jap,asia,int}] [-dg]
                 [-dd] [-dt] [-du] [-dde] [-eb] [-cso {1,2,3,4,5,6,7,8,9}] [-u]
                 [--version]
                 [search]
@@ -286,13 +314,13 @@ optional arguments:
   -h, --help            show this help message and exit
   -c {psv,psp,psx,psm}, --console {psv,psp,psx,psm}
                         the console you wanna get content with NPS.
-  -r {usa,eur,jap,asia}, --region {usa,eur,jap,asia}
+  -r {usa,eur,jap,asia,int}, --region {usa,eur,jap,asia,int}
                         the region for the pkj you want.
-  -dg, --games          to download PSV/PSP/PSX/PSM games.
-  -dd, --dlcs           to download PSV/PSP dlcs.
-  -dt, --themes         to download PSV/PSP themes.
-  -du, --updates        to download PSV/PSP game updates.
-  -dde, --demos         to download PSV demos.
+  -dg, -G, --games      to download PSV/PSP/PSX/PSM games.
+  -dd, -D, --dlcs       to download PSV/PSP dlcs.
+  -dt, -T, --themes     to download PSV/PSP themes.
+  -du, -U, --updates    to download PSV/PSP game updates.
+  -dde, -E, --demos     to download PSV demos.
   -eb, --eboot          use this argument to unpack PSP games as EBOOT.PBP
   -cso {1,2,3,4,5,6,7,8,9}, --compress_cso {1,2,3,4,5,6,7,8,9}
                         use this argument to unpack PSP games as a compressed
