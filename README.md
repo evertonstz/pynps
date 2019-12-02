@@ -125,22 +125,26 @@ Before downloading any of your legally obtained (wink wink wink) pkg file you ha
 updates only vita's db
 >$ pynps -c psv -u
 
-updates only psp's db
->$ pynps -c psp -u
+Or:
 
-updates only psx's db
->$ pynps -c psv -u
+>$ pynps -uc psv
 
-updates only psx's and psm's db
->$ pynps -c psv -c psm -u
+You can do the same for psp, psx and psm.
 
 ## Updating database, even more fragmented
 
 Updates only games and themes database for psp and psx (note: since there's no themes database for psx, only the games db will be updated for this system):
 >$ pynps -c psp -u -GT
 
-updates only games database for every system
+Or:
+
+>$ pynps -GTuc psp
+
+Updates only games database for every system:
 >$ pynps -u -G
+
+Or:
+>$ pynps -Gu
 
 ## Database file
 
