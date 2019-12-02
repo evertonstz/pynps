@@ -72,9 +72,9 @@ This is for both 32 and 64bits systems.
 
 First of all you'll need python3.7+
 
-You'll also need Prompt Toolkit
+You'll also need Prompt Toolkit and SqliteDict
 
->$ pip install prompt_toolkit
+>$ pip install prompt_toolkit sqlitedict
 
 You can get the source files from github and use the pynps.py file as any other python script.
 
