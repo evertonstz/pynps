@@ -21,14 +21,17 @@ import subprocess
 import argparse
 import hashlib
 import configparser
+from json import dumps
 from shutil import copyfile, which
 from csv import DictReader
 from os.path import join as joindir
 from math import log2
+from sqlitedict import SqliteDict
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
 
+import time
 
 # Versioning
 VERSION = "1.1.0"
@@ -66,6 +69,7 @@ _CONF_PSX_LINKS = {'games': 'http://nopaystation.com/tsv/PSX_GAMES.tsv'
 _CONF_PSM_LINKS = {'games': 'http://nopaystation.com/tsv/PSM_GAMES.tsv'
                    }
 
+
 ##FUNCTIONS##
 
 
@@ -91,17 +95,61 @@ def fill_term(symbol="-"):
     return(get_terminal_columns()*symbol)
 
 
-def updatedb(dict, system, DBFOLDER, WGET):
+def updatedb(dict, system, DBFOLDER, WGET): #TODO: add update per type
     """this function downloads the tsvs databases from nps' website"""
 
     #detect gaming system#
     system_name = _FULL_SYSTEM_NAME[system]
 
+    # dict = ['/home/everton/.config/pyNPS/database/PSV/PSV_GAMES.tsv',
+    #         '/home/everton/.config/pyNPS/database/PSV/PSV_DLCS.tsv'] #remove
+
+    # db_dict = SqliteDict(_DB, autocommit=False)
+    def insert_into_DB(tsv, DB):
+        with open(tsv, 'r') as file:
+            # read source tsv file
+            file = [i for i in DictReader(file, delimiter='\t')]
+
+            # write ordered dicsts to new db
+        # opens db
+        with SqliteDict(DB, autocommit=False) as database:
+            #checks for console and make a [] in case it doesn't exist
+            if system not in database:
+                database[system] = []
+            system_database = database[system]
+            # if next((item for item in file if item['Title ID'] == "Tom" and item["age"] == 11), None) is not None:
+            
+            for index_file, i in enumerate(file):
+                print("Processing:"+str(index_file)+"/"+str(len(file)))
+                i["Type"] = tsv.split("_")[-1].replace(".tsv","").upper()
+                i["System"] = system
+                # check if keys part of the dict are already in the database 'Title ID' 'Region' 'Type' 'System'
+                try: 
+                    checker = next((item for item in system_database if item['Title ID'] == i['Title ID'] and item['Region'] == i['Region'] and item['System'] == i['System'] and item['Type'] == i['Type'] and item['Content ID'] == i['Content ID']), None)
+                except:
+                    checker = next((item for item in system_database if item['Title ID'] == i['Title ID'] and item['Region'] == i['Region'] and item['System'] == i['System'] and item['Type'] == i['Type']), None)
+
+                if checker is not None:
+                    # this means there's already a entry, only updates the last entry
+                    if checker != i:
+                        
+                        print("Updated database existing entry:", i['Title ID'], i['Region'], i['Type'], i['System'], i['Name'])
+                        checker_index = system_database.index(checker)
+                        system_database[checker_index].update(i)
+                else:
+                    # this means it's a new entry
+                    print("New database entry:", i['Title ID'], i['Region'], i['Type'], i['System'], i['Name'])
+                    system_database.append(i)
+
+            # commit changes
+            database[system] = system_database
+            database.commit()
+
     with TmpFolder() as tmp:
         dl_tmp_folder = tmp+"/"
 
         for t in dict:
-            #detect file#
+            # detect file#
             file = t.upper()+".tsv"
             url = dict[t]
 
@@ -114,8 +162,8 @@ def updatedb(dict, system, DBFOLDER, WGET):
             process = subprocess.run(
                 [WGET, "-q", "--show-progress", url], cwd=dl_tmp_folder)
 
-            # print(os.path.isdir(dl_tmp_folder))
-            copyfile(dl_tmp_folder+filename, dl_folder+file)
+            #read file and feed to database
+            insert_into_DB(dl_tmp_folder+filename, DBFOLDER+"/pynps.db") #pass downloaded tsv here in local
 
 
 def dl_file(dict, system, DLFOLDER, WGET):
@@ -239,26 +287,44 @@ def process_search(out):
             print(head_name + tail)
 
 
-def search_db(system, type, query, region, DBFOLDER):
+def search_db(systems, type, query, region, DBFOLDER):
     """this function searchs in the tsv databases 
     provided by nps"""
+
+    start = time.time()
 
     query = query.upper()
     #process query#
     region = [_REGION_DICT[x] for x in region]
 
-    # define the files to search
-    files_to_search_raw = []
-    for r, d, f in os.walk(DBFOLDER+"/"+system.upper()+"/"):
-        for file in f:
-            if '.tsv' in file and "_" not in file:
-                files_to_search_raw.append(os.path.join(r, file))
+    # # define the files to search
+    # files_to_search_raw = []
+    # for r, d, f in os.walk(DBFOLDER+"/"+system.upper()+"/"):
+    #     for file in f:
+    #         if '.tsv' in file and "_" not in file:
+    #             files_to_search_raw.append(os.path.join(r, file))
 
-    files_to_search = []
-    for i in files_to_search_raw:
-        file_system_lst = i.split("/")[-1].replace(".tsv", "").lower()
-        if type[file_system_lst] == True:
-            files_to_search.append(i)
+    # files_to_search = []
+    # for i in files_to_search_raw:
+    #     file_system_lst = i.split("/")[-1].replace(".tsv", "").lower()
+    #     if type[file_system_lst] == True:
+    #         files_to_search.append(i)
+    DB = DBFOLDER+"/pynps.db"
+
+    # read database
+    with SqliteDict(DB, autocommit=False) as db:
+        # return everything
+        database = db
+        result = []
+        for system in systems:
+            system_database = database[system]
+            if query == "_ALL":
+                result = result + [item for item in system_database if item["System"] == system and item["Region"] in region]
+    
+    end = time.time()
+    print(end - start)
+    # return(result)
+    exit()
 
     o = []
     for f in files_to_search:
@@ -585,6 +651,7 @@ def main():
                 db = database_psx_links
             elif i == "PSM":
                 db = database_psm_links
+            exit()
             updatedb(db, i, DBFOLDER, WGET)
 
         if args.search is None:
@@ -622,10 +689,8 @@ def main():
         what_to_dl = {"games": True, "dlcs": True,
                       "themes": True, "updates": True, "demos": True}
 
-    maybe_download = []
-    for a in system:
-        maybe_download = maybe_download + \
-            search_db(a, what_to_dl, args.search, reg, DBFOLDER)
+    # maybe_download = []
+    maybe_download = search_db(system, what_to_dl, args.search, reg, DBFOLDER)
 
     # test if the result isn't empty
     if len(maybe_download) == 0:
