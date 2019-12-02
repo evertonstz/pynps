@@ -17,10 +17,11 @@ from setuptools import setup
 
 setup(
     name='pynps',
-    version='0.6',
+    version='1.2.0',
     py_modules=['pynps'],
     install_requires=[
         'prompt_toolkit',
+        'sqlitedict',
     ],
     entry_points='''
         [console_scripts]
