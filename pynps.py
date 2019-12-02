@@ -94,8 +94,33 @@ def fill_term(symbol="-"):
 
     return(get_terminal_columns()*symbol)
 
+def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbol="]", color=False, unfilled_symbol="-"):
+    if color == 0:
+        slice = int(number*fill_width/100)
+        return(open_symbol+symbol*slice+unfilled_symbol*(fill_width-slice)+close_symbol)
+    else:
 
-def updatedb(dict, system, DBFOLDER, WGET): #TODO: add update per type
+        slice = int(number*fill_width/100)
+        if fill_width % 4 == 0:
+            chunks = int(fill_width/4)
+            chunks_dir = ""
+            for i in range(0, slice):
+                if i in range(0, chunks):
+                    chunks_dir += LBLUE+symbol
+                elif i in range(chunks, chunks*2):
+                    chunks_dir += LGREEN+symbol
+                elif i in range(chunks*2, chunks*3):
+                    chunks_dir += YELLOW+symbol
+                elif i in range(chunks*3, chunks*4):
+                    chunks_dir += LRED+symbol
+
+            return(open_symbol+chunks_dir+GREY+unfilled_symbol*(fill_width-slice)+close_symbol+NC)
+        else:
+            print('ERROR: Use a number divisible by 4 in "fill_width".')
+            sys.exit(1)
+
+
+def updatedb(dict, system, DBFOLDER, WGET, types): #TODO: add update per type
     """this function downloads the tsvs databases from nps' website"""
 
     #detect gaming system#
@@ -105,7 +130,7 @@ def updatedb(dict, system, DBFOLDER, WGET): #TODO: add update per type
     #         '/home/everton/.config/pyNPS/database/PSV/PSV_DLCS.tsv'] #remove
 
     # db_dict = SqliteDict(_DB, autocommit=False)
-    def insert_into_DB(tsv, DB):
+    def insert_into_DB(tsv, DB, type):
         with open(tsv, 'r') as file:
             # read source tsv file
             file = [i for i in DictReader(file, delimiter='\t')]
@@ -120,8 +145,11 @@ def updatedb(dict, system, DBFOLDER, WGET): #TODO: add update per type
             # if next((item for item in file if item['Title ID'] == "Tom" and item["age"] == 11), None) is not None:
             
             for index_file, i in enumerate(file):
-                print("Processing:"+str(index_file)+"/"+str(len(file)))
-                i["Type"] = tsv.split("_")[-1].replace(".tsv","").upper()
+                
+                print("Processing %s: %s" %(type, progress_bar( int(index_file/(len(file)-1)*100) ) ), 
+                                            "(%s/%s)" %(index_file, len(file)-1), 
+                                            end="\r")
+                i["Type"] = type.upper()
                 i["System"] = system
                 # check if keys part of the dict are already in the database 'Title ID' 'Region' 'Type' 'System'
                 try: 
@@ -132,14 +160,14 @@ def updatedb(dict, system, DBFOLDER, WGET): #TODO: add update per type
                 if checker is not None:
                     # this means there's already a entry, only updates the last entry
                     if checker != i:
-                        
-                        print("Updated database existing entry:", i['Title ID'], i['Region'], i['Type'], i['System'], i['Name'])
+                        # print("Updated database existing entry:", i['Title ID'], i['Region'], i['Type'], i['System'], i['Name'])
                         checker_index = system_database.index(checker)
                         system_database[checker_index].update(i)
                 else:
                     # this means it's a new entry
-                    print("New database entry:", i['Title ID'], i['Region'], i['Type'], i['System'], i['Name'])
+                    # print("New database entry:", i['Title ID'], i['Region'], i['Type'], i['System'], i['Name'])
                     system_database.append(i)
+            print() # escapes \r from print above
 
             # commit changes
             database[system] = system_database
@@ -149,21 +177,22 @@ def updatedb(dict, system, DBFOLDER, WGET): #TODO: add update per type
         dl_tmp_folder = tmp+"/"
 
         for t in dict:
-            # detect file#
-            file = t.upper()+".tsv"
-            url = dict[t]
+            if t in types:
+                # detect file#
+                file = t.upper()+".tsv"
+                url = dict[t]
 
-            filename = url.split("/")[-1]
+                filename = url.split("/")[-1]
 
-            dl_folder = DBFOLDER+"/"+system+"/"
+                dl_folder = DBFOLDER+"/"+system+"/"
 
-            # create folder
-            create_folder(dl_folder)
-            process = subprocess.run(
-                [WGET, "-q", "--show-progress", url], cwd=dl_tmp_folder)
+                # create folder
+                create_folder(dl_folder)
+                process = subprocess.run(
+                    [WGET, "-q", "--show-progress", url], cwd=dl_tmp_folder)
 
-            #read file and feed to database
-            insert_into_DB(dl_tmp_folder+filename, DBFOLDER+"/pynps.db") #pass downloaded tsv here in local
+                #read file and feed to database
+                insert_into_DB(dl_tmp_folder+filename, DBFOLDER+"/pynps.db", t) #pass downloaded tsv here in local
 
 
 def dl_file(dict, system, DLFOLDER, WGET):
@@ -291,7 +320,7 @@ def search_db(systems, type, query, region, DBFOLDER):
     """this function searchs in the tsv databases 
     provided by nps"""
 
-    start = time.time()
+    # start = time.time()
 
     query = query.upper()
     #process query#
@@ -322,6 +351,8 @@ def search_db(systems, type, query, region, DBFOLDER):
                                     ]
     # end = time.time()
     # print(end - start)
+
+    # exit()
     return(result)
 
 def checksum_file(file):
@@ -592,6 +623,13 @@ def main():
     else:
         cso_factor = False
 
+    what_to_dl = {"games": args.games, "dlcs": args.dlcs, "themes": args.themes,
+                  "updates": args.updates, "demos": args.demos}
+
+    if set(what_to_dl.values()) == set([False]):
+        for i in what_to_dl:
+            what_to_dl[i] = True
+
     # TODO: check if updating db is needed
 
     if args.update == True:
@@ -600,6 +638,9 @@ def main():
             sys.exit(1)
 
         printft(HTML("<grey>%s</grey>" % fill_term()))
+        what_to_up = [x for x in what_to_dl if what_to_dl[x] == True]
+        print('what_to_up: ', what_to_up)
+
         for i in system:
             printft(HTML("<green>[UPDATEDB] %s:</green>" %
                          _FULL_SYSTEM_NAME[i]))
@@ -611,10 +652,18 @@ def main():
                 db = database_psx_links
             elif i == "PSM":
                 db = database_psm_links
-            # updatedb(db, i, DBFOLDER, WGET)
+            
+            # parsing supported
+            what_to_up_parsed = [x for x in what_to_up if x in db.keys()]
+            
+            if len(what_to_up_parsed) > 0:
+                updatedb(db, i, DBFOLDER, WGET, what_to_up_parsed)
+            else:
+                printft(HTML("<blue>Nothing to do!</blue>"))
 
-            printft(HTML("<blue>Done!</blue>"))
-            sys.exit(0)
+
+        printft(HTML("<blue>Done!</blue>"))
+        sys.exit(0)
 
     elif args.update == False and args.search is None:
         printft(HTML(
@@ -635,13 +684,6 @@ def main():
         reg = ["usa", "eur", "jap", "asia", "int"]
     else:
         reg = args.region
-
-    what_to_dl = {"games": args.games, "dlcs": args.dlcs, "themes": args.themes,
-                  "updates": args.updates, "demos": args.demos}
-
-    if list(what_to_dl.values()) == [False, False, False, False, False]:
-        what_to_dl = {"games": True, "dlcs": True,
-                      "themes": True, "updates": True, "demos": True}
 
     # maybe_download = []
     maybe_download = search_db(system, what_to_dl, args.search, reg, DBFOLDER)
