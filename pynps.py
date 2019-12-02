@@ -245,7 +245,7 @@ def search_db(system, type, query, region, DBFOLDER):
 
     query = query.upper()
     #process query#
-    region = _REGION_DICT[region]
+    region = [_REGION_DICT[x] for x in region]
 
     # define the files to search
     files_to_search_raw = []
@@ -279,11 +279,12 @@ def search_db(system, type, query, region, DBFOLDER):
                         if data == None:
                             data = "None"
                         if row not in o:
-                            if region == "all":
+                            if region == ['US', 'EU', 'JP', 'ASIA', 'INT']:
                                 o.append(row)
                             else:
-                                if row['Region'] == region:
-                                    o.append(row)
+                                for region_i in region:
+                                    if row['Region'] == region_i:
+                                        o.append(row)
             else:
                 for row in file:
                     for data in row.values():
@@ -291,11 +292,12 @@ def search_db(system, type, query, region, DBFOLDER):
                             data = "None"
                         if query in data and row not in o:
                             if row['PKG direct link'] not in ["", "MISSING", None]:
-                                if region == "all":
+                                if region == ['US', 'EU', 'JP', 'ASIA', 'INT']:
                                     o.append(row)
                                 else:
-                                    if row['Region'] == region:
-                                        o.append(row)
+                                    for region_i in region:
+                                        if row['Region'] == region_i:
+                                            o.append(row)
 
     return o
 
@@ -531,7 +533,7 @@ def main():
     parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
                         type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm"])
     parser.add_argument("-r", "--region", help="the region for the pkj you want.",
-                        type=str, required=False, choices=["usa", "eur", "jap", "asia", "int"])
+                        type=str, required=False, action='append', choices=["usa", "eur", "jap", "asia", "int"])
     parser.add_argument("-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
                         action="store_true")
     parser.add_argument("-dd", "--dlcs", help="to download PSV/PSP dlcs.",
@@ -608,8 +610,8 @@ def main():
             "<oragen>[SEARCH] NPS only supports game downlaods for the Playstation (PSX)</oragen>"))
 
     # check region
-    if args.region is None:
-        reg = "all"
+    if args.region == None:
+        reg = ["usa", "eur", "jap", "asia", "int"]
     else:
         reg = args.region
 
