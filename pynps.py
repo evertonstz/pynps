@@ -70,7 +70,6 @@ _CONF_PSM_LINKS = {'games': 'http://nopaystation.com/tsv/PSM_GAMES.tsv'
 
 ##FUNCTIONS##
 
-
 def create_folder(location):
     try:
         os.makedirs(location)
@@ -83,7 +82,7 @@ def get_terminal_columns():
     """this function returns the columns' 
     numbers in the terminal"""
 
-    return os.get_terminal_size().columns
+    return(os.get_terminal_size().columns)
 
 
 def fill_term(symbol="-"):
@@ -118,7 +117,7 @@ def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbo
             sys.exit(1)
 
 
-def updatedb(dict, system, DBFOLDER, WGET, types): #TODO: add update per type
+def updatedb(dict, system, DBFOLDER, WGET, types):
     """this function downloads the tsvs databases from nps' website"""
 
     #detect gaming system#
@@ -144,11 +143,12 @@ def updatedb(dict, system, DBFOLDER, WGET, types): #TODO: add update per type
             
             for index_file, i in enumerate(file):
                 
-                print("Processing %s: %s" %(type, progress_bar( int(index_file/(len(file)-1)*100) ) ), 
-                                            "(%s/%s)" %(index_file, len(file)-1), 
+                print(f"Processing {type}: {progress_bar( int(index_file/(len(file) - 1) * 100) )}", 
+                                            f"({index_file}/{len(file) - 1})", 
                                             end="\r")
+                
                 i["Type"] = type.upper()
-                i["System"] = system
+                i['System'] = system
                 # check if keys part of the dict are already in the database 'Title ID' 'Region' 'Type' 'System'
                 try: 
                     checker = next((item for item in system_database if item['Title ID'] == i['Title ID'] and item['Region'] == i['Region'] and item['System'] == i['System'] and item['Type'] == i['Type'] and item['Content ID'] == i['Content ID']), None)
@@ -172,25 +172,25 @@ def updatedb(dict, system, DBFOLDER, WGET, types): #TODO: add update per type
             database.commit()
 
     with TmpFolder() as tmp:
-        dl_tmp_folder = tmp+"/"
+        dl_tmp_folder = f"{tmp}/"
 
         for t in dict:
             if t in types:
                 # detect file#
-                file = t.upper()+".tsv"
+                file = f"{t.upper()}.tsv"
                 url = dict[t]
 
-                filename = url.split("/")[-1]
+                filename = url.split('/')[-1]
 
-                dl_folder = DBFOLDER+"/"+system+"/"
+                dl_folder = f"{DBFOLDER}/{system}/"
 
                 # create folder
                 create_folder(dl_folder)
-                process = subprocess.run(
-                    [WGET, "-q", "--show-progress", url], cwd=dl_tmp_folder)
+                process = subprocess.run([WGET, "-q", "--show-progress", url], cwd=dl_tmp_folder)
 
                 #read file and feed to database
-                insert_into_DB(dl_tmp_folder+filename, DBFOLDER+"/pynps.db", t) #pass downloaded tsv here in local
+                DB = f"{DBFOLDER}/pynps.db"
+                insert_into_DB(f"{dl_tmp_folder}{filename}", DB, t) #pass downloaded tsv here in local
 
 
 def dl_file(dict, system, DLFOLDER, WGET):
@@ -199,26 +199,24 @@ def dl_file(dict, system, DLFOLDER, WGET):
     system_name = _FULL_SYSTEM_NAME[system.upper()]
 
     url = dict['PKG direct link']
-    filename = url.split("/")[-1]
+    filename = url.split('/')[-1]
     name = dict['Name']
     title_id = dict['Title ID']
 
-    printft(HTML("<grey>%s</grey>" % fill_term()))
-    printft(HTML("<green>[DOWNLOAD] %s (%s) [%s] for %s</green>" %
-                 (name, dict['Region'], title_id, system)))
+    printft(HTML(f"<grey>{fill_term()}</grey>"))
+    printft(HTML(f"<green>[DOWNLOAD] {name} ({dict['Region']}) [{title_id}] for {system}</green>"))
 
-    dl_folder = DLFOLDER + "/PKG/" + system + "/" + dict['Type']
+    dl_folder = f"{DLFOLDER}/PKG/{system}/{dict['Type']}"
 
     # making folder
     create_folder(dl_folder)
 
     # check if file exists
-    if os.path.isfile(dl_folder+"/"+filename):
-        printft(HTML(
-            "<orange>[DOWNLOAD] file exists, wget will decide if the file is completely downloaded, if it's not the download will be resumed</orange>"))
+    if os.path.isfile(f"{dl_folder}/{filename}"):
+        printft(HTML("<orange>[DOWNLOAD] file exists, wget will decide if the file is completely downloaded, if it's not the download will be resumed</orange>"))
 
     process = subprocess.run([WGET, "-q", "--show-progress", "-c", "-P",
-                              dl_folder, url], cwd=dl_folder)  # TODO change CWD to a tempfolder
+                              dl_folder, url], cwd=dl_folder)
     return True
 
 
@@ -247,21 +245,17 @@ def crop_print(text, leng, center=False, align="left"):
         if center == False:
             if align == "left":
                 add = (leng-len(text))*" "
-                return(text+add)
+                return(f"{text}{add}")
             elif align == "right":
                 add = (leng-len(text))*" "
-                return(add+text)
+                return(f"{add}{text}")
         else:
-            # if len(text)%2 == 0: #par
-            #     add = (leng-len(text))*" "
-            #     return(text+add)
-            if True:  # impar
-                add1 = int((leng-len(text))/2)
-                # print(add1)
-                add2 = (leng-len(text))-add1
-                return(add1*" "+text+add2*" ")
+            if True:
+                add1 = int((leng - len(text)) / 2)
+                add2 = (leng - len(text)) - add1
+                return(f"{add1*' '}{text}{add2*' '}") 
     elif len(text) == leng:
-        return(text)
+        return text
 
 
 def process_search(out):
@@ -272,9 +266,9 @@ def process_search(out):
     biggest_index = sorted([int(x["Index"]) for x in out])
     lenght_str = len(str(biggest_index[-1]))
     try:
-        biggest_type = sorted([len(x['Type']) for x in out])[-1]-1
+        biggest_type = sorted([len(x['Type']) for x in out])[-1] - 1
     except:
-        biggest_type = 2-1
+        biggest_type = 2 - 1
 
     try:
         if sorted([len(x['Region']) for x in out])[-1] in [2, 3]:
@@ -288,30 +282,34 @@ def process_search(out):
         number_str = crop_print(str(i['Index']), lenght_str)
         system_str = i['System']
         id_str = i['Title ID']
-        reg_str = crop_print(
-            _REGION_DICT[i['Region']], biggest_reg, center=True)
-        type_str = crop_print(
-            _TYPE_DICT[i['Type']], biggest_type, center=False)
-        size_str = crop_print(
-            file_size(i['File Size']), 9, center=False, align="right")
 
-        head = number_str + ") " + system_str + " | " + \
-            id_str + " | " + reg_str + " | " + type_str + " | "
-        tail = " [" + size_str+"]"
+        reg_str = crop_print(_REGION_DICT[i['Region']], biggest_reg, center=True)
+        type_str = crop_print(_TYPE_DICT[i['Type']], biggest_type, center=False)
+        size_str = crop_print(file_size(i['File Size']), 9, center=False, align="right")
 
-        head_name = head + i['Name']
+        head = f"{number_str}) {system_str} | {id_str} | {reg_str} | {type_str} | "
+
+        tail = f" [{size_str}]"
+
+        head_name = f"{head}{i['Name']}"
+
         term_cols = get_terminal_columns()
+
         if len(head_name + tail) <= term_cols:  # no neet to crop
             rest = term_cols - len(head_name + tail)
             print(head_name + rest*" " + tail)
         else:
             thats_more = len(head_name + tail) - term_cols
-            remove = len(i['Name'])-thats_more
+
+            remove = len(i['Name']) - thats_more
+
             if remove > 10:
                 head_name = head + i['Name'][:remove]
+                head_name = head + i['Name'][:remove]
             else:
-                head_name = head + i['Name']
-            print(head_name + tail)
+                head_name = f"{head}{i['Name']}"
+            
+            print(f"{head_name}{tail}")
 
 
 def search_db(systems, type, query, region, DBFOLDER):
@@ -324,7 +322,7 @@ def search_db(systems, type, query, region, DBFOLDER):
     #process query#
     region = [_REGION_DICT[x] for x in region]
 
-    DB = DBFOLDER+"/pynps.db"
+    DB = f"{DBFOLDER}/pynps.db"
 
     # parse types to search
     types = [x.upper() for x in type if type[x] == True]
@@ -391,8 +389,8 @@ def check_wget(location, CONFIGFOLDER):
         return(is_tool("wget"))
     else:
         # if not on patch, check if it's on lib and prefer this one
-        if os.path.isfile(CONFIGFOLDER+"lib/wget"):
-            return(CONFIGFOLDER+"lib/wget")
+        if os.path.isfile(f"{CONFIGFOLDER}/lib/wget"):
+            return(f"{CONFIGFOLDER}/lib/wget")
         else:
             # last resort is check for user provided binary in settings.ini
             # check if exists
@@ -409,8 +407,8 @@ def check_pkg2zip(location, CONFIGFOLDER):
     if is_tool("pkg2zip") != False:
         return(is_tool("pkg2zip"))
     else:
-        if os.path.isfile(CONFIGFOLDER+"lib/pkg2zip"):
-            return(CONFIGFOLDER+"lib/pkg2zip")
+        if os.path.isfile(f"{CONFIGFOLDER}/lib/pkg2zip"):
+            return(f"{CONFIGFOLDER}/lib/pkg2zip")
         else:
             if os.path.isfile(location):
                 return(location)
@@ -420,11 +418,13 @@ def check_pkg2zip(location, CONFIGFOLDER):
 
 def run_pkg2zip(file, output_location, PKG2ZIP, args, zrif=False):  # OK!
     """this fuction is used to extract a pkg with pkg2zip"""
-
+    
+    # create extraction folder
     create_folder(output_location)
 
     # reversing list
     args.reverse()
+
     if zrif == False:
         run_lst = [PKG2ZIP, file]
         for x in args:
@@ -443,10 +443,10 @@ def fix_folder_syntax(folder):
 
     new_folder = folder
     if "\\" in folder:
-        new_folder = folder.replace("\\", "/")
-    if folder.endswith("/"):
+        new_folder = folder.replace('\\', '/')
+    if folder.endswith('/'):
         new_folder = folder[:-1]
-    return(new_folder)
+    return new_folder
 
 
 def save_conf(file, conf):
@@ -463,16 +463,16 @@ def create_config(file, folder):
     file on first run"""
 
     config = configparser.ConfigParser()
-    config['pyNPS'] = {'DownloadFolder': folder.replace("/.config/pyNPS/", '/Downloads/pyNPS'),
-                       'DatabaseFolder': folder+'database/'}
+    config['pyNPS'] = {'DownloadFolder': folder.replace("/.config/pyNPS", "/Downloads/pyNPS/"), 
+                        'DatabaseFolder': f"{folder}/database/"}
 
     config['PSV_Links'] = _CONF_PSV_LINKS
     config['PSP_Links'] = _CONF_PSP_LINKS
     config['PSX_Links'] = _CONF_PSX_LINKS
     config['PSM_Links'] = _CONF_PSM_LINKS
 
-    config['BinaryLocations'] = {'Pkg2zip_Location': folder+"lib/pkg2zip",
-                                 'Wget_location': folder+"lib/wget"}
+    config['BinaryLocations'] = {'Pkg2zip_Location': f"{folder}/lib/pkg2zip",
+                                'Wget_location': f"{folder}/lib/wget"}
     # saving file
     save_conf(file, config)
 
@@ -483,16 +483,16 @@ def get_theme_folder_name(loc):
 
     a = os.listdir(loc)
     a = sorted([int(x) for x in a])
-    comp = list(range(1, a[-1]+1))
+    comp = list(range(1, a[-1] + 1))
     diff = list(set(comp) - set(a))
 
     if len(diff) > 0:
         selected = diff[0]
     else:  # == 0
-        selected = a[-1]+1
+        selected = a[-1] + 1
     # put the zeros in the name 00000005 len = 8
     selected = str(selected)
-    zero_lst = [0]*(8-len(selected))
+    zero_lst = [0]*(8 - len(selected))
     return_lst = [str(x) for x in zero_lst]
     return_lst.append(selected)
     return(''.join(return_lst))
@@ -501,8 +501,9 @@ def get_theme_folder_name(loc):
 def main():
     """main function"""
 
-    CONFIGFOLDER = os.getenv("HOME")+"/.config/pyNPS/"
-    config_file = joindir(CONFIGFOLDER, "settings.ini")
+    CONFIGFOLDER = f"{os.getenv('HOME')}/.config/pyNPS"
+    config_file = f"{CONFIGFOLDER}/settings.ini"
+
     # create conf file
     if os.path.isfile(config_file) == False:
         create_config(config_file, CONFIGFOLDER)
@@ -518,23 +519,19 @@ def main():
         print("You need the following sections in your config file: 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'BinaryLocations'")
         sys.exit(1)
     if sorted(list(config["PSV_Links"])) != sorted(['games', 'dlcs', 'themes', 'updates', 'demos']):
-        printft(
-            HTML("<red>[ERROR] config file: missing options in the PSV_Links section</red>"))
+        printft(HTML("<red>[ERROR] config file: missing options in the PSV_Links section</red>"))
         print("You need the following options in your PSV_Links section: 'games', 'dlcs', 'themes', 'updates', 'demos'")
         sys.exit(1)
     if sorted(list(config["PSP_Links"])) != sorted(['games', 'dlcs', 'themes', 'updates']):
-        printft(
-            HTML("<red>[ERROR] config file: missing options in the PSP_Links section</red>"))
+        printft(HTML("<red>[ERROR] config file: missing options in the PSP_Links section</red>"))
         print("You need the following options in your PSP_Links section: 'games', 'dlcs', 'themes', 'updates'")
         sys.exit(1)
     if sorted(list(config["PSX_Links"])) != sorted(['games']):
-        printft(
-            HTML("<red>[ERROR] config file: missing options in the PSX_Links section</red>"))
+        printft(HTML("<red>[ERROR] config file: missing options in the PSX_Links section</red>"))
         print("You need the following options in your PSX_Links section: 'games'")
         sys.exit(1)
     if sorted(list(config["PSM_Links"])) != sorted(['games']):
-        printft(
-            HTML("<red>[ERROR] config file: missing options in the PSM_Links section</red>"))
+        printft(HTML("<red>[ERROR] config file: missing options in the PSM_Links section</red>"))
         print("You need the following options in your PSM_Links section: 'games'")
         sys.exit(1)
 
@@ -547,15 +544,13 @@ def main():
     # tests existence of pkg2zip
     PKG2ZIP = check_pkg2zip(PKG2ZIP, CONFIGFOLDER)
     if PKG2ZIP == False:
-        printft(HTML(
-            "<red>[ERROR] you don't have a valid pkg2zip installation or binary in your system.</red>"))
+        printft(HTML("<red>[ERROR] you don't have a valid pkg2zip installation or binary in your system.</red>"))
         sys.exit(1)
 
     # tests existence of wget
     WGET = check_wget(WGET, CONFIGFOLDER)
     if WGET == False:
-        printft(HTML(
-            "<red>[ERROR] you don't have a valid wget installation or binary in your system.</red>"))
+        printft(HTML("<red>[ERROR] you don't have a valid wget installation or binary in your system.</red>"))
         sys.exit(1)
 
     # makin dicts for links
@@ -579,8 +574,8 @@ def main():
     parser = argparse.ArgumentParser(
         description='pyNPS is a Nopaystation client writen in python 3.7 that, with the help of wget and pkg2zip, can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database.')
 
-    parser.add_argument("search", type=str, nargs="?",
-                        help="search something to download, you can search by name or ID or use '_all' to return everythning.")
+    parser.add_argument("search",help="search something to download, you can search by name or ID or use '_all' to return everythning.", 
+                        type=str, nargs="?")
     parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
                         type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm"])
     parser.add_argument("-r", "--region", help="the region for the pkj you want.",
@@ -602,21 +597,19 @@ def main():
     parser.add_argument("-u", "--update", help="update database.",
                         action="store_true")
     parser.add_argument('--version', action='version',
-                        version='%(prog)s version '+VERSION)
+                        version=f"%(prog)s version {VERSION}")
     
     args = parser.parse_args()
 
-    if args.console:
-        system = [x.upper() for x in args.console]
+    if args.console is not None:
+        system = list({x.upper() for x in args.console})
     else:
         system = ["PSV", "PSP", "PSX", "PSM"]
+    
+    if args.eboot is True and args.compress_cso is not None:
+        printft(HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time.</red>"))
 
-    if args.eboot == True and args.compress_cso != None:
-        printft(
-            HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time.</red>"))
-        sys.exit(1)
-
-    if args.compress_cso:
+    if args.compress_cso is not None:
         cso_factor = args.compress_cso
     else:
         cso_factor = False
@@ -635,13 +628,11 @@ def main():
             printft(HTML("<red>[UPDATEDB] you can't search while updating the database</red>"))
             sys.exit(1)
 
-        printft(HTML("<grey>%s</grey>" % fill_term()))
+        printft(HTML(f"<grey>{fill_term()}</grey>"))
         what_to_up = [x for x in what_to_dl if what_to_dl[x] == True]
-        print('what_to_up: ', what_to_up)
 
         for i in system:
-            printft(HTML("<green>[UPDATEDB] %s:</green>" %
-                         _FULL_SYSTEM_NAME[i]))
+            printft(HTML(f"<green>[UPDATEDB] {_FULL_SYSTEM_NAME[i]}:</green>"))
             if i == "PSV":
                 db = database_psv_links
             elif i == "PSP":
@@ -659,23 +650,19 @@ def main():
             else:
                 printft(HTML("<blue>Nothing to do!</blue>"))
 
-
         printft(HTML("<blue>Done!</blue>"))
         sys.exit(0)
 
     elif args.update == False and args.search is None:
-        printft(HTML(
-            "<red>[SEARCH] No search term provided, you need to search for something, exiting.</red>"))
+        printft(HTML("<red>[SEARCH] No search term provided, you need to search for something, exiting.</red>"))
         parser.print_help()
         sys.exit(1)
 
     # check if unsupported downloads were called
     if "PSP" in system and args.demos == True:
-        printft(HTML(
-            "<oragen>[SEARCH] NPS has no support for demos with the Playstation Portable (PSP)</oragen>"))
+        printft(HTML("<oragen>[SEARCH] NPS has no support for demos with the Playstation Portable (PSP)</oragen>"))
     if "PSX" in system and True in [args.dlcs, args.themes, args.updates, args.demos]:
-        printft(HTML(
-            "<oragen>[SEARCH] NPS only supports game downlaods for the Playstation (PSX)</oragen>"))
+        printft(HTML("<oragen>[SEARCH] NPS only supports game downlaods for the Playstation (PSX)</oragen>"))
 
     # check region
     if args.region == None:
@@ -688,23 +675,21 @@ def main():
 
     # test if the result isn't empty
     if len(maybe_download) == 0:
-        printft(HTML(
-            "<oragen>[SEARCH] No results found, try searching for something else or updating your database</oragen>"))
+        printft(HTML("<oragen>[SEARCH] No results found, try searching for something else or updating your database</oragen>"))
         sys.exit(0)
 
     # adding indexes to maybe_download
     for i in range(0, len(maybe_download)):
         # maybe_download[i]["Index"] = str(i)
-        maybe_download[i]["Index"] = str(i+1)
+        maybe_download[i]["Index"] = str(i + 1)
 
     # print possible mathes to the user
     if len(maybe_download) > 1:
-        printft(HTML("<grey>%s</grey>" % fill_term()))
+        printft(HTML(f"<grey>{fill_term()}</grey>"))
         printft(HTML("<green>[SEARCH] here are the matches:</green>"))
         process_search(maybe_download)
 
     # validating input
-
     class Check_game_input(Validator):
         def validate(self, document):
             text = document.text
@@ -727,7 +712,7 @@ def main():
                     last_text = int(last_text)
                     if last_text > num_p:
                         raise ValidationError(
-                            message='There are no entries past %i.' % num_p)
+                            message=f"There are no entries past {num_p}.")
 
                 if text.startswith("-") or text.startswith(","):
                     # break
@@ -748,8 +733,8 @@ def main():
 
     if len(maybe_download) > 1:
         try:
-            index_to_download_raw = prompt(
-                "Enter the number for what you want to download, you can enter multiple numbers using commas: ", validator=Check_game_input())
+            index_to_download_raw = prompt("Enter the number for what you want to download, you can enter multiple numbers using commas: ", 
+                                            validator=Check_game_input())
         except KeyboardInterrupt:
             printft(HTML("<grey>Interrupted by user, exiting.</grey>"))
             sys.exit(0)
@@ -760,17 +745,13 @@ def main():
         index_to_download_raw = "1"
 
     # provides help
-    if index_to_download_raw.lower() == 'h':
+    if index_to_download_raw.lower() == "h":
         printft(HTML("<grey>\tSuppose you have 10 files to select from:</grey>"))
         printft(HTML("<grey>\tTo download file 2, you type: 2</grey>"))
-        printft(HTML(
-            "<grey>\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9</grey>"))
-        printft(HTML(
-            "<grey>\tTo download files 1 to 9, the cool-kid method, you type: 1-9</grey>"))
-        printft(
-            HTML("<grey>\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10</grey>"))
-        printft(
-            HTML("<grey>\tTo download files 1, 4 and files 6 to 10: 1,4,6-10</grey>"))
+        printft(HTML("<grey>\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9</grey>"))
+        printft(HTML("<grey>\tTo download files 1 to 9, the cool-kid method, you type: 1-9</grey>"))
+        printft(HTML("<grey>\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10</grey>"))
+        printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10: 1,4,6-10</grey>"))
         printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6</grey>"))
         printft(HTML("<grey>Exiting</grey>"))
         sys.exit(0)
@@ -789,8 +770,7 @@ def main():
                 range_1 = int(range_1)
 
                 if range_0 < 1 or range_1 < 1:
-                    print(
-                        "ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                    print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
                     sys.exit(1)
                 # test if digit 0 is bigger than digit 1
                 if range_0 < range_1:
@@ -806,15 +786,13 @@ def main():
                     if range_0 not in index_to_download:
                         index_to_download.append(range_0)
             else:
-                print(
-                    "ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
                 sys.exit(1)
         elif i.isdigit() == True:
             if int(i) not in index_to_download:
                 index_to_download.append(int(i))
         else:
-            print(
-                "ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+            print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
             sys.exit(1)
 
     # fixing indexes for python syntax and sorting the list
@@ -823,10 +801,9 @@ def main():
     files_to_download = [maybe_download[i] for i in index_to_download]
 
     # if index_to_download_raw == "1":
-    printft(HTML("<grey>%s</grey>" % fill_term()))
+    printft(HTML(f"<grey>{fill_term()}</grey>"))
+    printft(HTML("<green>[SEARCH] you're going to download the following files:</green>"))
 
-    printft(
-        HTML("<green>[SEARCH] you're going to download the following files:</green>"))
     process_search(files_to_download)
 
     # validation 2
@@ -857,17 +834,15 @@ def main():
     files_downloaded = []
     for i in files_to_download:
         # download file
-        dl_result = dl_file(i,  i["System"], DLFOLDER, WGET)
-        downloaded_file_loc = DLFOLDER + "/PKG/" + i["System"] + "/" + \
-            i['Type']+"/"+i['PKG direct link'].split("/")[-1]
+        dl_result = dl_file(i,  i['System'], DLFOLDER, WGET)
+        downloaded_file_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
 
         # checksum
         if dl_result:
             if "SHA256" in i.keys():
-                printft(HTML("<grey>%s</grey>" % fill_term()))
+                printft(HTML(f"<grey>{fill_term()}</grey>"))
                 if i["SHA256"] == "":
-                    printft(HTML(
-                        "<orange>[CHECKSUM] No checksum provided by NPS, skipping check.</orange>"))
+                    printft(HTML("<orange>[CHECKSUM] No checksum provided by NPS, skipping check.</orange>"))
                 else:
 
                     sha256_dl = checksum_file(downloaded_file_loc)
@@ -878,32 +853,25 @@ def main():
                         sha256_exp = ""
 
                     if sha256_dl != sha256_exp:
-                        loc = DLFOLDER + "/PKG/" + \
-                            i["System"] + "/" + i['Type'] + "/" + \
-                            i['PKG direct link'].split("/")[-1]
-                        printft(HTML(
-                            "<red>[CHECKSUM] checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg</red>"))
-                        printft(
-                            HTML("<red>[CHECKSUM] corrupted file location: %s</red>" % loc))
+                        loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
+                        printft(HTML("<red>[CHECKSUM] checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg</red>"))
+                        printft(HTML(f"<red>[CHECKSUM] corrupted file location: {loc}</red>"))
                         break
                     else:
-                        printft(
-                            HTML("<green>[CHECKSUM] downloaded is not corrupted!</green>"))
+                        printft(HTML("<green>[CHECKSUM] downloaded is not corrupted!</green>"))
             files_downloaded.append(i)
         else:
-            print(
-                "ERROR: skipping file, wget was unable to download, try again latter.")
+            print("ERROR: skipping file, wget was unable to download, try again latter.")
 
     # autoextract with pkg2zip
     # PKG2ZIP = check_pkg2zip(PKG2ZIP)
     # print(PKG2ZIP)
-    printft(HTML("<grey>%s</grey>" % fill_term()))
+    printft(HTML(f"<grey>{fill_term()}</grey>"))
     if PKG2ZIP != False:
         for i in files_downloaded:
             zrif = ""
-            dl_dile_loc = DLFOLDER + "/PKG/" + i["System"] + "/" + \
-                i['Type'] + "/" + i['PKG direct link'].split("/")[-1]
-            dl_location = DLFOLDER+"/Extracted"
+            dl_dile_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
+            dl_location = f"{DLFOLDER}/Extracted"
 
             try:
                 zrif = i['zRIF']
@@ -911,65 +879,50 @@ def main():
                 pass
 
             # expose the exact directory were the pkg was extracted!
-            if i["System"] == "PSV":
+            if i['System'] == "PSV":
                 if i["Type"] in ["GAMES", "DEMOS"]:
-                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                 (i['Name'], DLFOLDER+"/Extracted/app/"+i['Title ID'])))
+                    printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/app/{i['Title ID']}</green>"))
                 if i["Type"] == "UPDATES":
-                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                 (i['Name'], DLFOLDER+"/Extracted/patch/"+i['Title ID'])))
+                    printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/patch/{i['Title ID']}</green>"))
                 if i["Type"] == "DLCS":
-                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                 (i['Name'], DLFOLDER+"/Extracted/addcont/"+i['Title ID'])))
+                    printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/addcont/{i['Title ID']}</green>"))
                 if i["Type"] == "THEMES":
-                    theme_folder_name = get_theme_folder_name(
-                        DLFOLDER+"/Extracted/bgdl/t/")
-                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                 (i['Name'], DLFOLDER+"/Extracted/bgdl/t/"+theme_folder_name+"/"+i['Title ID'])))
+                    theme_folder_name = get_theme_folder_name(f"{DLFOLDER}/Extracted/bgdl/t/")
+                    printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/bgdl/t/{theme_folder_name}/{i['Title ID']}</green>"))
 
-            if i["System"] == "PSP":
+            if i['System'] == "PSP":
                 if i["Type"] == "GAMES":
                     if cso_factor == False and args.eboot == False:
-                        printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                     (i['Name'], DLFOLDER+"/Extracted/pspemu/ISO/<i>game_name</i> ["+i['Title ID']+"].iso")))
+                        printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/ISO/<i>game_name</i> [{i['Title ID']}].iso</green>"))
                     elif cso_factor in [str(x) for x in range(1, 10)]:
-                        printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                     (i['Name'], DLFOLDER+"/Extracted/pspemu/ISO/<i>game_name</i> ["+i['Title ID']+"].cso")))
+                        printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/ISO/<i>game_name</i> [{i['Title ID']}].cso</green>"))
                     elif args.eboot == True:
-                        printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                     (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))
+                        printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}</green>"))
                 if i["Type"] == "DLCS":
-                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                 (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))
+                    printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}</green>"))
                 if i["Type"] == "THEMES":
-                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                 (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/THEME/<i>theme_name</i>.PTF")))
+                    printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/PSP/THEME/<i>theme_name</i>.PTF</green>"))
                 if i["Type"] == "UPDATES":
-                    printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                                 (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))
+                    printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}</green>"))
 
-            if i["System"] == "PSX":
-                printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                             (i['Name'], DLFOLDER+"/Extracted/pspemu/PSP/GAME/"+i['Title ID'])))
+            if i['System'] == "PSX":
+                printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}</green>"))
 
-            if i["System"] == "PSM":
-                printft(HTML("<green>[EXTRACTION] %s ➔ %s</green>" %
-                             (i['Name'], DLFOLDER+"/Extracted/psm/"+i['Title ID'])))
+            if i['System'] == "PSM":
+                printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/psm/{i['Title ID']}</green>"))
 
             # -x is default argument to not create .zip files
             pkg2zip_args = ["-x"]
-            if cso_factor != False and i["Type"] == "GAMES" and i["System"] == "PSP":
+            if cso_factor != False and i["Type"] == "GAMES" and i['System'] == "PSP":
                 pkg2zip_args.append("-c"+cso_factor)
-            elif cso_factor != False and i["Type"] != "UPDATES" and i["System"] != "PSP":
-                printft(HTML(
-                    "<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped.</orange>" % (i["System"], i["Type"][:-1].lower())))
+            elif cso_factor != False and i["Type"] != "UPDATES" and i['System'] != "PSP":
+                printft(HTML(f"<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a {i['System']} {i['Type'][:-1].lower()} the compression will be skipped.</orange>"))
 
-            if args.eboot == True and i["Type"] == "GAMES" and i["System"] == "PSP":
+            if args.eboot == True and i["Type"] == "GAMES" and i['System'] == "PSP":
                 pkg2zip_args.append("-p")
             # append more commands here if needed!
-            if i["System"] == "PSV" and zrif not in ["", "MISSING", None]:
-                run_pkg2zip(dl_dile_loc, dl_location,
-                            PKG2ZIP, pkg2zip_args, zrif)
+            if i['System'] == "PSV" and zrif not in ["", "MISSING", None]:
+                run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, zrif)
             else:
                 run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args)
 
@@ -977,7 +930,7 @@ def main():
         printft(HTML(
             "<orange>[EXTRACTION] skipping extraction since there's no pkg2zip binary in your system.</orange>"))
         sys.exit(0)
-    printft(HTML("<grey>%s</grey>" % fill_term()))
+    printft(HTML(f"<grey>{fill_term()}</grey>"))
     printft(HTML("<blue>Done!</blue>"))
 
 
