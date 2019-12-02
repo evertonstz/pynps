@@ -12,3 +12,4 @@ test.py
 release.py
 gui.py
 PKGBUILD
+update_versioning.py
