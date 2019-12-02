@@ -297,76 +297,32 @@ def search_db(systems, type, query, region, DBFOLDER):
     #process query#
     region = [_REGION_DICT[x] for x in region]
 
-    # # define the files to search
-    # files_to_search_raw = []
-    # for r, d, f in os.walk(DBFOLDER+"/"+system.upper()+"/"):
-    #     for file in f:
-    #         if '.tsv' in file and "_" not in file:
-    #             files_to_search_raw.append(os.path.join(r, file))
-
-    # files_to_search = []
-    # for i in files_to_search_raw:
-    #     file_system_lst = i.split("/")[-1].replace(".tsv", "").lower()
-    #     if type[file_system_lst] == True:
-    #         files_to_search.append(i)
     DB = DBFOLDER+"/pynps.db"
 
+    # parse types to search
+    types = [x.upper() for x in type if type[x] == True]
+    
+    
     # read database
-    with SqliteDict(DB, autocommit=False) as db:
+    with SqliteDict(DB, autocommit=False) as database:
         # return everything
-        database = db
         result = []
         for system in systems:
             system_database = database[system]
             if query == "_ALL":
-                result = result + [item for item in system_database if item["System"] == system and item["Region"] in region]
-    
-    end = time.time()
-    print(end - start)
-    # return(result)
-    exit()
-
-    o = []
-    for f in files_to_search:
-        with open(f, 'r') as file:
-            file = [i for i in DictReader(file, delimiter='\t')]
-            # file = csv.reader(file, delimiter="\t", quotechar='"')
-            for i in file:
-                try:
-                    i["Upper Name"] = i["Name"].upper()
-                except:
-                    i["Upper Name"] = i["Name"]
-                i["Type"] = f.split("/")[-1].replace(".tsv", "")
-                i["System"] = system
-
-            if query == "_ALL":
-                for row in file:
-                    for data in row.values():
-                        if data == None:
-                            data = "None"
-                        if row not in o:
-                            if region == ['US', 'EU', 'JP', 'ASIA', 'INT']:
-                                o.append(row)
-                            else:
-                                for region_i in region:
-                                    if row['Region'] == region_i:
-                                        o.append(row)
+                result = result + [item for item in system_database if 
+                                    (item['System'] == system and item['Region'] in region and item['Type'] in types) and
+                                    (item['PKG direct link'] not in ["", "MISSING", None])
+                                    ]
             else:
-                for row in file:
-                    for data in row.values():
-                        if data == None:
-                            data = "None"
-                        if query in data and row not in o:
-                            if row['PKG direct link'] not in ["", "MISSING", None]:
-                                if region == ['US', 'EU', 'JP', 'ASIA', 'INT']:
-                                    o.append(row)
-                                else:
-                                    for region_i in region:
-                                        if row['Region'] == region_i:
-                                            o.append(row)
-
-    return o
-
+                result = result + [item for item in system_database if 
+                                    (item['System'] == system and item['Region'] in region and item['Type'] in types) and 
+                                    (query.lower() in item['Name'].lower() or query.lower() in item['Title ID']) and
+                                    (item['PKG direct link'] not in ["", "MISSING", None])
+                                    ]
+    # end = time.time()
+    # print(end - start)
+    return(result)
 
 def checksum_file(file):
     """this fuction is used to calculate a sha256 
