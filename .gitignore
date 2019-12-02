@@ -10,3 +10,5 @@ pynps/*
 test_pytest.py
 test.py
 release.py
+gui.py
+PKGBUILD
