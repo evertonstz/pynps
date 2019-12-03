@@ -15,10 +15,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 
 from setuptools import setup
 
+with open("README.md", "r") as fh:
+   long_description = fh.read()
+
 setup(
     name='pynps',
     version='1.2.0',
     py_modules=['pynps'],
+    license='GPL3',
+    description = 'PyNPS is a Nopaystation client writen in python',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    author='evertonstz',
+    url='https://github.com/evertonstz/pynps',
+    keywords = ['nopaystation', 'pkg2zip', 'playstation', 'psv', 'psp', 'psx', 'psm'], 
     install_requires=[
         'prompt_toolkit',
         'sqlitedict',
@@ -27,4 +37,9 @@ setup(
         [console_scripts]
         pynps=pynps:main
     ''',
+    classifiers=[
+    'Development Status :: 5 - Production/Stable',      
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    'Programming Language :: Python :: 3.7',
+  ],
 )
