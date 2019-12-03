@@ -8,10 +8,8 @@ PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3.7
 # Table of Contents
 
 - [Installation](#installation)
-  * [Manual](#manual)
-  * [Fedora](#fedora)
-  * [Arch and Manjaro](#arch-and-manjaro)
-  * [Using dotpy file](#using-dotpy-file)
+  * [Binary](#binary)
+  * [Using PIP](#using-pip)
   * [pkg2zip](#pkg2zip)
   * [wget](#wget)
 - [Updating database](#updating-database)
@@ -31,7 +29,7 @@ PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3.7
 # Installation
 There are tree methods you can install pyNPS:
 
-## Manual
+## Binary
 This is only for 64bits systems.
 
 You can grab the latest x86_64 binary file at [releases](https://github.com/evertonstz/pyNPS/releases). The binary is made with pyinstaller, so there's no need to deal with python dependencies, just download it and use it (ofc you'll still need pkg2zip and wget installed or inside `/home/$USER/.config/pyNPS/lib`
@@ -55,35 +53,10 @@ Here's a full guide:
 
 If everything was done correctly, pynps should print the version in your terminal. After this proceed to the [pkg2zip](#pkg2zip) section, you'll also need to install that.
 
-## Fedora
-This is for both 32 and 64bits systems.
+## Using PIP
+This is for both 32 and 64bits systems. All you need is python 3.7 or newer alongside PIP:
 
-There's a .rpm installer in [releases](https://github.com/evertonstz/pyNPS/releases), just grab the latest one and double click it to install.
-
-## Arch and Manjaro
-This is only for 64bits systems.
-
-AUR is deprecated since I simply can't maintain it. If anyone is interested in maintaning it, go ahead!
-
-A pkg.tar.xz installer for Arch/Manjaro can be found at [releases](https://github.com/evertonstz/pyNPS/releases). Arch users problably know how to handle it, Manjaro users can just double click it to install.
-
-## Using dotpy file
-This is for both 32 and 64bits systems.
-
-First of all you'll need python3.7+
-
-You'll also need Prompt Toolkit and SqliteDict
-
->$ pip install prompt_toolkit sqlitedict
-
-You can get the source files from github and use the pynps.py file as any other python script.
-
->$ git clone https://github.com/evertonstz/pyNPS
-
->$ cd pynNPS
-
->$ python pynps.py
-
+>pip install pynps
 
 ******
 # pkg2zip
