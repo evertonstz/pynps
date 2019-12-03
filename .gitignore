@@ -13,3 +13,4 @@ release.py
 gui.py
 PKGBUILD
 update_versioning.py
+pynps.egg-info/*
