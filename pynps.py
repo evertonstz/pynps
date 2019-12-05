@@ -28,8 +28,7 @@ from csv import DictReader
 from math import log2
 from sqlitedict import SqliteDict
 from prompt_toolkit.validation import Validator, ValidationError
-#from prompt_toolkit import prompt, HTML, print_formatted_text as printft
-from prompt_toolkit import prompt, HTML as HTMLppt, print_formatted_text
+from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
 
 # Versioning
@@ -77,38 +76,6 @@ def create_folder(location):
         return True
     except:
         return False
-
-def HTML( input ):
-    """this class is used alongside printft as a workaround to a 
-    current bug in prompt toolkit were some symbols would break the program"""
-    try:
-        return HTMLppt(input)
-    except:
-        # remove formatting
-        formatting_lst = re.findall(r'</.*?>', input)
-
-        formatted_lst = []
-        for i in formatting_lst:
-            if i.replace("</", "<") in input:
-                formatted_lst.append(i)
-                formatted_lst.append(i.replace("</", "<"))
-        
-        # replacing
-        return_input = input
-        if len(formatted_lst) > 0:
-            for i in formatted_lst:
-                return_input = return_input.replace(i, "")
-        return return_input
-
-def printft( input ):
-    """this class is used alongside HTML as a workaround to a 
-    current bug in prompt toolkit were some symbols would break the program"""
-    if isinstance(input, HTMLppt):
-        # it's html
-        print_formatted_text(input)
-    else:
-        # not html, just print
-        print(input)
 
 def get_terminal_columns():
     """this function returns the columns' 
@@ -235,8 +202,8 @@ def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
     name = dict['Name']
     title_id = dict['Title ID']
 
-    printft(HTML(f"<grey>{fill_term()}</grey>"))
-    printft(HTML(f"<green>[DOWNLOAD] {name} ({dict['Region']}) [{title_id}] for {system}</green>"))
+    printft(HTML("<grey>%s</grey>") %fill_term())
+    printft(HTML("<green>[DOWNLOAD] %s (%s) [%s] for %s</green>") %(name, dict['Region'], title_id, system))
 
     dl_folder = f"{DLFOLDER}/PKG/{system}/{dict['Type']}"
 
@@ -256,7 +223,7 @@ def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
                                     dl_folder, url], cwd=dl_folder)           
     except KeyboardInterrupt:
         printft(HTML("\n<orange>[DOWNLOAD] File was partially downloaded, you can resume this download by searching for same pkg again</orange>"))
-        printft(HTML(f"<orange>[DOWNLOAD] File location:</orange> <grey>{dl_folder}/{filename}</grey>"))
+        printft(HTML("<orange>[DOWNLOAD] File location:</orange> <grey>%s/%s</grey>") %(dl_folder, filename))
         printft(HTML("<grey>Download interrupted by user</grey>"))
         sys.exit(0)
     return True
@@ -499,7 +466,7 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=Fa
                 printft(HTML("<red>[PKG2ZIP] Unknown extraction error</red>"))
             return False
         else:
-            printft(HTML(f"<green>[PKG2ZIP] File extracted to: </green><grey>{extraction_folder}</grey>"))
+            printft(HTML("<green>[PKG2ZIP] File extracted to: </green><grey>%s</grey>") %extraction_folder)
             return True
     
     # create extraction folder
@@ -725,11 +692,11 @@ def main():
             printft(HTML("<red>[UPDATEDB] you can't search while updating the database</red>"))
             sys.exit(1)
 
-        printft(HTML(f"<grey>{fill_term()}</grey>"))
+        printft(HTML("<grey>%s</grey>") %fill_term())
         what_to_up = [x for x in what_to_dl if what_to_dl[x] == True]
 
         for i in system:
-            printft(HTML(f"<green>[UPDATEDB] {_FULL_SYSTEM_NAME[i]}:</green>"))
+            printft(HTML("<green>[UPDATEDB] %s:</green>") %_FULL_SYSTEM_NAME[i])
             if i == "PSV":
                 db = database_psv_links
             elif i == "PSP":
@@ -787,7 +754,7 @@ def main():
 
     # print possible mathes to the user
     if len(maybe_download) > 1:
-        printft(HTML(f"<grey>{fill_term()}</grey>"))
+        printft(HTML("<grey>%s</grey>") %fill_term())
         printft(HTML("<green>[SEARCH] here are the matches:</green>"))
         process_search(maybe_download)
 
@@ -903,7 +870,7 @@ def main():
     files_to_download = [maybe_download[i] for i in index_to_download]
 
     # if index_to_download_raw == "1":
-    printft(HTML(f"<grey>{fill_term()}</grey>"))
+    printft(HTML("<grey>%s</grey>") %fill_term())
     printft(HTML("<green>[SEARCH] you're going to download the following files:</green>"))
 
     process_search(files_to_download)
@@ -942,7 +909,7 @@ def main():
         # checksum
         if dl_result:
             if "SHA256" in i.keys():
-                printft(HTML(f"<grey>{fill_term()}</grey>"))
+                printft(HTML("<grey>%s</grey>") %fill_term())
                 if i["SHA256"] == "":
                     printft(HTML("<orange>[CHECKSUM] No checksum provided by NPS, skipping check</orange>"))
                 else:
@@ -957,7 +924,7 @@ def main():
                     if sha256_dl != sha256_exp:
                         loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
                         printft(HTML("<red>[CHECKSUM] checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg</red>"))
-                        printft(HTML(f"<red>[CHECKSUM] corrupted file location: {loc}</red>"))
+                        printft(HTML("<red>[CHECKSUM] corrupted file location: </red>") %loc)
                         break
                     else:
                         printft(HTML("<green>[CHECKSUM] downloaded is not corrupted!</green>"))
@@ -968,7 +935,7 @@ def main():
     # autoextract with pkg2zip
     # PKG2ZIP = check_pkg2zip(PKG2ZIP)
     # print(PKG2ZIP)
-    printft(HTML(f"<grey>{fill_term()}</grey>"))
+    printft(HTML("<grey>%s</grey>") %fill_term())
     if PKG2ZIP != False:
         for i in files_downloaded:
             zrif = ""
@@ -1031,13 +998,13 @@ def main():
             if cso_factor != False and i["Type"] == "GAMES" and i['System'] == "PSP":
                 pkg2zip_args.append("-c"+cso_factor)
             elif cso_factor != False and i["Type"] != "UPDATES" and i['System'] != "PSP":
-                printft(HTML(f"<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a {i['System']} {i['Type'][:-1].lower()} the compression will be skipped</orange>"))
+                printft(HTML("<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped</orange>") %(i['System'], i['Type'][:-1].lower()))
 
             if args.eboot == True and i["Type"] == "GAMES" and i['System'] == "PSP":
                 pkg2zip_args.append("-p")
             # append more commands here if needed!
 
-            printft(HTML(f"<green>[PKG2ZIP] Attempting to extract [{i['Title ID']}]{i['Name']}</green>"))
+            printft(HTML("<green>[PKG2ZIP] Attempting to extract [%s]%s</green>") %(i['Title ID'], i['Name']))
 
             if i['System'] == "PSV" and zrif not in ["", "MISSING", None]:
                 delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, zrif)
@@ -1052,12 +1019,12 @@ def main():
                     os.remove(dl_dile_loc)
                     printft(HTML("<green>[EXTRACTION] Success, the compressed .pkg was deleted</green>"))
                 except:
-                    printft(HTML(f"<red>[EXTRACTION] Unable to delete, you may want to it manually at: </red><grey>{dl_dile_loc}</grey>"))
+                    printft(HTML("<red>[EXTRACTION] Unable to delete, you may want to it manually at: </red><grey>%s</grey>") %dl_dile_loc)
 
     else:
         printft(HTML("<orange>[EXTRACTION] skipping extraction since there's no pkg2zip binary in your system</orange>"))
         sys.exit(0)
-    printft(HTML(f"<grey>{fill_term()}</grey>"))
+    printft(HTML("<grey>%s</grey>") %fill_term())
     printft(HTML("<blue>Done!</blue>"))
 
 
