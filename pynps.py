@@ -507,7 +507,7 @@ def main():
     # create conf file
     if os.path.isfile(config_file) == False:
         create_config(config_file, CONFIGFOLDER)
-        create_folder(CONFIGFOLDER+"lib/")
+        create_folder(CONFIGFOLDER+"/lib/")
 
     # read conf file
     config = configparser.ConfigParser()
