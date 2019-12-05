@@ -80,7 +80,7 @@ def create_folder(location):
 
 def HTML( input ):
     """this class is used alongside printft as a workaround to a 
-    current bug in prompt toolkit were some symbols would break the app"""
+    current bug in prompt toolkit were some symbols would break the program"""
     try:
         return HTMLppt(input)
     except:
@@ -102,7 +102,7 @@ def HTML( input ):
 
 def printft( input ):
     """this class is used alongside HTML as a workaround to a 
-    current bug in prompt toolkit were some symbols would break the app"""
+    current bug in prompt toolkit were some symbols would break the program"""
     if isinstance(input, HTMLppt):
         # it's html
         print_formatted_text(input)
@@ -127,26 +127,26 @@ def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbo
     if color == 0:
         slice = int(number*fill_width/100)
         return(open_symbol+symbol*slice+unfilled_symbol*(fill_width-slice)+close_symbol)
-    else:
+    # else:
 
-        slice = int(number*fill_width/100)
-        if fill_width % 4 == 0:
-            chunks = int(fill_width/4)
-            chunks_dir = ""
-            for i in range(0, slice):
-                if i in range(0, chunks):
-                    chunks_dir += LBLUE+symbol
-                elif i in range(chunks, chunks*2):
-                    chunks_dir += LGREEN+symbol
-                elif i in range(chunks*2, chunks*3):
-                    chunks_dir += YELLOW+symbol
-                elif i in range(chunks*3, chunks*4):
-                    chunks_dir += LRED+symbol
+    #     slice = int(number*fill_width/100)
+    #     if fill_width % 4 == 0:
+    #         chunks = int(fill_width/4)
+    #         chunks_dir = ""
+    #         for i in range(0, slice):
+    #             if i in range(0, chunks):
+    #                 chunks_dir += LBLUE+symbol
+    #             elif i in range(chunks, chunks*2):
+    #                 chunks_dir += LGREEN+symbol
+    #             elif i in range(chunks*2, chunks*3):
+    #                 chunks_dir += YELLOW+symbol
+    #             elif i in range(chunks*3, chunks*4):
+    #                 chunks_dir += LRED+symbol
 
-            return(open_symbol+chunks_dir+GREY+unfilled_symbol*(fill_width-slice)+close_symbol+NC)
-        else:
-            print('ERROR: Use a number divisible by 4 in "fill_width".')
-            sys.exit(1)
+    #         return(open_symbol+chunks_dir+GREY+unfilled_symbol*(fill_width-slice)+close_symbol+NC)
+    #     else:
+    #         print('ERROR: Use a number divisible by 4 in "fill_width".')
+    #         sys.exit(1)
 
 
 def updatedb(dict, system, DBFOLDER, WGET, types):
@@ -225,7 +225,7 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
                 insert_into_DB(f"{dl_tmp_folder}{filename}", DB, t) #pass downloaded tsv here in local
 
 
-def dl_file(dict, system, DLFOLDER, WGET):
+def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
     """this function downloads the games"""
 
     system_name = _FULL_SYSTEM_NAME[system.upper()]
@@ -248,8 +248,12 @@ def dl_file(dict, system, DLFOLDER, WGET):
         printft(HTML("<orange>[DOWNLOAD] file exists, wget will decide if the file is completely downloaded, if it's not the download will be resumed</orange>"))
 
     try:
-        process = subprocess.run([WGET, "-q", "--show-progress", "-c", "-P",
-                                dl_folder, url], cwd=dl_folder)
+        if limit_rate is None:
+            process = subprocess.run([WGET, "-q", "--show-progress", "-c",
+                                    dl_folder, url], cwd=dl_folder)
+        else:
+            process = subprocess.run([WGET, "-q", "--show-progress", "-c", "--limit-rate", limit_rate,
+                                    dl_folder, url], cwd=dl_folder)           
     except KeyboardInterrupt:
         printft(HTML("\n<orange>[DOWNLOAD] File was partially downloaded, you can resume this download by searching for same pkg again</orange>"))
         printft(HTML(f"<orange>[DOWNLOAD] File location:</orange> <grey>{dl_folder}/{filename}</grey>"))
@@ -631,7 +635,7 @@ def main():
     # tests existence of wget
     WGET = check_wget(WGET, CONFIGFOLDER)
     if WGET == False:
-        printft(HTML("<red>[ERROR] you don't have a valid wget installation or binary in your system</red>"))
+        printft(HTML("<red>[ERROR] you don't have a valid wget installation or binary in your system, this program can't work without it</red>"))
         sys.exit(1)
 
     # makin dicts for links
@@ -677,6 +681,8 @@ def main():
                         action="store_true")
     parser.add_argument("-cso", "--compress_cso", help="use this argument to unpack PSP games as a compressed .cso file. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
                         type=str, required=False, choices=[str(x) for x in range(1, 10)])
+    parser.add_argument("-l", "--limit_rate", help="limit download speed, input is the same as wget's.",
+                        type=str, required=False)
     parser.add_argument("-u", "--update", help="update database.",
                         action="store_true")
     parser.add_argument('--version', action='version',
@@ -685,6 +691,14 @@ def main():
     args = parser.parse_args()
 
     keepkg = args.keepkg
+
+    #check limit rate string
+    limit_rate = args.limit_rate
+    if limit_rate is not None:
+        # check how it ends
+        if limit_rate[:-1].isdigit() is False or limit_rate[-1].lower() not in ["k","m","g","t"]:
+            printft(HTML("<red>[ERROR] invalid format for --limit_rate</red>"))
+            sys.exit(1)
 
     if args.console is not None:
         system = list({x.upper() for x in args.console})
@@ -922,7 +936,7 @@ def main():
     files_downloaded = []
     for i in files_to_download:
         # download file
-        dl_result = dl_file(i,  i['System'], DLFOLDER, WGET)
+        dl_result = dl_file(i,  i['System'], DLFOLDER, WGET, limit_rate)
         downloaded_file_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
 
         # checksum
@@ -1023,7 +1037,8 @@ def main():
                 pkg2zip_args.append("-p")
             # append more commands here if needed!
 
-            printft(HTML("<green>[PKG2ZIP] Attempting to extract .pkg file</green>"))
+            printft(HTML(f"<green>[PKG2ZIP] Attempting to extract [{i['Title ID']}]{i['Name']}</green>"))
+
             if i['System'] == "PSV" and zrif not in ["", "MISSING", None]:
                 delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, zrif)
             else:
@@ -1037,7 +1052,7 @@ def main():
                     os.remove(dl_dile_loc)
                     printft(HTML("<green>[EXTRACTION] Success, the compressed .pkg was deleted</green>"))
                 except:
-                    printft(HTML(f"<red>[EXTRACTION] Unable to delete {dl_dile_loc}</red>"))
+                    printft(HTML(f"<red>[EXTRACTION] Unable to delete, you may want to it manually at: </red><grey>{dl_dile_loc}</grey>"))
 
     else:
         printft(HTML("<orange>[EXTRACTION] skipping extraction since there's no pkg2zip binary in your system</orange>"))
