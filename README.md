@@ -37,13 +37,13 @@ You can grab the latest x86_64 binary file at [releases](https://github.com/ever
 If you want to just use it by typing "pynps" in your terminal, you'll have to copy your binary to /usr/bin/
 
 Here's a full guide:
-- download the latest release [here](https://github.com/evertonstz/pyNPS/releases), last time time this readme was updated it was 1.1.0, so you'll need to download the file named `pynps-1.3.0-1.x86_64.linux`;
+- download the latest release [here](https://github.com/evertonstz/pyNPS/releases), last time time this readme was updated it was 1.1.0, so you'll need to download the file named `pynps-1.3.1-1.x86_64.linux`;
 
 - enter your terminal and cd to were you downloaded the file, usually it's:
   >$ cd ~/Download
 
 - move the downloaded file to the /usr/bin folder by runing (don't forget to change the version if you're installing a newer release):
-  >$ sudo mv pynps-1.3.0-1.x86_64.linux /usr/bin/pynps
+  >$ sudo mv pynps-1.3.1-1.x86_64.linux /usr/bin/pynps
 
 - make sure the moved file is marked as executable:
   >$ sudo chmod +x /usr/bin/pynps

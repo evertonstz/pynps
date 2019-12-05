@@ -32,7 +32,7 @@ from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
 
 # Versioning
-VERSION = '1.3.0'
+VERSION = '1.3.1'
 
 ##STATIC DICTS AND LISTS##
 _FULL_SYSTEM_NAME = {"PSV": "Playstation Vita", "PSP": "Playstation Portable",
