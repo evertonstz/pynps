@@ -28,7 +28,8 @@ from os.path import join as joindir
 from math import log2
 from sqlitedict import SqliteDict
 from prompt_toolkit.validation import Validator, ValidationError
-from prompt_toolkit import prompt, HTML, print_formatted_text as printft
+#from prompt_toolkit import prompt, HTML, print_formatted_text as printft
+from prompt_toolkit import prompt, HTML as HTMLppt, print_formatted_text
 from tempfile import TemporaryDirectory as TmpFolder
 
 # Versioning
@@ -77,6 +78,39 @@ def create_folder(location):
     except:
         return False
 
+def HTML( input ):
+    """this class is used alongside printft as a workaround to a 
+    current bug in prompt toolkit were some symbols would break the app"""
+    try:
+        return HTMLppt(input)
+    except:
+        # remove formatting
+        formatting_lst = re.findall(r'</.*?>', input)
+
+        formatted_lst = []
+        for i in formatting_lst:
+            if i.replace("</", "<") in input:
+                formatted_lst.append(i)
+                formatted_lst.append(i.replace("</", "<"))
+        
+        # replacing
+        return_input = input
+        if len(formatted_lst) > 0:
+            for i in formatted_lst:
+                return_input = return_input.replace(i, "")
+        return return_input
+
+def printft( input ):
+    """this class is used alongside HTML as a workaround to a 
+    current bug in prompt toolkit were some symbols would break the app"""
+    if isinstance(input, HTMLppt):
+        # it's html
+        print(11)
+        print_formatted_text(input)
+    else:
+        # not html, just print
+        print(input)
+    return
 
 def get_terminal_columns():
     """this function returns the columns' 
