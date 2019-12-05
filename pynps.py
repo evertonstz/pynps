@@ -625,8 +625,8 @@ def main():
     # tests existence of pkg2zip
     PKG2ZIP = check_pkg2zip(PKG2ZIP, CONFIGFOLDER)
     if PKG2ZIP == False:
-        printft(HTML("<red>[ERROR] you don't have a valid pkg2zip installation or binary in your system</red>"))
-        sys.exit(1)
+        printft(HTML("<orange>[PKG2ZIP] you don't have a valid pkg2zip installation or binary in your system, extraction will be skipped</orange>"))
+        # sys.exit(1)
 
     # tests existence of wget
     WGET = check_wget(WGET, CONFIGFOLDER)
