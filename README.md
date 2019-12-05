@@ -67,7 +67,7 @@ This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitt
     > chmod -R +x /home/$USER/.config/pyNPS/lib/pkg2zip
 
 
-2. If you're an Arch or Suse user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip-fork/) after you install it pyNPS will autodetect and use it automatically, no need to add the path to your config file, the yay command is:
+2. If you're an Arch user, you can compile it from [AUR](https://aur.archlinux.org/packages/pkg2zip-fork/) after you install it pyNPS will autodetect and use it automatically, no need to add the path to your config file, the yay command is:
 
     >$ yay -S pkg2zip-fork
 
