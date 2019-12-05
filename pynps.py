@@ -16,6 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 ##IMPORTS##
 import os
 import sys
+import re
 import inspect
 import subprocess
 import argparse
@@ -24,7 +25,6 @@ import configparser
 from json import dumps
 from shutil import copyfile, which
 from csv import DictReader
-from os.path import join as joindir
 from math import log2
 from sqlitedict import SqliteDict
 from prompt_toolkit.validation import Validator, ValidationError
@@ -105,12 +105,10 @@ def printft( input ):
     current bug in prompt toolkit were some symbols would break the app"""
     if isinstance(input, HTMLppt):
         # it's html
-        print(11)
         print_formatted_text(input)
     else:
         # not html, just print
         print(input)
-    return
 
 def get_terminal_columns():
     """this function returns the columns' 
@@ -655,8 +653,6 @@ def main():
         for i in what_to_dl:
             what_to_dl[i] = True
 
-    # TODO: check if updating db is needed
-
     if args.update == True:
         if [args.region, args.search, args.eboot, args.compress_cso] != [None, None, False, None]:
             printft(HTML("<red>[UPDATEDB] you can't search while updating the database</red>"))
@@ -690,6 +686,11 @@ def main():
     elif args.update == False and args.search is None:
         printft(HTML("<red>[SEARCH] No search term provided, you need to search for something, exiting.</red>"))
         parser.print_help()
+        sys.exit(1)
+
+    # checking for database's existense:
+    if os.path.isfile(f"{DBFOLDER}/pynps.db") is False:
+        printft(HTML("<red>[UPDATEDB] theres no database in your system, please update your database and try again</red>"))
         sys.exit(1)
 
     # check if unsupported downloads were called
