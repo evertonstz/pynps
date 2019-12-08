@@ -529,6 +529,7 @@ def save_conf(file, conf):
 def create_config(file, folder):
     """this function is used to create a configuration 
     file on first run"""
+
     config = configparser.ConfigParser()
 
     # for linux
@@ -541,11 +542,11 @@ def create_config(file, folder):
     # for windows
     if _SYSTEM == 'Windows':
         print(11)
-        config['pyNPS'] = {'DownloadFolder': './downloads/', 
-                            'DatabaseFolder': "./database/"}
+        config['pyNPS'] = {'DownloadFolder': './pynps_downloads/', 
+                            'DatabaseFolder': "./pynps_database/"}
 
-        config['BinaryLocations'] = {'Pkg2zip_Location': "./lib/pkg2zip.exe",
-                                    'Wget_location': "./lib/wget.exe"}
+        config['BinaryLocations'] = {'Pkg2zip_Location': "./pynps_config/lib/pkg2zip.exe",
+                                    'Wget_location': "./pynps_config/lib/wget.exe"}
     # for ??
     else:
         config['pyNPS'] = {'DownloadFolder': '', 
@@ -589,7 +590,7 @@ def main():
         CONFIGFOLDER = f"{os.getenv('HOME')}/.config/pyNPS"
         config_file = f"{CONFIGFOLDER}/settings.ini"
     elif _SYSTEM == 'Windows':
-        CONFIGFOLDER = get_script_dir()
+        CONFIGFOLDER = f"{get_script_dir()}/pynps_config/"
         config_file = f"{CONFIGFOLDER}/settings.ini"
     else:
         CONFIGFOLDER = ""
