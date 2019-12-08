@@ -346,13 +346,13 @@ def search_db(systems, type, query, region, DBFOLDER):
             if query == "_ALL":
                 result = result + [item for item in system_database if 
                                     (item['System'] == system and item['Region'] in region and item['Type'] in types) and
-                                    (item['PKG direct link'] not in ["", "MISSING", None])
+                                    (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
                                     ]
             else:
                 result = result + [item for item in system_database if 
                                     (item['System'] == system and item['Region'] in region and item['Type'] in types) and 
                                     (query.lower() in item['Name'].lower() or query.lower() in item['Title ID']) and
-                                    (item['PKG direct link'] not in ["", "MISSING", None])
+                                    (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
                                     ]
     # end = time.time()
     # print(end - start)
@@ -757,7 +757,7 @@ def main():
         printft(HTML("<grey>%s</grey>") %fill_term())
         printft(HTML("<green>[SEARCH] here are the matches:</green>"))
         process_search(maybe_download)
-
+        
     # validating input
     class Check_game_input(Validator):
         def validate(self, document):
