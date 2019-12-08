@@ -27,6 +27,7 @@ from shutil import copyfile, which
 from csv import DictReader
 from math import log2
 from sqlitedict import SqliteDict
+from platform import system
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
@@ -67,6 +68,8 @@ _CONF_PSX_LINKS = {'games': 'http://nopaystation.com/tsv/PSX_GAMES.tsv'
 _CONF_PSM_LINKS = {'games': 'http://nopaystation.com/tsv/PSM_GAMES.tsv'
                    }
 
+_SYSTEM = system()
+
 
 ##FUNCTIONS##
 
@@ -89,6 +92,15 @@ def fill_term(symbol="-"):
     terminal with given symbol"""
 
     return(get_terminal_columns()*symbol)
+
+def get_script_dir(follow_symlinks=True):
+    if getattr(sys, 'frozen', False): # py2exe, PyInstaller, cx_Freeze
+        path = os.path.abspath(sys.executable)
+    else:
+        path = inspect.getabsfile(get_script_dir)
+    if follow_symlinks:
+        path = os.path.realpath(path)
+    return os.path.dirname(path)
 
 def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbol="]", color=False, unfilled_symbol="-"):
     if color == 0:
@@ -127,7 +139,7 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
 
     # db_dict = SqliteDict(_DB, autocommit=False)
     def insert_into_DB(tsv, DB, type):
-        with open(tsv, 'r') as file:
+        with open(tsv, 'r', encoding="utf-8") as file:
             # read source tsv file
             file = [i for i in DictReader(file, delimiter='\t')]
 
@@ -498,6 +510,10 @@ def fix_folder_syntax(folder):
         new_folder = folder.replace('\\', '/')
     if folder.endswith('/'):
         new_folder = folder[:-1]
+
+    # parsing ./
+    if new_folder.startswith("./"):
+        new_folder = f"{get_script_dir()}/{new_folder[2:]}"
     return new_folder
 
 
@@ -513,18 +529,35 @@ def save_conf(file, conf):
 def create_config(file, folder):
     """this function is used to create a configuration 
     file on first run"""
-
     config = configparser.ConfigParser()
-    config['pyNPS'] = {'DownloadFolder': folder.replace("/.config/pyNPS", "/Downloads/pyNPS/"), 
-                        'DatabaseFolder': f"{folder}/database/"}
+
+    # for linux
+    if _SYSTEM == 'Linux':
+        config['pyNPS'] = {'DownloadFolder': folder.replace("/.config/pyNPS", "/Downloads/pyNPS/"), 
+                            'DatabaseFolder': f"{folder}/database/"}
+
+        config['BinaryLocations'] = {'Pkg2zip_Location': f"{folder}/lib/pkg2zip",
+                                    'Wget_location': f"{folder}/lib/wget"}
+    # for windows
+    if _SYSTEM == 'Windows':
+        print(11)
+        config['pyNPS'] = {'DownloadFolder': './downloads/', 
+                            'DatabaseFolder': "./database/"}
+
+        config['BinaryLocations'] = {'Pkg2zip_Location': "./lib/pkg2zip.exe",
+                                    'Wget_location': "./lib/wget.exe"}
+    # for ??
+    else:
+        config['pyNPS'] = {'DownloadFolder': '', 
+                            'DatabaseFolder': ""}
+
+        config['BinaryLocations'] = {'Pkg2zip_Location': "",
+                                    'Wget_location': ""}   
 
     config['PSV_Links'] = _CONF_PSV_LINKS
     config['PSP_Links'] = _CONF_PSP_LINKS
     config['PSX_Links'] = _CONF_PSX_LINKS
     config['PSM_Links'] = _CONF_PSM_LINKS
-
-    config['BinaryLocations'] = {'Pkg2zip_Location': f"{folder}/lib/pkg2zip",
-                                'Wget_location': f"{folder}/lib/wget"}
     # saving file
     save_conf(file, config)
 
@@ -552,9 +585,15 @@ def get_theme_folder_name(loc):
 
 def main():
     """main function"""
-
-    CONFIGFOLDER = f"{os.getenv('HOME')}/.config/pyNPS"
-    config_file = f"{CONFIGFOLDER}/settings.ini"
+    if _SYSTEM == 'Linux':
+        CONFIGFOLDER = f"{os.getenv('HOME')}/.config/pyNPS"
+        config_file = f"{CONFIGFOLDER}/settings.ini"
+    elif _SYSTEM == 'Windows':
+        CONFIGFOLDER = get_script_dir()
+        config_file = f"{CONFIGFOLDER}/settings.ini"
+    else:
+        CONFIGFOLDER = ""
+        config_file = ""      
 
     # create conf file
     if os.path.isfile(config_file) == False:
