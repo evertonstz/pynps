@@ -22,6 +22,7 @@ import subprocess
 import argparse
 import hashlib
 import configparser
+import ctypes
 from json import dumps
 from shutil import copyfile, which
 from csv import DictReader
@@ -86,6 +87,19 @@ def get_terminal_columns():
 
     return(os.get_terminal_size().columns)
 
+def is_interactive():
+    # Load kernel32.dll
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    # Create an array to store the processes in.  This doesn't actually need to
+    # be large enough to store the whole process list since GetConsoleProcessList()
+    # just returns the number of processes if the array is too small.
+    process_array = (ctypes.c_uint * 1)()
+    num_processes = kernel32.GetConsoleProcessList(process_array, 1)
+    # num_processes may be 1 if your compiled program doesn't have a launcher/wrapper.
+    if num_processes == 2:
+        return True
+    else:
+        return False
 
 def fill_term(symbol="-"):
     """this function fills a line in the 
@@ -193,7 +207,7 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
 
                 filename = url.split('/')[-1]
 
-                dl_folder = f"{DBFOLDER}/{system}/"
+                dl_folder = f"{DBFOLDER}/"
 
                 # create folder
                 create_folder(dl_folder)
@@ -1069,4 +1083,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if is_interactive() == False:
+        main()
+    else:
+        # call cmd file
+        pass
