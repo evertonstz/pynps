@@ -18,7 +18,8 @@ from functions import *
 import variables
 
 def cli_main():
-    """main function"""
+    """implement pynps cli interface"""
+
     if get_system() == 'Linux':
         CONFIGFOLDER = f"{os.getenv('HOME')}/.config/pyNPS"
         config_file = f"{CONFIGFOLDER}/settings.ini"

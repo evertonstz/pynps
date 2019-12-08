@@ -15,5 +15,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 
 
 def cmd_main():
+    """implements pynps Cmd interactive interface"""
+    
     while True:
         print(1)
