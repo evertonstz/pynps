@@ -193,7 +193,7 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
 
                 filename = url.split('/')[-1]
 
-                dl_folder = f"{DBFOLDER}/{system}/"
+                dl_folder = f"{DBFOLDER}/"
 
                 # create folder
                 create_folder(dl_folder)
