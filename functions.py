@@ -333,18 +333,21 @@ def search_db(systems, type, query, region, DBFOLDER):
         # return everything
         result = []
         for system in systems:
-            system_database = database[system]
-            if query == "_ALL":
-                result = result + [item for item in system_database if 
-                                    (item['System'] == system and item['Region'] in region and item['Type'] in types) and
-                                    (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
-                                    ]
-            else:
-                result = result + [item for item in system_database if 
-                                    (item['System'] == system and item['Region'] in region and item['Type'] in types) and 
-                                    (query.lower() in item['Name'].lower() or query.lower() in item['Title ID']) and
-                                    (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
-                                    ]
+            try:
+                system_database = database[system]
+                if query == "_ALL":
+                    result = result + [item for item in system_database if 
+                                        (item['System'] == system and item['Region'] in region and item['Type'] in types) and
+                                        (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
+                                        ]
+                else:
+                    result = result + [item for item in system_database if 
+                                        (item['System'] == system and item['Region'] in region and item['Type'] in types) and 
+                                        (query.lower() in item['Name'].lower() or query.lower() in item['Title ID']) and
+                                        (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
+                                        ]
+            except:
+                pass
     # end = time.time()
     # print(end - start)
 
