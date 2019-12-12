@@ -22,5 +22,5 @@ if __name__ == '__main__':
         # runs on tty
         cli_main()
     else:
-        # call cmd file
-        cmd_main()
+        # TODO: call cmd file
+        pass
