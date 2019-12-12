@@ -33,7 +33,7 @@ from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
 
 # Versioning
-VERSION = '1.3.1'
+VERSION = '1.4.0'
 
 ##STATIC DICTS AND LISTS##
 _FULL_SYSTEM_NAME = {"PSV": "Playstation Vita", "PSP": "Playstation Portable",
@@ -541,7 +541,6 @@ def create_config(file, folder):
                                     'Wget_location': f"{folder}/lib/wget"}
     # for windows
     if _SYSTEM == 'Windows':
-        print(11)
         config['pyNPS'] = {'DownloadFolder': './pynps_downloads/', 
                             'DatabaseFolder': "./pynps_database/"}
 
