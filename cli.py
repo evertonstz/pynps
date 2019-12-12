@@ -126,12 +126,12 @@ def cli_main():
                         type=str, required=False)
     parser.add_argument("-u", "--update", help="update database.",
                         action="store_true")
+    parser.add_argument("-R", "--resume_session", help="update database.",
+                        action="store_true")
     parser.add_argument('--version', action='version',
                         version=f"%(prog)s version {variables.VERSION}")
     
     args = parser.parse_args()
-
-    keepkg = args.keepkg
 
     #check limit rate string
     limit_rate = args.limit_rate
@@ -140,244 +140,305 @@ def cli_main():
         if limit_rate[:-1].isdigit() is False or limit_rate[-1].lower() not in ["k","m","g","t"]:
             printft(HTML("<red>[ERROR] invalid format for --limit_rate</red>"))
             sys.exit(1)
+            
+    if args.resume_session:
+        # in this case args.search will be considered a tag to fast resume a session
 
-    if args.console is not None:
-        system = list({x.upper() for x in args.console})
+        ##check if a tag is not None
+            ##make a var calleg tag with the provided tag
+        input_tag = args.search
+        ##load download db
+        with SqliteDict(f"{DLFOLDER}/downloads.db", autocommit=False) as database:
+            db = database['resumes']
+
+        checker = next((item for item in db if item['session_tag'] == input_tag), None)
+        ## if tag is not None
+        if input_tag is not None and checker is not None:
+            # has something in db
+            session = checker
+
+        elif (input_tag is not None and checker is None) or input_tag is None:
+            if input_tag is not None and checker:
+                yn_check = input("error no such tag, wanna see all sessions?")
+                if yn_check is "n": # TODO: prompt_toolkit
+                    sys.exit(0)
+            
+            p_db = []
+            for index_file, i in enumerate(db):
+                i["Index"] = index_file + 1
+                p_db.append(i)
+
+            
+            process_resumes(p_db)
+            session_index = input("what session?") # TODO prompt
+
+            session = db[int(session_index) - 1]
+
+        files_to_download = session["session_dict"]
+
     else:
-        system = ["PSV", "PSP", "PSX", "PSM"]
-    
-    if args.eboot is True and args.compress_cso is not None:
-        printft(HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time</red>"))
+        keepkg = args.keepkg
 
-    if args.compress_cso is not None:
-        cso_factor = args.compress_cso
-    else:
-        cso_factor = False
+        if args.console is not None:
+            system = list({x.upper() for x in args.console})
+        else:
+            system = ["PSV", "PSP", "PSX", "PSM"]
+        
+        if args.eboot is True and args.compress_cso is not None:
+            printft(HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time</red>"))
 
-    what_to_dl = {"games": args.games, "dlcs": args.dlcs, "themes": args.themes,
-                  "updates": args.updates, "demos": args.demos}
+        if args.compress_cso is not None:
+            cso_factor = args.compress_cso
+        else:
+            cso_factor = False
 
-    if set(what_to_dl.values()) == set([False]):
-        for i in what_to_dl:
-            what_to_dl[i] = True
+        what_to_dl = {"games": args.games, "dlcs": args.dlcs, "themes": args.themes,
+                    "updates": args.updates, "demos": args.demos}
 
-    if args.update == True:
-        if [args.region, args.search, args.eboot, args.compress_cso] != [None, None, False, None]:
-            printft(HTML("<red>[UPDATEDB] you can't search while updating the database</red>"))
+        if set(what_to_dl.values()) == set([False]):
+            for i in what_to_dl:
+                what_to_dl[i] = True
+
+        if args.update == True:
+            if [args.region, args.search, args.eboot, args.compress_cso] != [None, None, False, None]:
+                printft(HTML("<red>[UPDATEDB] you can't search while updating the database</red>"))
+                sys.exit(1)
+
+            printft(HTML("<grey>%s</grey>") %fill_term())
+            what_to_up = [x for x in what_to_dl if what_to_dl[x] == True]
+
+            for i in system:
+                printft(HTML("<green>[UPDATEDB] %s:</green>") %variables.FULL_SYSTEM_NAME[i])
+                if i == "PSV":
+                    db = database_psv_links
+                elif i == "PSP":
+                    db = database_psp_links
+                elif i == "PSX":
+                    db = database_psx_links
+                elif i == "PSM":
+                    db = database_psm_links
+                
+                # parsing supported
+                what_to_up_parsed = [x for x in what_to_up if x in db.keys()]
+                
+                if len(what_to_up_parsed) > 0:
+                    updatedb(db, i, DBFOLDER, WGET, what_to_up_parsed)
+                else:
+                    printft(HTML("<blue>Nothing to do!</blue>"))
+
+            printft(HTML("<blue>Done!</blue>"))
+            sys.exit(0)
+
+        elif args.update == False and args.search is None:
+            printft(HTML("<red>[SEARCH] No search term provided, you need to search for something</red>"))
+            parser.print_help()
             sys.exit(1)
 
-        printft(HTML("<grey>%s</grey>") %fill_term())
-        what_to_up = [x for x in what_to_dl if what_to_dl[x] == True]
+        # checking for database's existense:
+        if os.path.isfile(f"{DBFOLDER}/pynps.db") is False:
+            printft(HTML("<red>[UPDATEDB] theres no database in your system, please update your database and try again</red>"))
+            sys.exit(1)
 
-        for i in system:
-            printft(HTML("<green>[UPDATEDB] %s:</green>") %variables.FULL_SYSTEM_NAME[i])
-            if i == "PSV":
-                db = database_psv_links
-            elif i == "PSP":
-                db = database_psp_links
-            elif i == "PSX":
-                db = database_psx_links
-            elif i == "PSM":
-                db = database_psm_links
+        # check if unsupported downloads were called
+        if "PSP" in system and args.demos == True:
+            printft(HTML("<oragen>[SEARCH] NPS has no support for demos with the Playstation Portable (PSP)</oragen>"))
+        if "PSX" in system and True in [args.dlcs, args.themes, args.updates, args.demos]:
+            printft(HTML("<oragen>[SEARCH] NPS only supports game downlaods for the Playstation (PSX)</oragen>"))
+
+        # check region
+        if args.region == None:
+            reg = ["usa", "eur", "jap", "asia", "int"]
+        else:
+            reg = args.region
+
+        # maybe_download = []
+        maybe_download = search_db(system, what_to_dl, args.search, reg, DBFOLDER)
+
+        # test if the result isn't empty
+        if len(maybe_download) == 0:
+            printft(HTML("<oragen>[SEARCH] No results found, try searching for something else or updating your database</oragen>"))
+            sys.exit(0)
+
+        # adding indexes to maybe_download
+        for i in range(0, len(maybe_download)):
+            # maybe_download[i]["Index"] = str(i)
+            maybe_download[i]["Index"] = str(i + 1)
+
+        # print possible mathes to the user
+        if len(maybe_download) > 1:
+            printft(HTML("<grey>%s</grey>") %fill_term())
+            printft(HTML("<green>[SEARCH] here are the matches:</green>"))
+            process_search(maybe_download)
             
-            # parsing supported
-            what_to_up_parsed = [x for x in what_to_up if x in db.keys()]
-            
-            if len(what_to_up_parsed) > 0:
-                updatedb(db, i, DBFOLDER, WGET, what_to_up_parsed)
-            else:
-                printft(HTML("<blue>Nothing to do!</blue>"))
+        # validating input
+        class Check_game_input(Validator):
+            def validate(self, document):
+                text = document.text
+                if len(text) > 0:
+                    # test if number being typed is bigger than the biggest number from game list
+                    num_p = len(maybe_download)
+                    if num_p == 1 and text != "1":
+                        raise ValidationError(message="Your only option is to type 1.",
+                                            cursor_position=0)
+                    text_processed = text.replace(
+                        "-", " ").replace(",", " ").split(" ")
+                    last_texttext_processed = [
+                        x for x in text_processed if x != ""]
+                    last_text = text_processed[-1]
 
-        printft(HTML("<blue>Done!</blue>"))
-        sys.exit(0)
+                    if "0" in text_processed:
+                        raise ValidationError(message='Zero is an invalid entry.')
 
-    elif args.update == False and args.search is None:
-        printft(HTML("<red>[SEARCH] No search term provided, you need to search for something</red>"))
-        parser.print_help()
-        sys.exit(1)
+                    if last_text.isdigit():
+                        last_text = int(last_text)
+                        if last_text > num_p:
+                            raise ValidationError(
+                                message=f"There are no entries past {num_p}.")
 
-    # checking for database's existense:
-    if os.path.isfile(f"{DBFOLDER}/pynps.db") is False:
-        printft(HTML("<red>[UPDATEDB] theres no database in your system, please update your database and try again</red>"))
-        sys.exit(1)
+                    if text.startswith("-") or text.startswith(","):
+                        # break
+                        raise ValidationError(message='Start the input with a number. Press "h" for help.',
+                                            cursor_position=0)
 
-    # check if unsupported downloads were called
-    if "PSP" in system and args.demos == True:
-        printft(HTML("<oragen>[SEARCH] NPS has no support for demos with the Playstation Portable (PSP)</oragen>"))
-    if "PSX" in system and True in [args.dlcs, args.themes, args.updates, args.demos]:
-        printft(HTML("<oragen>[SEARCH] NPS only supports game downlaods for the Playstation (PSX)</oragen>"))
-
-    # check region
-    if args.region == None:
-        reg = ["usa", "eur", "jap", "asia", "int"]
-    else:
-        reg = args.region
-
-    # maybe_download = []
-    maybe_download = search_db(system, what_to_dl, args.search, reg, DBFOLDER)
-
-    # test if the result isn't empty
-    if len(maybe_download) == 0:
-        printft(HTML("<oragen>[SEARCH] No results found, try searching for something else or updating your database</oragen>"))
-        sys.exit(0)
-
-    # adding indexes to maybe_download
-    for i in range(0, len(maybe_download)):
-        # maybe_download[i]["Index"] = str(i)
-        maybe_download[i]["Index"] = str(i + 1)
-
-    # print possible mathes to the user
-    if len(maybe_download) > 1:
-        printft(HTML("<grey>%s</grey>") %fill_term())
-        printft(HTML("<green>[SEARCH] here are the matches:</green>"))
-        process_search(maybe_download)
-        
-    # validating input
-    class Check_game_input(Validator):
-        def validate(self, document):
-            text = document.text
-            if len(text) > 0:
-                # test if number being typed is bigger than the biggest number from game list
-                num_p = len(maybe_download)
-                if num_p == 1 and text != "1":
-                    raise ValidationError(message="Your only option is to type 1.",
-                                          cursor_position=0)
-                text_processed = text.replace(
-                    "-", " ").replace(",", " ").split(" ")
-                last_texttext_processed = [
-                    x for x in text_processed if x != ""]
-                last_text = text_processed[-1]
-
-                if "0" in text_processed:
-                    raise ValidationError(message='Zero is an invalid entry.')
-
-                if last_text.isdigit():
-                    last_text = int(last_text)
-                    if last_text > num_p:
+                    if "--" in text or ",," in text or ",-" in text or "-," in text:
                         raise ValidationError(
-                            message=f"There are no entries past {num_p}.")
+                            message='Use only one symbol to separate numbers. Press "h" for help.')
 
-                if text.startswith("-") or text.startswith(","):
-                    # break
-                    raise ValidationError(message='Start the input with a number. Press "h" for help.',
-                                          cursor_position=0)
+                    text = text.replace("-", "").replace(",", "")
+                    if text.isdigit() is False and text != "h":
+                        raise ValidationError(
+                            message='Do not use leters. Press "h" for help.')
+                else:
+                    raise ValidationError(message='Enter something or press Ctrl+C to close. Press "h" for help.',
+                                        cursor_position=0)
 
-                if "--" in text or ",," in text or ",-" in text or "-," in text:
-                    raise ValidationError(
-                        message='Use only one symbol to separate numbers. Press "h" for help.')
+        if len(maybe_download) > 1:
+            try:
+                index_to_download_raw = prompt("Enter the number for what you want to download, you can enter multiple numbers using commas: ", 
+                                                validator=Check_game_input())
+            except KeyboardInterrupt:
+                printft(HTML("<grey>Interrupted by user</grey>"))
+                sys.exit(0)
+            except:
+                printft(HTML("<grey>Interrupted by user</grey>"))
+                sys.exit(0)
+        else:
+            index_to_download_raw = "1"
 
-                text = text.replace("-", "").replace(",", "")
-                if text.isdigit() is False and text != "h":
-                    raise ValidationError(
-                        message='Do not use leters. Press "h" for help.')
+        # provides help
+        if index_to_download_raw.lower() == "h":
+            printft(HTML("<grey>\tSuppose you have 10 files to select from:</grey>"))
+            printft(HTML("<grey>\tTo download file 2, you type: 2</grey>"))
+            printft(HTML("<grey>\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9</grey>"))
+            printft(HTML("<grey>\tTo download files 1 to 9, the cool-kid method, you type: 1-9</grey>"))
+            printft(HTML("<grey>\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10</grey>"))
+            printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10: 1,4,6-10</grey>"))
+            printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6</grey>"))
+            printft(HTML("<grey>Exiting</grey>"))
+            sys.exit(0)
+
+        # parsing indexes
+        index_to_download_raw = index_to_download_raw.replace(" ", "").split(",")
+        index_to_download = []
+        for i in index_to_download_raw:
+            if "-" in i and i.count("-") == 1:
+                # spliting range
+                range_0, range_1 = i.split("-")
+                # test if is digit
+                if range_0.isdigit() == True and range_1.isdigit() == True:
+                    # test if there's a zero
+                    range_0 = int(range_0)
+                    range_1 = int(range_1)
+
+                    if range_0 < 1 or range_1 < 1:
+                        print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                        sys.exit(1)
+                    # test if digit 0 is bigger than digit 1
+                    if range_0 < range_1:
+                        # populate the index list
+                        for a in range(range_0, range_1+1):
+                            if a not in index_to_download:
+                                index_to_download.append(a)
+                    elif range_0 > range_1:
+                        for a in range(range_1, range_0+1):
+                            if a not in index_to_download:
+                                index_to_download.append(a)
+                    else:  # range_0 == range_1
+                        if range_0 not in index_to_download:
+                            index_to_download.append(range_0)
+                else:
+                    print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                    sys.exit(1)
+            elif i.isdigit() == True:
+                if int(i) not in index_to_download:
+                    index_to_download.append(int(i))
             else:
-                raise ValidationError(message='Enter something or press Ctrl+C to close. Press "h" for help.',
-                                      cursor_position=0)
+                print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                sys.exit(1)
 
-    if len(maybe_download) > 1:
+        # fixing indexes for python syntax and sorting the list
+        index_to_download = sorted([int(x)-1 for x in index_to_download])
+
+        files_to_download = [maybe_download[i] for i in index_to_download]
+
+        # if index_to_download_raw == "1":
+        printft(HTML("<grey>%s</grey>") %fill_term())
+        printft(HTML("<green>[SEARCH] you're going to download the following files:</green>"))
+
+
+        process_search(files_to_download)
+
+
+        # validation 2
+        class Check_game_input_y_n(Validator):
+            def validate(self, document):
+                text = document.text
+                if len(text) > 0:
+                    if text.lower() not in ['y', 'n']:
+                        # break
+                        raise ValidationError(message='Use "y" for yes and "n" for no',
+                                            cursor_position=0)
+                else:
+                    raise ValidationError(message='Enter something or press Ctrl+C to close.',
+                                        cursor_position=0)
+
         try:
-            index_to_download_raw = prompt("Enter the number for what you want to download, you can enter multiple numbers using commas: ", 
-                                            validator=Check_game_input())
+            accept = prompt("Download files? [y/n]: ",
+                            validator=Check_game_input_y_n())
+            if accept.lower() != "y":
+                raise
         except KeyboardInterrupt:
             printft(HTML("<grey>Interrupted by user</grey>"))
             sys.exit(0)
         except:
             printft(HTML("<grey>Interrupted by user</grey>"))
             sys.exit(0)
-    else:
-        index_to_download_raw = "1"
 
-    # provides help
-    if index_to_download_raw.lower() == "h":
-        printft(HTML("<grey>\tSuppose you have 10 files to select from:</grey>"))
-        printft(HTML("<grey>\tTo download file 2, you type: 2</grey>"))
-        printft(HTML("<grey>\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9</grey>"))
-        printft(HTML("<grey>\tTo download files 1 to 9, the cool-kid method, you type: 1-9</grey>"))
-        printft(HTML("<grey>\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10</grey>"))
-        printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10: 1,4,6-10</grey>"))
-        printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6</grey>"))
-        printft(HTML("<grey>Exiting</grey>"))
-        sys.exit(0)
-
-    # parsing indexes
-    index_to_download_raw = index_to_download_raw.replace(" ", "").split(",")
-    index_to_download = []
-    for i in index_to_download_raw:
-        if "-" in i and i.count("-") == 1:
-            # spliting range
-            range_0, range_1 = i.split("-")
-            # test if is digit
-            if range_0.isdigit() == True and range_1.isdigit() == True:
-                # test if there's a zero
-                range_0 = int(range_0)
-                range_1 = int(range_1)
-
-                if range_0 < 1 or range_1 < 1:
-                    print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
-                    sys.exit(1)
-                # test if digit 0 is bigger than digit 1
-                if range_0 < range_1:
-                    # populate the index list
-                    for a in range(range_0, range_1+1):
-                        if a not in index_to_download:
-                            index_to_download.append(a)
-                elif range_0 > range_1:
-                    for a in range(range_1, range_0+1):
-                        if a not in index_to_download:
-                            index_to_download.append(a)
-                else:  # range_0 == range_1
-                    if range_0 not in index_to_download:
-                        index_to_download.append(range_0)
-            else:
-                print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
-                sys.exit(1)
-        elif i.isdigit() == True:
-            if int(i) not in index_to_download:
-                index_to_download.append(int(i))
-        else:
-            print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
-            sys.exit(1)
-
-    # fixing indexes for python syntax and sorting the list
-    index_to_download = sorted([int(x)-1 for x in index_to_download])
-
-    files_to_download = [maybe_download[i] for i in index_to_download]
-
-    # if index_to_download_raw == "1":
-    printft(HTML("<grey>%s</grey>") %fill_term())
-    printft(HTML("<green>[SEARCH] you're going to download the following files:</green>"))
-
-    process_search(files_to_download)
-
-    # validation 2
-    class Check_game_input_y_n(Validator):
-        def validate(self, document):
-            text = document.text
-            if len(text) > 0:
-                if text.lower() not in ['y', 'n']:
-                    # break
-                    raise ValidationError(message='Use "y" for yes and "n" for no',
-                                          cursor_position=0)
-            else:
-                raise ValidationError(message='Enter something or press Ctrl+C to close.',
-                                      cursor_position=0)
-
-    try:
-        accept = prompt("Download files? [y/n]: ",
-                        validator=Check_game_input_y_n())
-        if accept.lower() != "y":
-            raise
-    except KeyboardInterrupt:
-        printft(HTML("<grey>Interrupted by user</grey>"))
-        sys.exit(0)
-    except:
-        printft(HTML("<grey>Interrupted by user</grey>"))
-        sys.exit(0)
-
+####### skip all inputs to here!'
     files_downloaded = []
     for i in files_to_download:
         # download file
         dl_result = dl_file(i,  i['System'], DLFOLDER, WGET, limit_rate)
+
+        if dl_result is False:
+            # interrupted by user
+            resume_dict = []
+            for i in files_to_download:
+                if i not in files_downloaded:
+                    resume_dict.append(i)
+            
+            # run saving function
+            # TODO: ask user for tag
+            # TODO don't let duplicate tags
+            tag = input("tag:") #TODO prompt
+            if tag == "":
+                tag = False
+
+            download_save_state(resume_dict, DLFOLDER, tag=tag)
+
+            sys.exit(0)
+
+
         downloaded_file_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
 
         # checksum

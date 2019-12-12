@@ -13,12 +13,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 
-from cmd import cmd_main
+#from cmd import cmd_main
 from cli import cli_main
 from functions import is_interactive
 
 if __name__ == '__main__':
-    if is_interactive() == False:
+    #if is_interactive() == False:
+    if True:
         # runs on tty
         cli_main()
     else:

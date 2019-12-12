@@ -22,6 +22,8 @@ import argparse
 import hashlib
 import configparser
 import ctypes
+from time import time
+from datetime import datetime
 from json import dumps
 from shutil import copyfile, which
 from csv import DictReader
@@ -105,6 +107,44 @@ def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbo
     #     else:
     #         print('ERROR: Use a number divisible by 4 in "fill_width".')
     #         sys.exit(1)
+
+def download_save_state(dict, DLFOLDER, tag=False):
+    """saves downloads sessions"""
+    
+    epoch_date = int(time())
+    pretty_date = datetime.utcfromtimestamp(epoch_date).strftime('%Y-%m-%d %H:%M:%S')
+
+    with SqliteDict(f"{DLFOLDER}/downloads.db", autocommit=False) as database:
+        if "resumes" not in database:
+            database["resumes"] = []
+        
+        database_editable = database["resumes"]
+
+        # check if session is already in the folder comparing
+        checker = next((item for item in database_editable if item['session_dict'] == dict), None)
+
+        if tag in [None, False]:
+            tag = epoch_date
+
+        new_dict = {"session_time":epoch_date,
+                                        "session_prettytime":pretty_date,
+                                        "session_dict":dict,
+                                        "session_tag":tag
+            }
+
+        if checker is None:
+            database_editable.append(new_dict)
+        else:
+            checker_index = database_editable.index(checker)
+            database_editable[checker_index].update(new_dict)
+
+        # try commiting
+        database["resumes"] = database_editable
+
+        database.commit()
+
+        
+
 
 
 def updatedb(dict, system, DBFOLDER, WGET, types):
@@ -213,10 +253,11 @@ def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
             process = subprocess.run([WGET, "-q", "--show-progress", "-c", "--limit-rate", limit_rate,
                                     dl_folder, url], cwd=dl_folder)           
     except KeyboardInterrupt:
+        # TODO: add infor about resuming
         printft(HTML("\n<orange>[DOWNLOAD] File was partially downloaded, you can resume this download by searching for same pkg again</orange>"))
         printft(HTML("<orange>[DOWNLOAD] File location:</orange> <grey>%s/%s</grey>") %(dl_folder, filename))
         printft(HTML("<grey>Download interrupted by user</grey>"))
-        sys.exit(0)
+        return False
     return True
 
 
@@ -257,14 +298,16 @@ def crop_print(text, leng, center=False, align="left"):
     elif len(text) == leng:
         return text
 
-
-def process_search(out):
+def process_search(out, show_index=True):
     """this function prints the search result for the 
     user in a human friendly format"""
+    if show_index is not False:
+        # look for the biggest Index value
+        biggest_index = sorted([int(x["Index"]) for x in out])
+        lenght_str = len(str(biggest_index[-1]))
+    else:
+        lenght_str = 2
 
-    # look for the biggest Index value
-    biggest_index = sorted([int(x["Index"]) for x in out])
-    lenght_str = len(str(biggest_index[-1]))
     try:
         biggest_type = sorted([len(x['Type']) for x in out])[-1] - 1
     except:
@@ -279,7 +322,10 @@ def process_search(out):
         biggest_reg = 2
 
     for i in out:
-        number_str = crop_print(str(i['Index']), lenght_str)
+        if show_index is not False:
+            number_str = f"{crop_print(str(i['Index']), lenght_str)})"
+        else:
+            number_str = " "
         system_str = i['System']
         id_str = i['Title ID']
 
@@ -287,7 +333,7 @@ def process_search(out):
         type_str = crop_print(variables.TYPE_DICT[i['Type']], biggest_type, center=False)
         size_str = crop_print(file_size(i['File Size']), 9, center=False, align="right")
 
-        head = f"{number_str}) {system_str} | {id_str} | {reg_str} | {type_str} | "
+        head = f"{number_str} {system_str} | {id_str} | {reg_str} | {type_str} | "
 
         tail = f" [{size_str}]"
 
@@ -310,6 +356,26 @@ def process_search(out):
                 head_name = f"{head}{i['Name']}"
             
             print(f"{head_name}{tail}")
+
+
+def process_resumes(out):
+    for dict in out:
+
+        tag = dict["session_tag"]
+        index = dict["Index"]
+        dicts = dict["session_dict"]
+        time = dict["session_time"]
+        pretty_time = dict["session_prettytime"]
+
+        if tag is not False:
+            header = f"Session: {index}  |  tag: {tag} | saved at: {pretty_time}"
+        else:
+            header = f"Session: {index} | saved at: {pretty_time}"
+
+        print(header)
+        process_search(dicts, show_index=False)
+
+        
 
 
 def search_db(systems, type, query, region, DBFOLDER):
