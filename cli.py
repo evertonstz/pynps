@@ -142,6 +142,21 @@ def cli_main():
             printft(HTML("<red>[ERROR] invalid format for --limit_rate</red>"))
             sys.exit(1)
 
+    keepkg = args.keepkg
+
+    if args.console is not None:
+        system = list({x.upper() for x in args.console})
+    else:
+        system = ["PSV", "PSP", "PSX", "PSM"]
+    
+    if args.eboot is True and args.compress_cso is not None:
+        printft(HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time</red>"))
+
+    if args.compress_cso is not None:
+        cso_factor = args.compress_cso
+    else:
+        cso_factor = False
+    
     if args.resume_session:
         # in this case args.search will be considered a tag to fast resume a session
 
@@ -216,20 +231,6 @@ def cli_main():
         files_to_download = session["session_dict"]
 
     else:
-        keepkg = args.keepkg
-
-        if args.console is not None:
-            system = list({x.upper() for x in args.console})
-        else:
-            system = ["PSV", "PSP", "PSX", "PSM"]
-        
-        if args.eboot is True and args.compress_cso is not None:
-            printft(HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time</red>"))
-
-        if args.compress_cso is not None:
-            cso_factor = args.compress_cso
-        else:
-            cso_factor = False
 
         what_to_dl = {"games": args.games, "dlcs": args.dlcs, "themes": args.themes,
                     "updates": args.updates, "demos": args.demos}
