@@ -16,6 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 # local imports
 from functions import *
 import variables
+from uuid import uuid4 as id_gen
 
 def cli_main():
     """implement pynps cli interface"""
@@ -140,7 +141,7 @@ def cli_main():
         if limit_rate[:-1].isdigit() is False or limit_rate[-1].lower() not in ["k","m","g","t"]:
             printft(HTML("<red>[ERROR] invalid format for --limit_rate</red>"))
             sys.exit(1)
-            
+
     if args.resume_session:
         # in this case args.search will be considered a tag to fast resume a session
 
@@ -149,7 +150,13 @@ def cli_main():
         input_tag = args.search
         ##load download db
         with SqliteDict(f"{DLFOLDER}/downloads.db", autocommit=False) as database:
-            db = database['resumes']
+            try:
+                db = database['resumes']
+                if len(db) == 0:
+                    raise
+            except:
+                print("nothing in resumes") #TODO prompt
+                sys.exit(0)
 
         checker = next((item for item in db if item['session_tag'] == input_tag), None)
         ## if tag is not None
@@ -170,7 +177,39 @@ def cli_main():
 
             
             process_resumes(p_db)
-            session_index = input("what session?") # TODO prompt
+
+            # validating input
+            class Check_resume_input(Validator):
+                def validate(self, document):
+                    text = document.text
+                    if len(text) > 0:
+                        if text.isdigit():
+
+                            # test if number being typed is bigger than the biggest number from game list
+                            num_p = len(db)
+                            if num_p == 1 and text != "1":
+                                raise ValidationError(message="Your only option is to type 1.",
+                                                    cursor_position=0)
+                            if int(text) > num_p:
+                                raise ValidationError(
+                                    message=f"There are no entries past {num_p}.")
+                        else:
+                            raise ValidationError(message="Please only use numbers",
+                                                    cursor_position=0)
+                    else:
+                        raise ValidationError(message='Enter something or press Ctrl+C to close. Press "h" for help.',
+                                            cursor_position=0)
+
+
+            try:
+                session_index = prompt("Enter the number for the download session you want to resume: ", 
+                                                validator=Check_resume_input())
+            except KeyboardInterrupt:
+                printft(HTML("<grey>Interrupted by user</grey>"))
+                sys.exit(0)
+            except:
+                printft(HTML("<grey>Interrupted by user</grey>"))
+                sys.exit(0)
 
             session = db[int(session_index) - 1]
 
@@ -434,7 +473,14 @@ def cli_main():
             if tag == "":
                 tag = False
 
-            download_save_state(resume_dict, DLFOLDER, tag=tag)
+            #uuid
+            try:
+                session_id = session['session_id']
+            except:
+                # this means it's a new session!
+                session_id = str(id_gen())
+
+            download_save_state(resume_dict, DLFOLDER, id=session_id,  tag=tag)
 
             sys.exit(0)
 

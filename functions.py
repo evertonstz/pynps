@@ -41,6 +41,7 @@ import variables
 def get_system():
     return system()
 
+
 def create_folder(location):
     try:
         os.makedirs(location)
@@ -48,11 +49,13 @@ def create_folder(location):
     except:
         return False
 
+
 def get_terminal_columns():
     """this function returns the columns' 
     numbers in the terminal"""
 
     return(os.get_terminal_size().columns)
+
 
 def is_interactive():
     # Load kernel32.dll
@@ -68,11 +71,13 @@ def is_interactive():
     else:
         return False
 
+
 def fill_term(symbol="-"):
     """this function fills a line in the 
     terminal with given symbol"""
 
     return(get_terminal_columns()*symbol)
+
 
 def get_script_dir(follow_symlinks=True):
     if getattr(sys, 'frozen', False): # py2exe, PyInstaller, cx_Freeze
@@ -82,6 +87,7 @@ def get_script_dir(follow_symlinks=True):
     if follow_symlinks:
         path = os.path.realpath(path)
     return os.path.dirname(path)
+
 
 def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbol="]", color=False, unfilled_symbol="-"):
     if color == 0:
@@ -108,7 +114,8 @@ def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbo
     #         print('ERROR: Use a number divisible by 4 in "fill_width".')
     #         sys.exit(1)
 
-def download_save_state(dict, DLFOLDER, tag=False):
+
+def download_save_state(dict, DLFOLDER, id, tag=False):
     """saves downloads sessions"""
     
     epoch_date = int(time())
@@ -121,7 +128,8 @@ def download_save_state(dict, DLFOLDER, tag=False):
         database_editable = database["resumes"]
 
         # check if session is already in the folder comparing
-        checker = next((item for item in database_editable if item['session_dict'] == dict), None)
+        # TODO use uuid
+        checker = next((item for item in database_editable if item['session_id'] == id), None)
 
         if tag in [None, False]:
             tag = epoch_date
@@ -129,7 +137,8 @@ def download_save_state(dict, DLFOLDER, tag=False):
         new_dict = {"session_time":epoch_date,
                                         "session_prettytime":pretty_date,
                                         "session_dict":dict,
-                                        "session_tag":tag
+                                        "session_tag":tag,
+                                        "session_id":id
             }
 
         if checker is None:
@@ -142,9 +151,6 @@ def download_save_state(dict, DLFOLDER, tag=False):
         database["resumes"] = database_editable
 
         database.commit()
-
-        
-
 
 
 def updatedb(dict, system, DBFOLDER, WGET, types):
@@ -298,6 +304,7 @@ def crop_print(text, leng, center=False, align="left"):
     elif len(text) == leng:
         return text
 
+
 def process_search(out, show_index=True):
     """this function prints the search result for the 
     user in a human friendly format"""
@@ -365,17 +372,16 @@ def process_resumes(out):
         index = dict["Index"]
         dicts = dict["session_dict"]
         time = dict["session_time"]
+        id = dict["session_id"]
         pretty_time = dict["session_prettytime"]
 
         if tag is not False:
-            header = f"Session: {index}  |  tag: {tag} | saved at: {pretty_time}"
+            header = f"Session: {index} | tag: {tag} | saved at: {pretty_time} | session ID: {id}"
         else:
             header = f"Session: {index} | saved at: {pretty_time}"
 
         print(header)
         process_search(dicts, show_index=False)
-
-        
 
 
 def search_db(systems, type, query, region, DBFOLDER):
@@ -419,6 +425,7 @@ def search_db(systems, type, query, region, DBFOLDER):
 
     # exit()
     return(result)
+
 
 def checksum_file(file):
     """this fuction is used to calculate a sha256 
