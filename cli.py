@@ -453,7 +453,50 @@ def cli_main():
             printft(HTML("<grey>Interrupted by user</grey>"))
             sys.exit(0)
 
-####### skip all inputs to here!'
+####### skip all inputs to here in case of a resume :)
+    """fully process game by game inside a single "for"
+    # this is useful to change the state for every game in the resume list
+    # proposed "Status" key in the dictionary will be as follow:
+    
+    # 0 - PKG not downloaded:
+    #         this is already checked by the dl_file() fucntion!
+    #         Also, this should be the default parameter?
+    
+    # 1 - PKG downloaded, but not extracted:
+    #         the status will be updated to 1 after the download passes checksum
+    #         a good place to do it could be around ### 1 HERE
+    
+    # 2 - PKG downloaded and extracted!
+    #         the package should be removed from the resume dictionary when it reaches this status
+    #         a good place to do it could be around ### 2 HERE
+
+    'files_downloaded' starts with no itens
+    'files_to_download' starts with all itens to be downloaded
+
+    for i in files_to_download:
+        downloads i
+
+        if dl_results is False:
+            do processing for resuming download latter
+        
+        save download locationg into 'downloaded_file_loc' var
+
+        call pkg_checksum() function (WIP) into 'chekcsum' var
+
+        if checksum is True:
+            if PKG2ZIP == False:
+                append i to 'files_downloaded' list
+            else:
+                proceed to extract pkg with pkg2zip
+
+                if extraction is ok:
+                    delete pkg file if needed
+                    append i to 'files_downloaded' list
+                    
+                remove i from list in the database!!! 
+        else:
+            skip file
+    """
     files_downloaded = []
     for i in files_to_download:
         # download file
@@ -467,13 +510,13 @@ def cli_main():
                     resume_dict.append(i)
             
             # run saving function
-            # TODO: ask user for tag
+            # TODO: alert about closing with control + c to not save session
             # TODO don't let duplicate tags
             tag = input("tag:") #TODO prompt
             if tag == "":
                 tag = False
 
-            #uuid
+            # check if the current session already has a loaded UUID
             try:
                 session_id = session['session_id']
             except:
@@ -484,41 +527,37 @@ def cli_main():
 
             sys.exit(0)
 
-
         downloaded_file_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
 
         # checksum
-        if dl_result:
-            if "SHA256" in i.keys():
-                printft(HTML("<grey>%s</grey>") %fill_term())
-                if i["SHA256"] == "":
-                    printft(HTML("<orange>[CHECKSUM] No checksum provided by NPS, skipping check</orange>"))
+        # TODO: transform into function?
+        if "SHA256" in i.keys():
+            printft(HTML("<grey>%s</grey>") %fill_term())
+            if i["SHA256"] == "":
+                printft(HTML("<orange>[CHECKSUM] No checksum provided by NPS, skipping check</orange>"))
+            else:
+
+                sha256_dl = checksum_file(downloaded_file_loc)
+
+                try:
+                    sha256_exp = i["SHA256"]
+                except:
+                    sha256_exp = ""
+
+                if sha256_dl != sha256_exp:
+                    loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
+                    printft(HTML("<red>[CHECKSUM] checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg</red>"))
+                    printft(HTML("<red>[CHECKSUM] corrupted file location: %s</red>") %loc)
+                    break # skip file
                 else:
+                    printft(HTML("<green>[CHECKSUM] downloaded is not corrupted!</green>"))
+        
+        ### 1 HERE
+        
 
-                    sha256_dl = checksum_file(downloaded_file_loc)
+        printft(HTML("<grey>%s</grey>") %fill_term())
 
-                    try:
-                        sha256_exp = i["SHA256"]
-                    except:
-                        sha256_exp = ""
-
-                    if sha256_dl != sha256_exp:
-                        loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
-                        printft(HTML("<red>[CHECKSUM] checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg</red>"))
-                        printft(HTML("<red>[CHECKSUM] corrupted file location: %s</red>") %loc)
-                        break
-                    else:
-                        printft(HTML("<green>[CHECKSUM] downloaded is not corrupted!</green>"))
-            files_downloaded.append(i)
-        else:
-            print("ERROR: skipping file, wget was unable to download, try again latter")
-
-    # autoextract with pkg2zip
-    # PKG2ZIP = check_pkg2zip(PKG2ZIP)
-    # print(PKG2ZIP)
-    printft(HTML("<grey>%s</grey>") %fill_term())
-    if PKG2ZIP != False:
-        for i in files_downloaded:
+        if PKG2ZIP != False:
             zrif = ""
             dl_dile_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
             dl_location = f"{DLFOLDER}/Extracted"
@@ -593,6 +632,7 @@ def cli_main():
                 delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder)
 
             #testing if extraction was completion and delete file if needed
+            
             if delete == True and keepkg == False:
                 # delete file
                 printft(HTML("<green>[EXTRACTION] Attempting to delete .pkg file</green>"))
@@ -602,9 +642,14 @@ def cli_main():
                 except:
                     printft(HTML("<red>[EXTRACTION] Unable to delete, you may want to it manually at: </red><grey>%s</grey>") %dl_dile_loc)
 
-    else:
-        printft(HTML("<orange>[EXTRACTION] skipping extraction since there's no pkg2zip binary in your system</orange>"))
-        sys.exit(0)
+            ### 2 HERE
+            files_downloaded.append(i)
+        else:
+            printft(HTML("<orange>[EXTRACTION] skipping extraction since there's no pkg2zip binary in your system</orange>"))
+            
+            ### 2 HERE
+            files_downloaded.append(i)
+
     printft(HTML("<grey>%s</grey>") %fill_term())
     printft(HTML("<blue>Done!</blue>"))
 
