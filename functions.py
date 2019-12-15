@@ -595,8 +595,7 @@ def create_config(file, folder):
         config['BinaryLocations'] = {'Pkg2zip_Location': f"{folder}/lib/pkg2zip",
                                     'Wget_location': f"{folder}/lib/wget"}
     # for windows
-    if system() == 'Windows':
-        print(11)
+    elif system() == 'Windows':
         config['pyNPS'] = {'DownloadFolder': './pynps_downloads/', 
                             'DatabaseFolder': "./pynps_database/"}
 
