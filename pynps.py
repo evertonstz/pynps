@@ -964,7 +964,7 @@ def main():
                     if sha256_dl != sha256_exp:
                         loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
                         printft(HTML("<red>[CHECKSUM] checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg</red>"))
-                        printft(HTML("<red>[CHECKSUM] corrupted file location: </red>") %loc)
+                        printft(HTML("<red>[CHECKSUM] corrupted file location: %s</red>") %loc)
                         break
                     else:
                         printft(HTML("<green>[CHECKSUM] downloaded is not corrupted!</green>"))
