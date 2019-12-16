@@ -20,7 +20,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='pynps',
-    version='1.3.1',
+    version='1.4.0',
     py_modules=['pynps'],
     license='GPL3',
     description = 'PyNPS is a Nopaystation client writen in python',
