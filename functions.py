@@ -121,7 +121,7 @@ def download_save_state(dict, DLFOLDER, id, tag=False):
     epoch_date = int(time())
     pretty_date = datetime.utcfromtimestamp(epoch_date).strftime('%Y-%m-%d %H:%M:%S')
 
-    with SqliteDict(f"{DLFOLDER}/downloads.db", autocommit=False) as database:
+    with SqliteDict(f"{DBFOLDER}/downloads.db", autocommit=False) as database:
         if "resumes" not in database:
             database["resumes"] = []
         

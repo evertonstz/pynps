@@ -115,7 +115,7 @@ def cli_main():
                 input_tag = None
            
         ##load download db
-        with SqliteDict(f"{DLFOLDER}/downloads.db", autocommit=False) as database:
+        with SqliteDict(f"{DBFOLDER}/downloads.db", autocommit=False) as database:
             try:
                 db = database['resumes']
                 if len(db) == 0:
