@@ -115,7 +115,7 @@ def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbo
     #         sys.exit(1)
 
 
-def download_save_state(dict, DLFOLDER, id, tag=False):
+def download_save_state(dict, DBFOLDER, id, tag=False):
     """saves downloads sessions"""
     
     epoch_date = int(time())

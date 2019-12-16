@@ -514,7 +514,7 @@ def cli_main():
             except:
                 # this means it's a new session!
                 session_id = str(id_gen())
-            download_save_state(resume_dict, DLFOLDER, id=session_id,  tag=tag)
+            download_save_state(resume_dict, DBFOLDER, id=session_id,  tag=tag)
 
             sys.exit(0)
 
