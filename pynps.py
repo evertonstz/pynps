@@ -13,10 +13,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 
-from cli import cli_main
-from functions import is_interactive
+from pynps.cli import cli_main
+from pynps.functions import is_interactive
 
-if __name__ == '__main__':
+def main():
     #if is_interactive() == False:
     if True:
         # runs on tty
@@ -24,3 +24,6 @@ if __name__ == '__main__':
     else:
         # TODO: call cmd file
         pass
+
+if __name__ == '__main__':
+    main()

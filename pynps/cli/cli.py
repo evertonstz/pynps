@@ -14,8 +14,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 
 # local imports
-from functions import *
-import variables
+# from functions import *
+from pynps.functions import *
+# import variables
+import pynps.variables as variables
+
+#external imports
 from uuid import uuid4 as id_gen
 
 def cli_main():

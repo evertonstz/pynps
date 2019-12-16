@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 
 # Versioning
-VERSION = '1.3.1'
+VERSION = '1.4.0'
 
 ##STATIC DICTS AND LISTS##
 FULL_SYSTEM_NAME = {"PSV": "Playstation Vita", "PSP": "Playstation Portable",

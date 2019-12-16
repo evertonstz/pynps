@@ -35,7 +35,7 @@ from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
 
 # local
-import variables
+import pynps.variables as variables
 
 ##FUNCTIONS##
 def get_system():
