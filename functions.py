@@ -364,8 +364,11 @@ def process_search(out, show_index=True):
         term_cols = get_terminal_columns()
 
         if len(head_name + tail) <= term_cols:  # no neet to crop
-            rest = term_cols - len(head_name + tail)
-            print(head_name + rest*" " + tail)
+            rest = " " * (term_cols - len(head_name + tail))
+            if system() == 'Windows':
+                rest = rest[:-1]
+            #print(head_name + rest*" " + tail)
+            print(f"{head_name}{rest}{tail}")
         else:
             thats_more = len(head_name + tail) - term_cols
 
