@@ -127,12 +127,28 @@ def download_save_state(dict, DLFOLDER, id, tag=False):
         
         database_editable = database["resumes"]
 
-        # check if session is already in the folder comparing
-        # TODO use uuid
+        # check, by uuid, if session is already saved
         checker = next((item for item in database_editable if item['session_id'] == id), None)
 
         if tag in [None, False]:
-            tag = epoch_date
+            tag = str(epoch_date)
+            printft(HTML("<green>[DOWNLOAD] saving session with the tag: %s</green>") %epoch_date)
+        else:
+            # check if tag is already used by other session that's not checker
+            tag_checker = next((item for item in database_editable if item['session_tag'] == tag), None)
+            if tag_checker is not None:
+                if checker is not None:
+                    # match tag_chcker uuid with checker uuid
+                    # make a new one in case the uuids are different
+                    if checker['session_id'] != tag_checker['session_id']:
+                        tag = f"{tag}{epoch_date}"
+                        printft(HTML("<orange>[DOWNLOAD] tag is in use by other session, new tag will be set as: %s</orange>") %tag)
+                else:
+                    # just make a new tag appeding epoch_date
+                    # since duplication is certain
+                    tag = f"{tag}{epoch_date}"
+                    printft(HTML("<orange>[DOWNLOAD] tag is in use by other session, new tag will be set as: %s</orange>") %tag)
+        
 
         new_dict = {"session_time":epoch_date,
                                         "session_prettytime":pretty_date,
@@ -149,7 +165,6 @@ def download_save_state(dict, DLFOLDER, id, tag=False):
 
         # try commiting
         database["resumes"] = database_editable
-
         database.commit()
 
 
@@ -367,6 +382,7 @@ def process_search(out, show_index=True):
 
 def process_resumes(out):
     for dict in out:
+        term_cols = get_terminal_columns()
 
         tag = dict["session_tag"]
         index = dict["Index"]
@@ -375,13 +391,20 @@ def process_resumes(out):
         id = dict["session_id"]
         pretty_time = dict["session_prettytime"]
 
-        if tag is not False:
-            header = f"Session: {index} | tag: {tag} | saved at: {pretty_time} | session ID: {id}"
-        else:
-            header = f"Session: {index} | saved at: {pretty_time}"
+        printft(HTML("<green>Session</green><red> %s</red>") %index)
 
-        print(header)
+        header = f"TAG: {tag} | SAVED AT: {pretty_time}"
+        tail = f"UUID: {id}"
+        
+        header_tail = f"{header} | {tail}"
+        if len(header_tail) < term_cols:
+            rest = " " * (term_cols - (len(header) + len(tail)))
+            header_tail = f"{header}{rest}{tail}"
+
+        # print(header_tail)
+        printft(HTML("<grey>%s</grey>") %header_tail)
         process_search(dicts, show_index=False)
+        printft(HTML("<grey>%s</grey>") %fill_term())
 
 
 def search_db(systems, type, query, region, DBFOLDER):
@@ -615,6 +638,83 @@ def create_config(file, folder):
     config['PSM_Links'] = variables.CONF_PSM_LINKS
     # saving file
     save_conf(file, config)
+
+
+def create_args():
+    parser = argparse.ArgumentParser(
+        description='pyNPS is a Nopaystation client writen in python 3.7 that, with the help of wget and pkg2zip, can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database.')
+
+    parser.add_argument("search",help="search something to download, you can search by name or ID or use '_all' to return everythning.", 
+                        type=str, nargs="?")
+    parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
+                        type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm"])
+    parser.add_argument("-r", "--region", help="the region for the pkj you want.",
+                        type=str, required=False, action='append', choices=["usa", "eur", "jap", "asia", "int"])
+    parser.add_argument("-G", "-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
+                        action="store_true")
+    parser.add_argument("-D", "-dd", "--dlcs", help="to download PSV/PSP dlcs.",
+                        action="store_true")
+    parser.add_argument("-T", "-dt", "--themes", help="to download PSV/PSP themes.",
+                        action="store_true")
+    parser.add_argument("-U", "-du", "--updates", help="to download PSV/PSP game updates.",
+                        action="store_true")
+    parser.add_argument("-E", "-dde", "--demos", help="to download PSV demos.",
+                        action="store_true")
+    parser.add_argument("-k", "--keepkg", help="using this flag will keep the pkg after the extraction",
+                        action="store_true")
+    parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP games as EBOOT.PBP",
+                        action="store_true")
+    parser.add_argument("-cso", "--compress_cso", help="use this argument to unpack PSP games as a compressed .cso file. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
+                        type=str, required=False, choices=[str(x) for x in range(1, 10)])
+    parser.add_argument("-l", "--limit_rate", help="limit download speed, input is the same as wget's.",
+                        type=str, required=False)
+    parser.add_argument("-u", "--update", help="update database.",
+                        action="store_true")
+    parser.add_argument("-R", "--resume_session", help="update database.",
+                        action="store_true")
+    parser.add_argument('--version', action='version',
+                        version=f"%(prog)s version {variables.VERSION}")
+    a = parser.parse_args()
+    
+    if a.console is not None:
+        a.console = list({x.upper() for x in a.console})
+    else:
+        a.console = ["PSV", "PSP", "PSX", "PSM"]
+
+    # exclusions
+    test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.update] == [['PSV', 'PSP', 'PSX', 'PSM'], None, False, False, False, False, False, False, None, False]
+    if a.resume_session is True and test is False:
+        printft(HTML("<red>[ERROR] you can only use -R/--resume_session alongside the -l/--limit_rate and -k/--keepkg arguments</red>"))
+        sys.exit(1)
+
+    # unsuported download types
+    if "PSP" in a.console and a.demos == True:
+        if len(a.console) > 1:
+            printft(HTML("<orange>[WARNING] NPS has no support for demos with the Playstation Portable (PSP)</orange>"))
+        else:
+            printft(HTML("<red>[ERROR] NPS has no support for demos with the Playstation Portable (PSP)</red>"))
+            sys.exit(1)
+
+    if "PSX" in a.console and True in [a.dlcs, a.themes, a.updates, a.demos]:
+        if len(a.console) > 1:
+            printft(HTML("<orange>[WARNING] NPS only supports game downlaods for the Playstation (PSX)</orange>"))
+        else:
+            printft(HTML("<red>[ERROR] NPS only supports game downlaods for the Playstation (PSX)</red>"))
+            sys.exit(1)
+
+    # limit rate string
+    if a.limit_rate is not None:
+        # check how it ends
+        if a.limit_rate[:-1].isdigit() is False or a.limit_rate[-1].lower() not in ["k","m","g","t"]:
+            printft(HTML("<red>[ERROR] invalid format for --limit_rate</red>"))
+            sys.exit(1)
+
+    # eboot and cso can't be used at the same time
+    if a.eboot is True and a.compress_cso is not None:
+        printft(HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time</red>"))
+        sys.exit(1)
+
+    return a, parser
 
 
 def get_theme_folder_name(loc):

@@ -98,71 +98,22 @@ def cli_main():
         database_psm_links[key] = config["PSM_Links"][key]
 
     # create args
-    parser = argparse.ArgumentParser(
-        description='pyNPS is a Nopaystation client writen in python 3.7 that, with the help of wget and pkg2zip, can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database.')
+    args, parser = create_args()
 
-    parser.add_argument("search",help="search something to download, you can search by name or ID or use '_all' to return everythning.", 
-                        type=str, nargs="?")
-    parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
-                        type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm"])
-    parser.add_argument("-r", "--region", help="the region for the pkj you want.",
-                        type=str, required=False, action='append', choices=["usa", "eur", "jap", "asia", "int"])
-    parser.add_argument("-G", "-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
-                        action="store_true")
-    parser.add_argument("-D", "-dd", "--dlcs", help="to download PSV/PSP dlcs.",
-                        action="store_true")
-    parser.add_argument("-T", "-dt", "--themes", help="to download PSV/PSP themes.",
-                        action="store_true")
-    parser.add_argument("-U", "-du", "--updates", help="to download PSV/PSP game updates.",
-                        action="store_true")
-    parser.add_argument("-E", "-dde", "--demos", help="to download PSV demos.",
-                        action="store_true")
-    parser.add_argument("-k", "--keepkg", help="using this flag will keep the pkg after the extraction",
-                        action="store_true")
-    parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP games as EBOOT.PBP",
-                        action="store_true")
-    parser.add_argument("-cso", "--compress_cso", help="use this argument to unpack PSP games as a compressed .cso file. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
-                        type=str, required=False, choices=[str(x) for x in range(1, 10)])
-    parser.add_argument("-l", "--limit_rate", help="limit download speed, input is the same as wget's.",
-                        type=str, required=False)
-    parser.add_argument("-u", "--update", help="update database.",
-                        action="store_true")
-    parser.add_argument("-R", "--resume_session", help="update database.",
-                        action="store_true")
-    parser.add_argument('--version', action='version',
-                        version=f"%(prog)s version {variables.VERSION}")
-    
-    args = parser.parse_args()
-
-    #check limit rate string
     limit_rate = args.limit_rate
-    if limit_rate is not None:
-        # check how it ends
-        if limit_rate[:-1].isdigit() is False or limit_rate[-1].lower() not in ["k","m","g","t"]:
-            printft(HTML("<red>[ERROR] invalid format for --limit_rate</red>"))
-            sys.exit(1)
-
     keepkg = args.keepkg
-
-    if args.console is not None:
-        system = list({x.upper() for x in args.console})
-    else:
-        system = ["PSV", "PSP", "PSX", "PSM"]
-    
-    if args.eboot is True and args.compress_cso is not None:
-        printft(HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time</red>"))
-
-    if args.compress_cso is not None:
-        cso_factor = args.compress_cso
-    else:
-        cso_factor = False
+    system = args.console
+    cso_factor = args.compress_cso
     
     if args.resume_session:
         # in this case args.search will be considered a tag to fast resume a session
 
-        ##check if a tag is not None
-            ##make a var calleg tag with the provided tag
         input_tag = args.search
+        if input_tag is not None:
+            if input_tag.isalnum() is False:
+                printft(HTML("<orange>[DOWNLOAD] Tags can only be alphanumeric without spaces</orange>"))
+                input_tag = None
+           
         ##load download db
         with SqliteDict(f"{DLFOLDER}/downloads.db", autocommit=False) as database:
             try:
@@ -170,20 +121,46 @@ def cli_main():
                 if len(db) == 0:
                     raise
             except:
-                print("nothing in resumes") #TODO prompt
+                printft(HTML("<orange>[DOWNLOAD] There are no saved download sessions to resume</orange>"))
                 sys.exit(0)
 
         checker = next((item for item in db if item['session_tag'] == input_tag), None)
-        ## if tag is not None
+        
+        ## if tag is prvided and there's a match in the db
         if input_tag is not None and checker is not None:
             # has something in db
             session = checker
 
-        elif (input_tag is not None and checker is None) or input_tag is None:
-            if input_tag is not None and checker:
-                yn_check = input("error no such tag, wanna see all sessions?")
-                if yn_check is "n": # TODO: prompt_toolkit
+        elif checker is None or input_tag is None:
+            if input_tag is not None:
+                printft(HTML("<orange>[DOWNLOAD] There's no such tag in download sessions</orange>"))
+
+                # validation resume input
+                class Check_resume_input_y_n(Validator):
+                    def validate(self, document):
+                        text = document.text
+                        if len(text) > 0:
+                            if text.lower() not in ['y', 'n']:
+                                # break
+                                raise ValidationError(message='Use "y" for yes and "n" for no',
+                                                    cursor_position=0)
+                        else:
+                            raise ValidationError(message='Enter something or press Ctrl+C to close.',
+                                                cursor_position=0)
+
+                try:
+                    yn_check = prompt("Wanna see all currently download sessions? [y/n]: ",
+                                    validator=Check_resume_input_y_n())
+                    if yn_check.lower() != "y":
+                        raise
+                except KeyboardInterrupt:
+                    printft(HTML("<grey>Interrupted by user</grey>"))
                     sys.exit(0)
+                except:
+                    printft(HTML("<grey>Interrupted by user</grey>"))
+                    sys.exit(0)
+            
+            printft(HTML("<grey>%s</grey>") %fill_term())
             
             p_db = []
             for index_file, i in enumerate(db):
@@ -279,11 +256,6 @@ def cli_main():
             printft(HTML("<red>[UPDATEDB] theres no database in your system, please update your database and try again</red>"))
             sys.exit(1)
 
-        # check if unsupported downloads were called
-        if "PSP" in system and args.demos == True:
-            printft(HTML("<oragen>[SEARCH] NPS has no support for demos with the Playstation Portable (PSP)</oragen>"))
-        if "PSX" in system and True in [args.dlcs, args.themes, args.updates, args.demos]:
-            printft(HTML("<oragen>[SEARCH] NPS only supports game downlaods for the Playstation (PSX)</oragen>"))
 
         # check region
         if args.region == None:
@@ -296,7 +268,7 @@ def cli_main():
 
         # test if the result isn't empty
         if len(maybe_download) == 0:
-            printft(HTML("<oragen>[SEARCH] No results found, try searching for something else or updating your database</oragen>"))
+            printft(HTML("<orange>[SEARCH] No results found, try searching for something else or updating your database</orange>"))
             sys.exit(0)
 
         # adding indexes to maybe_download
@@ -513,17 +485,35 @@ def cli_main():
             # run saving function
             # TODO: alert about closing with control + c to not save session
             # TODO don't let duplicate tags
-            tag = input("tag:") #TODO prompt
+            
+            printft(HTML("<grey>%s</grey>") %fill_term())
+            # tag save validation
+            class Check_tag_save(Validator):
+                def validate(self, document):
+                    text = document.text
+                    if text.isalnum() is False and text != "": #only let alphanumeric
+                        # break
+                        raise ValidationError(message='Only alphanumeric characters, without spaces, are supported for tag naming.',
+                                            cursor_position=0)
+
+            try:
+                tag = prompt("If you wanna save this download session to easily resume it latter, give this session a tag (you can use control+c to not save it or just leave blank to use a generated tag): ",
+                                validator=Check_tag_save())
+            except KeyboardInterrupt:
+                printft(HTML("<grey>Interrupted by user</grey>"))
+                sys.exit(0)
+            
             if tag == "":
                 tag = False
 
             # check if the current session already has a loaded UUID
             try:
                 session_id = session['session_id']
+                if tag == False:
+                    tag = session['session_tag']
             except:
                 # this means it's a new session!
                 session_id = str(id_gen())
-
             download_save_state(resume_dict, DLFOLDER, id=session_id,  tag=tag)
 
             sys.exit(0)
@@ -587,7 +577,7 @@ def cli_main():
 
             if i['System'] == "PSP":
                 if i["Type"] == "GAMES":
-                    if cso_factor == False and args.eboot == False:
+                    if cso_factor == None and args.eboot == False:
                         extraction_folder = f"{DLFOLDER}/Extracted/pspemu/ISO/<i>game_name</i> [{i['Title ID']}].iso"
                         # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/ISO/<i>game_name</i> [{i['Title ID']}].iso</green>"))
                     elif cso_factor in [str(x) for x in range(1, 10)]:
@@ -616,9 +606,9 @@ def cli_main():
 
             # -x is default argument to not create .zip files
             pkg2zip_args = ["-x"]
-            if cso_factor != False and i["Type"] == "GAMES" and i['System'] == "PSP":
+            if cso_factor != None and i["Type"] == "GAMES" and i['System'] == "PSP":
                 pkg2zip_args.append("-c"+cso_factor)
-            elif cso_factor != False and i["Type"] != "UPDATES" and i['System'] != "PSP":
+            elif cso_factor != None and i["Type"] != "UPDATES" and i['System'] != "PSP":
                 printft(HTML("<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped</orange>") %(i['System'], i['Type'][:-1].lower()))
 
             if args.eboot == True and i["Type"] == "GAMES" and i['System'] == "PSP":
