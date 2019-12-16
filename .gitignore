@@ -1,10 +1,12 @@
 __pycache__/*
+pynps/*/__pycache__/*
+pynps/__pycache__/*
 build/*
 dist/*
 main.spec
 erros
 pynps.spec
-pynps/*
+venv/*
 .pytest_cache/*
 .vscode/*
 test_pytest.py
