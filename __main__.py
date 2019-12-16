@@ -14,13 +14,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 
 from pynps.cli import cli_main
-from pynps.functions import is_interactive
+
+# external
+import os, sys, inspect
+
+def get_script_dir(follow_symlinks=True):
+    if getattr(sys, 'frozen', False): # py2exe, PyInstaller, cx_Freeze
+        path = os.path.abspath(sys.executable)
+    else:
+        path = inspect.getabsfile(get_script_dir)
+    if follow_symlinks:
+        path = os.path.realpath(path)
+    return os.path.dirname(path)
 
 def main():
     #if is_interactive() == False:
     if True:
         # runs on tty
-        cli_main()
+        cli_main(maindir=get_script_dir())
     else:
         # TODO: call cmd file
         pass

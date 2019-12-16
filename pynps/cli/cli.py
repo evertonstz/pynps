@@ -22,18 +22,18 @@ import pynps.variables as variables
 #external imports
 from uuid import uuid4 as id_gen
 
-def cli_main():
+def cli_main(maindir):
     """implement pynps cli interface"""
 
     if get_system() == 'Linux':
         CONFIGFOLDER = f"{os.getenv('HOME')}/.config/pyNPS"
         config_file = f"{CONFIGFOLDER}/settings.ini"
     elif get_system() == 'Windows':
-        CONFIGFOLDER = f"{get_script_dir()}/pynps_config/"
+        CONFIGFOLDER = f"{maindir}/pynps_config/"
         config_file = f"{CONFIGFOLDER}/settings.ini"
     else:
         CONFIGFOLDER = ""
-        config_file = ""      
+        config_file = ""
 
     # create conf file
     if os.path.isfile(config_file) == False:
@@ -67,10 +67,10 @@ def cli_main():
         sys.exit(1)
 
     # making vars
-    DBFOLDER = fix_folder_syntax(config['pyNPS']['databasefolder'])
-    DLFOLDER = fix_folder_syntax(config['pyNPS']['downloadfolder'])
-    PKG2ZIP = fix_folder_syntax(config['BinaryLocations']['pkg2zip_location'])
-    WGET = fix_folder_syntax(config['BinaryLocations']['wget_location'])
+    DBFOLDER = fix_folder_syntax(config['pyNPS']['databasefolder'], maindir)
+    DLFOLDER = fix_folder_syntax(config['pyNPS']['downloadfolder'], maindir)
+    PKG2ZIP = fix_folder_syntax(config['BinaryLocations']['pkg2zip_location'], maindir)
+    WGET = fix_folder_syntax(config['BinaryLocations']['wget_location'], maindir)
 
     # tests existence of pkg2zip
     PKG2ZIP = check_pkg2zip(PKG2ZIP, CONFIGFOLDER)

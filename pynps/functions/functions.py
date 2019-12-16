@@ -582,7 +582,7 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=Fa
     return process
 
 
-def fix_folder_syntax(folder):
+def fix_folder_syntax(folder, maindir):
     """this function is used to fix slashes in the 
     directories provided by the user's settings.ini"""
 
@@ -594,7 +594,7 @@ def fix_folder_syntax(folder):
 
     # parsing ./
     if new_folder.startswith("./"):
-        new_folder = f"{get_script_dir()}/{new_folder[2:]}"
+        new_folder = f"{maindir}/{new_folder[2:]}"
     return new_folder
 
 
