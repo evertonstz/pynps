@@ -3,7 +3,7 @@ pynps/*/__pycache__/*
 pynps/__pycache__/*
 build/*
 dist/*
-main.spec
+__main__.spec
 erros
 pynps.spec
 venv/*
