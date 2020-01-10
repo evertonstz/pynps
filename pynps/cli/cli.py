@@ -282,6 +282,11 @@ def cli_main(maindir):
 
         # print possible mathes to the user
         if len(maybe_download) > 1:
+            if args.search.upper() == "_ALLPRINT":
+                for i in maybe_download:
+                    
+                    print(f"{i['Index']} {i['System']} | {i['Title ID']} | {variables.REGION_DICT[i['Region']]} | {i['Type']} | {i['Name']} | [{file_size(i['File Size'])}]".encode("utf-8"))
+                sys.exit(0)
             printft(HTML("<grey>%s</grey>") %fill_term())
             printft(HTML("<green>[SEARCH] here are the matches:</green>"))
             process_search(maybe_download)
