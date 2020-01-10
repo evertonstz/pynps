@@ -22,7 +22,7 @@ import pynps.variables as variables
 #external imports
 from uuid import uuid4 as id_gen
 
-def cli_main(maindir):
+def cli_main(maindir=""):
     """implement pynps cli interface"""
 
     if get_system() == 'Linux':
