@@ -53,6 +53,7 @@ def create_folder(location):
 def get_terminal_columns():
     """this function returns the columns' 
     numbers in the terminal"""
+
     return(os.get_terminal_size().columns)
 
 
@@ -432,7 +433,7 @@ def search_db(systems, type, query, region, DBFOLDER):
         for system in systems:
             try:
                 system_database = database[system]
-                if query in ("_ALL", "_ALLPRINT"):
+                if query == "_ALL":
                     result = result + [item for item in system_database if 
                                         (item['System'] == system and item['Region'] in region and item['Type'] in types) and
                                         (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
