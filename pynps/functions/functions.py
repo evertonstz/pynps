@@ -673,6 +673,8 @@ def create_args():
                         type=str, required=False)
     parser.add_argument("-u", "--update", help="update database.",
                         action="store_true")
+    parser.add_argument("-p", "--print", help="just print the result and exit, you can use this option to redirect the output to a file!",
+                        action="store_true")
     parser.add_argument("-R", "--resume_session", help="update database.",
                         action="store_true")
     parser.add_argument('--version', action='version',
