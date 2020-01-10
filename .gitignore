@@ -19,3 +19,4 @@ pynps.egg-info/*
 pynps_config/*
 pynps_database/*
 pynps_downloads/*
+pynps/Scripts/*
