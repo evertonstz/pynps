@@ -25,7 +25,7 @@ import ctypes
 from time import time
 from datetime import datetime
 from json import dumps
-from shutil import copyfile, which
+from shutil import copyfile, which, get_terminal_size
 from csv import DictReader
 from math import log2
 from sqlitedict import SqliteDict
@@ -54,7 +54,7 @@ def get_terminal_columns():
     """this function returns the columns' 
     numbers in the terminal"""
 
-    return(os.get_terminal_size().columns)
+    return(get_terminal_size().columns)
 
 
 def is_interactive():
