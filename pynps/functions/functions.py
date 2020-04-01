@@ -725,19 +725,26 @@ def create_args():
 def get_theme_folder_name(loc):
     """this function helps to print the exact folder 
     name for extracted PSV themes"""
+    try:
+        a = os.listdir(loc)
+    except OSError as e:
+        a = []
 
-    a = os.listdir(loc)
-    a = sorted([int(x) for x in a])
-    comp = list(range(1, a[-1] + 1))
-    diff = list(set(comp) - set(a))
+    if len(a) > 0:
+        a = sorted([int(x) for x in a])
+        comp = list(range(1, a[-1] + 1))
+        diff = list(set(comp) - set(a))
 
-    if len(diff) > 0:
-        selected = diff[0]
-    else:  # == 0
-        selected = a[-1] + 1
-    # put the zeros in the name 00000005 len = 8
-    selected = str(selected)
-    zero_lst = [0]*(8 - len(selected))
-    return_lst = [str(x) for x in zero_lst]
-    return_lst.append(selected)
-    return(''.join(return_lst))
+        if len(diff) > 0:
+            selected = diff[0]
+        else:  # == 0
+            selected = a[-1] + 1
+
+        # put the zeros in the name 00000005 len = 8
+        selected = str(selected)
+        zero_lst = [0]*(8 - len(selected))
+        return_lst = [str(x) for x in zero_lst]
+        return_lst.append(selected)
+        return(''.join(return_lst))
+    else:
+        return("00000001")
