@@ -12,6 +12,7 @@ PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3.7
   * [Using PIP](#using-pip)
   * [pkg2zip](#pkg2zip)
   * [wget](#wget)
+  * [Windows](#windows)
 - [Updating database](#updating-database)
   * [Updating all databases](#updating-all-databases)
   * [Updating database per console](#updating-database-per-console)
@@ -37,13 +38,13 @@ You can grab the latest x86_64 binary file at [releases](https://github.com/ever
 If you want to just use it by typing "pynps" in your terminal, you'll have to copy your binary to /usr/bin/
 
 Here's a full guide:
-- download the latest release [here](https://github.com/evertonstz/pyNPS/releases), last time time this readme was updated it was 1.1.0, so you'll need to download the file named `pynps-1.4.1-1.x86_64.linux`;
+- download the latest release [here](https://github.com/evertonstz/pyNPS/releases), you'll need to download the file named `pynps-1.4.2-1.x86_64.linux`;
 
 - enter your terminal and cd to were you downloaded the file, usually it's:
   >$ cd ~/Download
 
 - move the downloaded file to the /usr/bin folder by runing (don't forget to change the version if you're installing a newer release):
-  >$ sudo mv pynps-1.4.1-1.x86_64.linux /usr/bin/pynps
+  >$ sudo mv pynps-1.4.2-1.x86_64.linux /usr/bin/pynps
 
 - make sure the moved file is marked as executable:
   >$ sudo chmod +x /usr/bin/pynps
@@ -84,6 +85,13 @@ This software uses wget to make the downloads therefore it won't work if you don
 You can drop a wget binary at `/home/$USER/.config/pyNPS/lib/` after that pyNPS will autodetect and use it automatically, no need to add the path to your config file.
 
 In case you decide to store your binary outside `/home/$USER/.config/pyNPS/lib/` you'll need to specify this folder in your config file unde the "wget_location" option.
+
+# Windows
+There's now a 64bits Windows binary available for download, you'll neet to get a 64bits wget.exe from [here](https://eternallybored.org/misc/wget/) or any other place you wish, you'll also need to grab the latest pkg2zip_64bit.zip from [lusid1's releases](https://github.com/lusid1/pkg2zip/releases). Here's what you'll need to do:
+
+Extract the windows .zip release to any folder you wish, open the extracted folder and drop wget.exe and pkg2zip.exe inside the `pynps_config/lib/` subfolder! All you need now is run pynps.exe from CMD, you might also want add pynps.exe to your PATH so you can run it with "pynps" command, [here's a good tutorial](https://www.howtogeek.com/118594/how-to-edit-your-system-path-for-easy-command-line-access).
+
+Keep in mind I rarely use windows, so don't expect a lot of support for this version as there are other options for Nopaystation acess for windows users out in the wild.
 
 ******
 # Updating database
