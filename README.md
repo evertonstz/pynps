@@ -25,6 +25,7 @@ PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3.7
 - [Examples](#examples)
   * [Searching](#searching)
   * [Syntax for selecting files to download](#syntax-for-selecting-files-to-download)
+  * [Resuming downloads](#resuming-downloads)
   * [More information](#more-information)
 - [Make a donation](#make-a-donation)
   * [Paypal](#paypal)
@@ -90,7 +91,9 @@ You can drop a wget binary at `/home/$USER/.config/pyNPS/lib/` after that pyNPS 
 In case you decide to store your binary outside `/home/$USER/.config/pyNPS/lib/` you'll need to specify this folder in your config file unde the "wget_location" option.
 ******
 # windows
-Just happens this also works on windows, there are binary releases in the [releases page](https://github.com/evertonstz/pynps/releases), more info how using it on windows can be found [here](https://github.com/evertonstz/pynps/releases/tag/1.4.0). Remember Windows is not fully supported, so your milage may vary: just use [NPSBrowser](https://nopaystation.com/vita/npsReleases/) .
+Just happens this also works on windows and binaries for windows are provided since version 1.4.0, available in the [releases page](https://github.com/evertonstz/pynps/releases), more info how using it on windows can be found in the notes for the version 1.4.0 [here](https://github.com/evertonstz/pynps/releases/tag/1.4.0). 
+
+Remember Windows is not fully supported, so your milage may vary: just use [NPSBrowser](https://nopaystation.com/vita/npsReleases/) .
 
 ******
 # Updating database
@@ -274,6 +277,10 @@ Enter the number for what you want to download, you can enter multiple numbers u
 * To download files 1 to 5 and files 8 to 10: 1-5,8-10
 * To download files 1, 4 and files 6 to 10: 1,4,6-10
 * To download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6
+
+******
+## Resuming downloads
+Resuming downloads in supported since version 1.4.0, more info can be found in the release notes [here](https://github.com/evertonstz/pynps/releases/tag/1.4.0)
 
 ******
 ## More information
