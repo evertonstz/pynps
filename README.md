@@ -15,10 +15,11 @@ PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3.7
   * [Using PIP](#using-pip)
   * [pkg2zip](#pkg2zip)
   * [wget](#wget)
+  * [windows](#windows)
 - [Updating database](#updating-database)
   * [Updating all databases](#updating-all-databases)
   * [Updating database per console](#updating-database-per-console)
-  * [Updating database, even more fragmented](#updating-database,-even-more-fragmented)
+  * [Updating database, even more fragmented](#updating-database-even-more-fragmented)
   * [Database file](#database-file)
 - [Configuration file](#configuration-file)
 - [Examples](#examples)
@@ -26,8 +27,8 @@ PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3.7
   * [Syntax for selecting files to download](#syntax-for-selecting-files-to-download)
   * [More information](#more-information)
 - [Make a donation](#make-a-donation)
-  * [Paypal](#Paypal)
-  * [Crypto](#Crypto)
+  * [Paypal](#paypal)
+  * [Crypto](#crypto)
 ******
 # Installation
 There are tree methods you can install pyNPS:
@@ -87,6 +88,9 @@ This software uses wget to make the downloads therefore it won't work if you don
 You can drop a wget binary at `/home/$USER/.config/pyNPS/lib/` after that pyNPS will autodetect and use it automatically, no need to add the path to your config file.
 
 In case you decide to store your binary outside `/home/$USER/.config/pyNPS/lib/` you'll need to specify this folder in your config file unde the "wget_location" option.
+******
+# windows
+Just happens this also works on windows, there are binary releases in the [releases page](https://github.com/evertonstz/pynps/releases), more info how using it on windows can be found [here](https://github.com/evertonstz/pynps/releases/tag/1.4.0). Remember Windows is not fully supported, so your milage may vary: just use [NPSBrowser](https://nopaystation.com/vita/npsReleases/) .
 
 ******
 # Updating database
