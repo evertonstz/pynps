@@ -613,8 +613,11 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=Fa
     if process == True:
         g_name = get_game_name(extraction_folder+"/EBOOT.PBP")
         if g_name != False:
-            Path(extraction_folder+"/"+g_name+".txt").touch()
-            
+            try:
+                Path(extraction_folder+"/"+g_name+".txt").touch()
+            except:
+                pass
+
     return process
 
 
