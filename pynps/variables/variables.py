@@ -30,6 +30,13 @@ REGION_DICT = {"US": "USA", "EU": "EUR", "JP": "JAP", "ASIA": "ASIA",
                 "INT": "INT", "usa": "US", "jap": "JP", "eur": "EU",
                 "asia": "ASIA", "int": "INT", "all":"all"}
 
+ORDER_DIC = {"c":"System", "console":"System",
+                "id":"Title ID", "title_id":"Title ID",
+                "r":"Region", "region":"Region",
+                "t":"Type", "type":"Type",
+                "n":"Name", "game_name":"Name",
+                "s":"File Size", "size":"File Size"}
+
 CONF_PSV_LINKS = {'games': 'http://nopaystation.com/tsv/PSV_GAMES.tsv',
                    'dlcs': 'http://nopaystation.com/tsv/PSV_DLCS.tsv',
                            'themes': 'http://nopaystation.com/tsv/PSV_THEMES.tsv',

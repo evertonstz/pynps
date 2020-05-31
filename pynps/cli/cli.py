@@ -268,7 +268,7 @@ def cli_main(maindir=""):
             reg = args.region
 
         # maybe_download = []
-        maybe_download = search_db(system, what_to_dl, args.search, reg, DBFOLDER)
+        maybe_download = search_db(system, what_to_dl, args.search, reg, args.sort, DBFOLDER)
 
         # test if the result isn't empty
         if len(maybe_download) == 0:
@@ -559,7 +559,10 @@ def cli_main(maindir=""):
         if PKG2ZIP != False:
             zrif = ""
             dl_dile_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
-            dl_location = f"{DLFOLDER}/Extracted"
+            if args.compress_zip == True:
+                dl_location = f"{DLFOLDER}/ZIP/{i['System']}/{i['Type'].capitalize()}"
+            else:
+                dl_location = f"{DLFOLDER}/Extracted"
 
             try:
                 zrif = i['zRIF']
@@ -613,7 +616,7 @@ def cli_main(maindir=""):
                 # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/psm/{i['Title ID']}</green>"))
 
             # -x is default argument to not create .zip files
-            if args.zip == False:
+            if args.compress_zip == False:
                 pkg2zip_args = ["-x"]
             else:
                 pkg2zip_args = []
@@ -626,6 +629,9 @@ def cli_main(maindir=""):
             if args.eboot == True and i["Type"] == "GAMES" and i['System'] == "PSP":
                 pkg2zip_args.append("-p")
             # append more commands here if needed!
+
+            if args.compress_zip == True:
+                extraction_folder = dl_location
 
             printft(HTML("<green>[PKG2ZIP] Attempting to extract [%s]%s</green>") %(i['Title ID'], i['Name']))
 

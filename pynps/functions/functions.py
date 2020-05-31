@@ -34,6 +34,7 @@ from platform import system
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
+from operator import itemgetter
 
 # local
 import pynps.variables as variables
@@ -412,11 +413,12 @@ def process_resumes(out):
         printft(HTML("<grey>%s</grey>") %fill_term())
 
 
-def search_db(systems, type, query, region, DBFOLDER):
+def search_db(systems, type, query, region, order, DBFOLDER):
     """this function searchs in the tsv databases 
     provided by nps"""
 
-    # start = time.time()
+    #import time
+    #start = time.time()
 
     query = query.upper()
     #process query#
@@ -429,29 +431,64 @@ def search_db(systems, type, query, region, DBFOLDER):
     
     
     # read database
-    with SqliteDict(DB, autocommit=False) as database:
-        # return everything
-        result = []
-        for system in systems:
-            try:
-                system_database = database[system]
-                if query == "_ALL":
-                    result = result + [item for item in system_database if 
-                                        (item['System'] == system and item['Region'] in region and item['Type'] in types) and
-                                        (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
-                                        ]
-                else:
-                    result = result + [item for item in system_database if 
-                                        (item['System'] == system and item['Region'] in region and item['Type'] in types) and 
-                                        (query.lower() in item['Name'].lower() or query.lower() in item['Title ID']) and
-                                        (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
-                                        ]
-            except:
-                pass
-    # end = time.time()
-    # print(end - start)
+    def find(query):
+        with SqliteDict(DB, autocommit=False) as database:
+            # return everything
+            result = []
+            for system in systems:
+                try:
+                    system_database = database[system]
+                    if query == "_ALL":
+                        result = result + [item for item in system_database if 
+                                            (item['System'] == system and item['Region'] in region and item['Type'] in types) and
+                                            (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
+                                            ]
+                    else:
+                        result = result + [item for item in system_database if 
+                                            (item['System'] == system and item['Region'] in region and item['Type'] in types) and 
+                                            (query.lower() in item['Name'].lower() or query.lower() in item['Title ID']) and
+                                            (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
+                                            ]
+                except:
+                    pass
+            
+            return result
 
-    # exit()
+    # do multisearch
+    if "+" in query:
+        result = []
+        for i in query.split("+"):
+            result += find(i)
+    else:
+        result = find(query)
+
+
+
+    # order result list
+    if order is not None:
+        order = [variables.ORDER_DIC[x] for x in order.split(",")]
+    else:
+        order = ['System', 'Type', 'Region']
+    print(order)
+    
+    # only convert sizes to int if necessary
+    if "File Size" in order:
+        for i in result:
+            try:
+                i["File Size"] = int(i["File Size"])
+            except:
+                i["File Size"] = 0
+
+    result = sorted(result, key=itemgetter(*order))
+
+    #for i in result:
+    #    print(i["System"], i["Type"], i["Region"], i["File Size"])
+    
+    #end = time.time()
+    #print(end - start)
+    
+    #exit()
+
     return(result)
 
 
@@ -610,7 +647,7 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=Fa
         process = runner(run_lst, cwd=output_location)
     
     # create a txt file inside the folder with the game's name
-    if process == True:
+    if process == True and "-x" in args:
         g_name = get_game_name(extraction_folder+"/EBOOT.PBP")
         if g_name != False:
             try:
@@ -692,6 +729,8 @@ def create_args():
                         type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm"])
     parser.add_argument("-r", "--region", help="the region for the pkj you want.",
                         type=str, required=False, action='append', choices=["usa", "eur", "jap", "asia", "int"])
+    parser.add_argument("-s", "--sort",help="sort search output by column name, can string multiple names by using a comma. Available options are: console or c, title_id or id, region or r, type or t, game_name or n, size or s. Default value: c,t,r,n",
+                        type=str, required=False)
     parser.add_argument("-G", "-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
                         action="store_true")
     parser.add_argument("-D", "-dd", "--dlcs", help="to download PSV/PSP dlcs.",
@@ -716,7 +755,7 @@ def create_args():
                         action="store_true")
     parser.add_argument("-R", "--resume_session", help="update database.",
                         action="store_true")
-    parser.add_argument("-z", "--zip", help="extract pkgs into zip files instead of folders.",
+    parser.add_argument("-zip", "--compress_zip", help="extract pkgs into zip files instead of folders.",
                         action="store_true")
     parser.add_argument('--version', action='version',
                         version=f"%(prog)s version {variables.VERSION}")
@@ -759,6 +798,13 @@ def create_args():
     if a.eboot is True and a.compress_cso is not None:
         printft(HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time</red>"))
         sys.exit(1)
+
+    # check order list
+    if a.sort is not None:
+        for i in a.sort.split(","):
+            if i.lower() not in ["c", "id", "r", "t", "gn", "s", "console", "title_id", "region", "type", "game_name", "size"]:
+                printft(HTML("<red>[ERROR] invalid list for --order</red>"))
+                sys.exit(1)
 
     return a, parser
 
