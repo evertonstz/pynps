@@ -716,6 +716,8 @@ def create_args():
                         action="store_true")
     parser.add_argument("-R", "--resume_session", help="update database.",
                         action="store_true")
+    parser.add_argument("-z", "--zip", help="extract pkgs into zip files instead of folders.",
+                        action="store_true")
     parser.add_argument('--version', action='version',
                         version=f"%(prog)s version {variables.VERSION}")
     a = parser.parse_args()

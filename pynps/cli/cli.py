@@ -613,7 +613,11 @@ def cli_main(maindir=""):
                 # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/psm/{i['Title ID']}</green>"))
 
             # -x is default argument to not create .zip files
-            pkg2zip_args = ["-x"]
+            if args.zip == False:
+                pkg2zip_args = ["-x"]
+            else:
+                pkg2zip_args = []
+                
             if cso_factor != None and i["Type"] == "GAMES" and i['System'] == "PSP":
                 pkg2zip_args.append("-c"+cso_factor)
             elif cso_factor != None and i["Type"] != "UPDATES" and i['System'] != "PSP":
