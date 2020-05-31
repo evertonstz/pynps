@@ -469,7 +469,6 @@ def search_db(systems, type, query, region, order, DBFOLDER):
         order = [variables.ORDER_DIC[x] for x in order.split(",")]
     else:
         order = ['System', 'Type', 'Region']
-    print(order)
     
     # only convert sizes to int if necessary
     if "File Size" in order:
@@ -589,6 +588,7 @@ def check_pkg2zip(location, CONFIGFOLDER):
 def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=False):  # OK!
     """this fuction is used to extract a pkg with pkg2zip"""
     def runner( list, cwd):
+        print(list, cwd)
         p = subprocess.Popen(list, cwd=cwd,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.STDOUT)
@@ -600,7 +600,6 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=Fa
             full_out += f"{out}\n"
             if out.startswith("ERROR") == False and r.match(out) is None:
                 print(out)
-        
         # test if file exist
         
         # test for corrupted and file not being a pkg
@@ -623,11 +622,20 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=Fa
             if os.path.isdir(file):
                 printft(HTML("<red>[PKG2ZIP] The provided file seems to be a folder</red>"))
             else:
-                printft(HTML("<red>[PKG2ZIP] Unknown extraction error</red>"))
+                printft(HTML("<red>[PKG2ZIP] Unknown extraction error. Output:</red>"))
+                print(full_out)
             return False
+        elif "ERROR: cannot create 'pspemu' folder" in full_out:
+            printft(HTML("<red>[PKG2ZIP] cannot create 'pspemu' folder. Do you have reading permissions for your Download folder?</red>"))
         else:
-            printft(HTML("<green>[PKG2ZIP] File extracted to: </green><grey>%s</grey>") %extraction_folder)
-            return True
+            if "done!" in full_out:
+                printft(HTML("<green>[PKG2ZIP] File extracted to: </green><grey>%s</grey>") %extraction_folder)
+                return True
+            else:
+                printft(HTML("<red>[PKG2ZIP] Unknown extraction error. Output:</red>"))
+                print(full_out)
+                return False
+
     
     # create extraction folder
     create_folder(output_location)
