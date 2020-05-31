@@ -13,6 +13,7 @@ PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3 t
 * [mmozeiko](https://github.com/mmozeiko/pkg2zip): for making the original pkg2zip
 * [lusid1](https://github.com/lusid1/pkg2zip): for forking pkg2zip and making theme extraction great again
 * [BertrandHustle](https://github.com/BertrandHustle/psx_scraper): for coding a python solution to detect names on PSX's EBOOT that's used in this software
+* [Contributors](https://github.com/evertonstz/pynps/graphs/contributors): for helping with pull requests.
 
 # Table of Contents
 
