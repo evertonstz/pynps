@@ -18,7 +18,7 @@ URL = 'https://github.com/me/myproject'
 EMAIL = 'everton@protonmail.com'
 AUTHOR = 'evertonstz'
 REQUIRES_PYTHON = '>=3.7.0'
-VERSION = '1.4.3'
+VERSION = '1.5.0'
 
 # What packages are required for this module to be executed?
 REQUIRED = [    
