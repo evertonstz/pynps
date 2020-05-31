@@ -22,6 +22,7 @@ import argparse
 import hashlib
 import configparser
 import ctypes
+from pathlib import Path
 from time import time
 from datetime import datetime
 from json import dumps
@@ -113,6 +114,7 @@ def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbo
     #     else:
     #         print('ERROR: Use a number divisible by 4 in "fill_width".')
     #         sys.exit(1)
+
 
 
 def download_save_state(dict, DBFOLDER, id, tag=False):
@@ -501,6 +503,35 @@ def check_wget(location, CONFIGFOLDER):
             else:
                 return False
 
+def get_game_name(filename: str):
+    """
+    retrieves game name from pbp file
+    :param filename: path to pbp file
+    :return: game name or False
+    """
+    gamename = b''
+    with open(filename, 'rb') as eboot:
+        pbp_bytes = eboot.read()
+        # check the bytes for information that confirms the pbpfile is from a psx game
+        # PSISOIMG is for single disc games and PSTITLEI is for multi-disc games
+        if b'PSISOIMG' in pbp_bytes or b'PSTITLEI' in pbp_bytes:
+            eboot.seek(int('0x358', base=16))
+            while True:
+                current_byte = eboot.read(1)
+                if current_byte == b'\x00':
+                    break
+                else:
+                    try:
+                        gamename += current_byte
+                    except UnicodeDecodeError:
+                        break
+        else:
+            return False
+    gamename = gamename.decode()
+    if len(gamename) > 31:
+        return gamename.replace(' ', '')[:21].replace('\x00', '')
+    else:
+        return gamename.replace('\x00', '')
 
 def check_pkg2zip(location, CONFIGFOLDER):
     """this function is used to detect a pkg2zip 
@@ -521,7 +552,6 @@ def check_pkg2zip(location, CONFIGFOLDER):
 def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=False):  # OK!
     """this fuction is used to extract a pkg with pkg2zip"""
     def runner( list, cwd):
-
         p = subprocess.Popen(list, cwd=cwd,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.STDOUT)
@@ -578,7 +608,13 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=Fa
         for x in args:
             run_lst.insert(1, x)
         process = runner(run_lst, cwd=output_location)
-
+    
+    # create a txt file inside the folder with the game's name
+    if process == True:
+        g_name = get_game_name(extraction_folder+"/EBOOT.PBP")
+        if g_name != False:
+            Path(extraction_folder+"/"+g_name+".txt").touch()
+            
     return process
 
 
