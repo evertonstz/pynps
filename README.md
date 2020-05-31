@@ -6,7 +6,14 @@
 <img src="https://octodex.github.com/images/pythocat.png" width="448" height="448">
 </p>
 
-PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3.7 that, with the help of [wget](https://www.gnu.org/software/wget/) and [pkg2zip](https://github.com/mmozeiko/pkg2zip/), can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database. It's basically a command line version of [NPSBrowser](https://nopaystation.com/vita/npsReleases/) writen by a moron (aka me).
+PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3 that, with the help of [wget](https://www.gnu.org/software/wget/) and [pkg2zip](https://github.com/mmozeiko/pkg2zip/), can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database. It's basically a command line version of [NPSBrowser](https://nopaystation.com/vita/npsReleases/) writen by a moron (aka me).
+
+# This project wouldn't be possible without the help of these folks
+* [Nopaystation](https://nopaystation.com/): for making our beloved database this software hooks on
+* [mmozeiko](https://github.com/mmozeiko/pkg2zip): for making the original pkg2zip
+* [lusid1](https://github.com/lusid1/pkg2zip): for forking pkg2zip and making theme extraction great again
+* [BertrandHustle](https://github.com/BertrandHustle/psx_scraper): for coding a python solution to detect names on PSX's EBOOT that's used in this software
+* [Contributors](https://github.com/evertonstz/pynps/graphs/contributors): for helping with pull requests.
 
 # Table of Contents
 
