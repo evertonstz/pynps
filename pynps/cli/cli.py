@@ -654,16 +654,39 @@ def cli_main(maindir=""):
                 printft(HTML(f"<orange>[EXTRACTION] skipping pkg2zip since PS3 games can't be extracted...</orange>"))
 
             #testing if extraction was completion and delete file if needed
-            
-            if delete == True and keepkg == False:
-                # delete file
-                printft(HTML("<green>[EXTRACTION] Attempting to delete .pkg file</green>"))
-                try:
-                    os.remove(dl_dile_loc)
-                    printft(HTML("<green>[EXTRACTION] Success, the compressed .pkg was deleted</green>"))
-                except:
-                    printft(HTML("<red>[EXTRACTION] Unable to delete, you may want to it manually at: </red><grey>%s</grey>") %dl_dile_loc)
+            if i['System'] != 'PS3':
+                if delete == True and keepkg == False:
+                    # delete file
+                    printft(HTML("<green>[EXTRACTION] attempting to delete .pkg file</green>"))
+                    try:
+                        os.remove(dl_dile_loc)
+                        printft(HTML("<green>[EXTRACTION] success, the compressed .pkg was deleted</green>"))
+                    except:
+                        printft(HTML("<red>[EXTRACTION] unable to delete, you may want to it manually at: </red><grey>%s</grey>") %dl_dile_loc)
+            else:
+                # move if it's a PS3 pkg
+                # move to ~/PS3/packages
+                # rap files go to ~/PS3/exdata
+                
+                # get downloaded file name
+                pkg_location = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
 
+                # new name
+                pkg_new_location = f"{DLFOLDER}/PS3/packages/{i['Name']}.pkg"
+        
+                
+                try:
+                    # touch new folder
+                    create_folder(os.path.dirname(pkg_new_location))
+                    # # use rename to rename and move the file
+                    os.rename(pkg_location, pkg_new_location)
+                    printft(HTML("<green>[MOVE] PS3 pkg moved</green>"))
+                except:
+                    printft(HTML("<red>[MOVE] unable to move PS3 pkg file</red>"))
+                
+                # download rap file
+                
+                
             ### 2 HERE
             files_downloaded.append(i)
         else:
