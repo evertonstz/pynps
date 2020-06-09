@@ -246,6 +246,21 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
                 DB = f"{DBFOLDER}/pynps.db"
                 insert_into_DB(f"{dl_tmp_folder}{filename}", DB, t) #pass downloaded tsv here in local
 
+def get_rap(i, WGET, rap_folder, rap_url):
+    """this function downloads rap files for PS3 games from nopaystation servers"""
+    
+    with TmpFolder() as tmp:
+        dl_tmp_folder = f"{tmp}/"
+
+        # download rap file into temp folder
+        process = subprocess.run([WGET, "-q", "--show-progress", rap_url], cwd=dl_tmp_folder)
+
+        # make dest folder
+        create_folder(os.path.dirname(rap_folder))
+
+        # move rap file into final dest
+        os.rename(f"{dl_tmp_folder}{i['RAP']}", rap_folder)
+
 
 def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
     """this function downloads the games"""

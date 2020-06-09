@@ -672,10 +672,11 @@ def cli_main(maindir=""):
                 pkg_location = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
 
                 # new name
-                pkg_new_location = f"{DLFOLDER}/PS3/packages/{i['Name']}.pkg"
+                pkg_new_location = f"{DLFOLDER}/PS3/{i['Type']}/packages/{i['Name']}.pkg"
         
                 
                 try:
+                    print(i)
                     # touch new folder
                     create_folder(os.path.dirname(pkg_new_location))
                     # # use rename to rename and move the file
@@ -685,7 +686,17 @@ def cli_main(maindir=""):
                     printft(HTML("<red>[MOVE] unable to move PS3 pkg file</red>"))
                 
                 # download rap file
-                
+                if i['RAP'] == "NOT REQUIRED":
+                    printft(HTML("<green>[RAP] RAP files aren't required for this game!</green>"))
+                elif i['RAP'] == "MISSING":
+                    printft(HTML("<orange>[RAP] unfortunatelly there are no RAP files available for this game on Nopaystation</orange>"))
+                else:
+                    rap_url = f"https://nopaystation.com/tools/rap2file/{i['Content ID']}/{i['RAP']}"
+                    rap_folder = f"{DLFOLDER}/PS3/{i['Type']}/exdata/{i['Content ID']}.rap"
+                    printft(HTML("<green>[RAP] downloaing RAP file</green>"))
+                    get_rap(i, WGET, rap_folder, rap_url)
+                    
+
                 
             ### 2 HERE
             files_downloaded.append(i)
