@@ -45,9 +45,9 @@ def cli_main(maindir=""):
     config.read(config_file)
 
     # test sections
-    if sorted(config.sections()) != sorted(['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'BinaryLocations']):
+    if sorted(config.sections()) != sorted(['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'PS3_Links', 'BinaryLocations']):
         printft(HTML("<red>[ERROR] config file: missing sections</red>"))
-        print("You need the following sections in your config file: 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'BinaryLocations'")
+        print("You need the following sections in your config file: 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'PS3_Links', 'BinaryLocations'")
         sys.exit(1)
     if sorted(list(config["PSV_Links"])) != sorted(['games', 'dlcs', 'themes', 'updates', 'demos']):
         printft(HTML("<red>[ERROR] config file: missing options in the PSV_Links section</red>"))
@@ -64,6 +64,10 @@ def cli_main(maindir=""):
     if sorted(list(config["PSM_Links"])) != sorted(['games']):
         printft(HTML("<red>[ERROR] config file: missing options in the PSM_Links section</red>"))
         print("You need the following options in your PSM_Links section: 'games'")
+        sys.exit(1)
+    if sorted(list(config["PS3_Links"])) != sorted(['games', 'dlcs', 'themes', 'updates', 'demos','avatars']):
+        printft(HTML("<red>[ERROR] config file: missing options in the PSV_Links section</red>"))
+        print("You need the following options in your PSV_Links section: 'games', 'dlcs', 'themes', 'updates', 'demos', 'avatars'")
         sys.exit(1)
 
     # making vars
@@ -100,6 +104,10 @@ def cli_main(maindir=""):
     database_psm_links = {}
     for key in config["PSM_Links"]:
         database_psm_links[key] = config["PSM_Links"][key]
+
+    database_ps3_links = {}
+    for key in config["PS3_Links"]:
+        database_ps3_links[key] = config["PS3_Links"][key]
 
     # create args
     args, parser = create_args()
@@ -238,6 +246,8 @@ def cli_main(maindir=""):
                     db = database_psx_links
                 elif i == "PSM":
                     db = database_psm_links
+                elif i == "PS3":
+                    db = database_ps3_links
                 
                 # parsing supported
                 what_to_up_parsed = [x for x in what_to_up if x in db.keys()]

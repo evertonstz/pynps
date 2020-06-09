@@ -723,6 +723,8 @@ def create_config(file, folder):
     config['PSP_Links'] = variables.CONF_PSP_LINKS
     config['PSX_Links'] = variables.CONF_PSX_LINKS
     config['PSM_Links'] = variables.CONF_PSM_LINKS
+    config['PS3_Links'] = variables.CONF_PS3_LINKS
+
     # saving file
     save_conf(file, config)
 
@@ -734,7 +736,7 @@ def create_args():
     parser.add_argument("search",help="search something to download, you can search by name or ID or use '_all' to return everythning.", 
                         type=str, nargs="?")
     parser.add_argument("-c", "--console", help="the console you wanna get content with NPS.",
-                        type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm"])
+                        type=str, required=False, action='append', choices=["psv", "psp", "psx", "psm", "ps3"])
     parser.add_argument("-r", "--region", help="the region for the pkj you want.",
                         type=str, required=False, action='append', choices=["usa", "eur", "jap", "asia", "int"])
     parser.add_argument("-s", "--sort",help="sort search output by column name, can string multiple names by using a comma. Available options are: console or c, title_id or id, region or r, type or t, game_name or n, size or s. Default value: c,t,r,n",
