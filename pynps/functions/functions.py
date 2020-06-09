@@ -774,7 +774,8 @@ def create_args():
     if a.console is not None:
         a.console = list({x.upper() for x in a.console})
     else:
-        a.console = ["PSV", "PSP", "PSX", "PSM"]
+        # consoles that are shown by default, i.e in case the -c flag is not used
+        a.console = ["PSV", "PSP", "PSX", "PSM", "PS3"]
 
     # exclusions
     test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.update] == [['PSV', 'PSP', 'PSX', 'PSM'], None, False, False, False, False, False, False, None, False]

@@ -625,30 +625,33 @@ def cli_main(maindir=""):
                 extraction_folder = f"{DLFOLDER}/Extracted/psm/{i['Title ID']}"
                 # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/psm/{i['Title ID']}</green>"))
 
-            # -x is default argument to not create .zip files
-            if args.compress_zip == False:
-                pkg2zip_args = ["-x"]
-            else:
-                pkg2zip_args = []
+            if i['System'] != 'PS3':
+                # -x is default argument to not create .zip files
+                if args.compress_zip == False:
+                    pkg2zip_args = ["-x"]
+                else:
+                    pkg2zip_args = []
+                    
+                if cso_factor != None and i["Type"] == "GAMES" and i['System'] == "PSP":
+                    pkg2zip_args.append("-c"+cso_factor)
+                elif cso_factor != None and i["Type"] != "UPDATES" and i['System'] != "PSP":
+                    printft(HTML("<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped</orange>") %(i['System'], i['Type'][:-1].lower()))
+
+                if args.eboot == True and i["Type"] == "GAMES" and i['System'] == "PSP":
+                    pkg2zip_args.append("-p")
+                # append more commands here if needed!
+
+                if args.compress_zip == True:
+                    extraction_folder = dl_location
+
+                printft(HTML("<green>[PKG2ZIP] Attempting to extract [%s]%s</green>") %(i['Title ID'], i['Name']))
                 
-            if cso_factor != None and i["Type"] == "GAMES" and i['System'] == "PSP":
-                pkg2zip_args.append("-c"+cso_factor)
-            elif cso_factor != None and i["Type"] != "UPDATES" and i['System'] != "PSP":
-                printft(HTML("<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped</orange>") %(i['System'], i['Type'][:-1].lower()))
-
-            if args.eboot == True and i["Type"] == "GAMES" and i['System'] == "PSP":
-                pkg2zip_args.append("-p")
-            # append more commands here if needed!
-
-            if args.compress_zip == True:
-                extraction_folder = dl_location
-
-            printft(HTML("<green>[PKG2ZIP] Attempting to extract [%s]%s</green>") %(i['Title ID'], i['Name']))
-
-            if i['System'] == "PSV" and zrif not in ["", "MISSING", None]:
-                delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, zrif)
+                if i['System'] == "PSV" and zrif not in ["", "MISSING", None]:
+                    delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, zrif)
+                else:
+                    delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder)
             else:
-                delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder)
+                printft(HTML(f"<orange>[EXTRACTION] skipping pkg2zip since PS3 games can't be extracted...</orange>"))
 
             #testing if extraction was completion and delete file if needed
             
