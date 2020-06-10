@@ -25,7 +25,7 @@ import ctypes
 from pathlib import Path
 from time import time
 from datetime import datetime
-from json import dumps
+from json import dumps, dump as file_dump
 from shutil import copyfile, which, get_terminal_size
 from csv import DictReader
 from math import log2
@@ -554,35 +554,36 @@ def check_wget(location, CONFIGFOLDER):
             else:
                 return False
 
-def get_game_name(filename: str):
-    """
-    retrieves game name from pbp file
-    :param filename: path to pbp file
-    :return: game name or False
-    """
-    gamename = b''
-    with open(filename, 'rb') as eboot:
-        pbp_bytes = eboot.read()
-        # check the bytes for information that confirms the pbpfile is from a psx game
-        # PSISOIMG is for single disc games and PSTITLEI is for multi-disc games
-        if b'PSISOIMG' in pbp_bytes or b'PSTITLEI' in pbp_bytes:
-            eboot.seek(int('0x358', base=16))
-            while True:
-                current_byte = eboot.read(1)
-                if current_byte == b'\x00':
-                    break
-                else:
-                    try:
-                        gamename += current_byte
-                    except UnicodeDecodeError:
-                        break
-        else:
-            return False
-    gamename = gamename.decode()
-    if len(gamename) > 31:
-        return gamename.replace(' ', '')[:21].replace('\x00', '')
-    else:
-        return gamename.replace('\x00', '')
+# def get_game_name(i: list):
+#     """
+#     retrieves game name from pbp file
+#     :param filename: path to pbp file
+#     :return: game name or False
+#     """
+#     gamename = b''
+#     with open(filename, 'rb') as eboot:
+#         pbp_bytes = eboot.read()
+#         # check the bytes for information that confirms the pbpfile is from a psx game
+#         # PSISOIMG is for single disc games and PSTITLEI is for multi-disc games
+#         if b'PSISOIMG' in pbp_bytes or b'PSTITLEI' in pbp_bytes:
+#             eboot.seek(int('0x358', base=16))
+#             while True:
+#                 current_byte = eboot.read(1)
+#                 if current_byte == b'\x00':
+#                     break
+#                 else:
+#                     try:
+#                         gamename += current_byte
+#                     except UnicodeDecodeError:
+#                         break
+#         else:
+#             return False
+#     gamename = gamename.decode()
+#     if len(gamename) > 31:
+#         return gamename.replace(' ', '')[:21].replace('\x00', '')
+#     else:
+#         return gamename.replace('\x00', '')
+    
 
 def check_pkg2zip(location, CONFIGFOLDER):
     """this function is used to detect a pkg2zip 
@@ -600,10 +601,9 @@ def check_pkg2zip(location, CONFIGFOLDER):
                 return False
 
 
-def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=False):  # OK!
+def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, dict: list, zrif=False):  # OK!
     """this fuction is used to extract a pkg with pkg2zip"""
     def runner( list, cwd):
-        print(list, cwd)
         p = subprocess.Popen(list, cwd=cwd,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.STDOUT)
@@ -671,12 +671,9 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, zrif=Fa
     
     # create a txt file inside the folder with the game's name
     if process == True and "-x" in args:
-        g_name = get_game_name(extraction_folder+"/EBOOT.PBP")
-        if g_name != False:
-            try:
-                Path(extraction_folder+"/"+g_name+".txt").touch()
-            except:
-                pass
+        g_name = f"{dict['Name']} ({dict['Region']}) [{dict['Title ID']}].txt"
+        with open(extraction_folder+"/"+g_name, 'w') as file:
+            file_dump(dict, file, sort_keys=True, indent=4)
 
     return process
 
@@ -772,6 +769,8 @@ def create_args():
                         action="store_true")
     parser.add_argument("-cso", "--compress_cso", help="use this argument to unpack PSP games as a compressed .cso file. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
                         type=str, required=False, choices=[str(x) for x in range(1, 10)])
+    parser.add_argument("-zip", "--compress_zip", help="extract pkgs into zip files instead of folders.",
+                        action="store_true")
     parser.add_argument("-l", "--limit_rate", help="limit download speed, input is the same as wget's.",
                         type=str, required=False)
     parser.add_argument("-u", "--update", help="update database.",
@@ -779,8 +778,6 @@ def create_args():
     parser.add_argument("-p", "--print", help="just print the result and exit, you can use this option to redirect the output to a file!",
                         action="store_true")
     parser.add_argument("-R", "--resume_session", help="update database.",
-                        action="store_true")
-    parser.add_argument("-zip", "--compress_zip", help="extract pkgs into zip files instead of folders.",
                         action="store_true")
     parser.add_argument('--version', action='version',
                         version=f"%(prog)s version {variables.VERSION}")
@@ -791,6 +788,15 @@ def create_args():
     else:
         # consoles that are shown by default, i.e in case the -c flag is not used
         a.console = ["PSV", "PSP", "PSX", "PSM", "PS3"]
+
+    # warn zip, cso and eboot won't work with PS3
+    if "PS3" in a.console:
+        if a.compress_zip is True:
+            printft(HTML("<orange>[WARNING] PS3 games can't be extracted as zip files</orange>"))
+        if a.compress_cso is True:
+            printft(HTML("<orange>[WARNING] PS3 games can't be compressed as cso files</orange>"))
+        if a.eboot is True:
+            printft(HTML("<orange>[WARNING] PS3 games can't be packed as eboot files</orange>"))
 
     # exclusions
     test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.update] == [['PSV', 'PSP', 'PSX', 'PSM'], None, False, False, False, False, False, False, None, False]
@@ -812,7 +818,13 @@ def create_args():
         else:
             printft(HTML("<red>[ERROR] NPS only supports game downlaods for the Playstation (PSX)</red>"))
             sys.exit(1)
-
+    if "PS3" in a.console and a.updates == True:
+        if len(a.console) > 1:
+            printft(HTML("<orange>[WARNING] NPS has no support for updates with the Playstation 3 (PS3)</orange>"))
+        else:
+            printft(HTML("<red>[ERROR] NPS has no support for updates with the Playstation 3 (PS3))</red>"))
+            sys.exit(1)
+ 
     # limit rate string
     if a.limit_rate is not None:
         # check how it ends
