@@ -684,7 +684,7 @@ def cli_main(maindir=""):
                     create_folder(os.path.dirname(pkg_new_location))
                     # # use rename to rename and move the file
                     os.rename(pkg_location, pkg_new_location)
-                    printft(HTML("<green>[MOVE] PS3 pkg moved</green>"))
+                    printft(HTML("<green>[MOVE] PS3 pkg file moved to: </green><grey>%s</grey>") %pkg_new_location)
                 except:
                     printft(HTML("<red>[MOVE] unable to move PS3 pkg file</red>"))
                 
@@ -700,7 +700,7 @@ def cli_main(maindir=""):
                     rap_folder = f"{DLFOLDER}/PS3/{i['Type']}/exdata/{i['Content ID']}.rap"
                     printft(HTML("<green>[RAP] downloaing RAP file</green>"))
                     get_rap(i, WGET, rap_folder, rap_url)
-                    printft(HTML("<green>[RAP] RAP file downloaded!</green>"))
+                    printft(HTML("<green>[MOVE] PS3 RAP file downloaded to: </green><grey>%s</grey>") %rap_folder)
             
             ### 2 HERE
             files_downloaded.append(i)
