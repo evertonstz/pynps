@@ -18,7 +18,7 @@ VERSION = '1.5.0'
 
 ##STATIC DICTS AND LISTS##
 FULL_SYSTEM_NAME = {"PSV": "Playstation Vita", "PSP": "Playstation Portable",
-                     "PSX": "Playstation", "PSM": "Playstation Mobile"}
+                     "PSX": "Playstation", "PSM": "Playstation Mobile", "PS3":"Playstation 3"}
 
 SUFFIXES = ['bytes', 'KiB', 'MiB', 'GiB',
              'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
@@ -37,21 +37,27 @@ ORDER_DIC = {"c":"System", "console":"System",
                 "n":"Name", "game_name":"Name",
                 "s":"File Size", "size":"File Size"}
 
-CONF_PSV_LINKS = {'games': 'http://nopaystation.com/tsv/PSV_GAMES.tsv',
-                   'dlcs': 'http://nopaystation.com/tsv/PSV_DLCS.tsv',
-                           'themes': 'http://nopaystation.com/tsv/PSV_THEMES.tsv',
-                           'updates': 'http://nopaystation.com/tsv/PSV_UPDATES.tsv',
-                           'demos': 'http://nopaystation.com/tsv/PSV_DEMOS.tsv'
+CONF_PSV_LINKS = {'games': 'https://nopaystation.com/tsv/PSV_GAMES.tsv',
+                        'dlcs': 'https://nopaystation.com/tsv/PSV_DLCS.tsv',
+                        'themes': 'https://nopaystation.com/tsv/PSV_THEMES.tsv',
+                        'updates': 'https://nopaystation.com/tsv/PSV_UPDATES.tsv',
+                        'demos': 'https://nopaystation.com/tsv/PSV_DEMOS.tsv'
                    }
 
-CONF_PSP_LINKS = {'games': 'http://nopaystation.com/tsv/PSP_GAMES.tsv',
-                   'dlcs': 'http://nopaystation.com/tsv/PSP_DLCS.tsv',
-                           'themes': 'http://nopaystation.com/tsv/PSP_THEMES.tsv',
-                           'updates': 'http://nopaystation.com/tsv/PSP_UPDATES.tsv'
+CONF_PSP_LINKS = {'games': 'https://nopaystation.com/tsv/PSP_GAMES.tsv',
+                        'dlcs': 'https://nopaystation.com/tsv/PSP_DLCS.tsv',
+                        'themes': 'https://nopaystation.com/tsv/PSP_THEMES.tsv',
+                        'updates': 'https://nopaystation.com/tsv/PSP_UPDATES.tsv'
                    }
 
-CONF_PSX_LINKS = {'games': 'http://nopaystation.com/tsv/PSX_GAMES.tsv'
+CONF_PSX_LINKS = {'games': 'https://nopaystation.com/tsv/PSX_GAMES.tsv'
                    }
 
-CONF_PSM_LINKS = {'games': 'http://nopaystation.com/tsv/PSM_GAMES.tsv'
+CONF_PSM_LINKS = {'games': 'https://nopaystation.com/tsv/PSM_GAMES.tsv'
+                   }
+CONF_PS3_LINKS = {'games': 'https://nopaystation.com/tsv/PS3_GAMES.tsv',
+                        'dlcs': 'https://nopaystation.com/tsv/PS3_DLCS.tsv',
+                        'themes': 'https://nopaystation.com/tsv/PS3_THEMES.tsv',
+                        'demos': 'https://nopaystation.com/tsv/PS3_DEMOS.tsv',
+                        'avatars':'https://nopaystation.com/tsv/PS3_AVATARS.tsv'
                    }

@@ -45,9 +45,9 @@ def cli_main(maindir=""):
     config.read(config_file)
 
     # test sections
-    if sorted(config.sections()) != sorted(['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'BinaryLocations']):
+    if sorted(config.sections()) != sorted(['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'PS3_Links', 'BinaryLocations']):
         printft(HTML("<red>[ERROR] config file: missing sections</red>"))
-        print("You need the following sections in your config file: 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'BinaryLocations'")
+        print("You need the following sections in your config file: 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'PS3_Links', 'BinaryLocations'")
         sys.exit(1)
     if sorted(list(config["PSV_Links"])) != sorted(['games', 'dlcs', 'themes', 'updates', 'demos']):
         printft(HTML("<red>[ERROR] config file: missing options in the PSV_Links section</red>"))
@@ -65,6 +65,10 @@ def cli_main(maindir=""):
         printft(HTML("<red>[ERROR] config file: missing options in the PSM_Links section</red>"))
         print("You need the following options in your PSM_Links section: 'games'")
         sys.exit(1)
+    if sorted(list(config["PS3_Links"])) != sorted(['games', 'dlcs', 'themes', 'demos', 'avatars']):
+        printft(HTML("<red>[ERROR] config file: missing options in the PS3_Links section</red>"))
+        print("You need the following options in your PS3_Links section: 'games', 'dlcs', 'themes', 'demos', 'avatars'")
+        sys.exit(1)
 
     # making vars
     DBFOLDER = fix_folder_syntax(config['pyNPS']['databasefolder'], maindir)
@@ -75,7 +79,7 @@ def cli_main(maindir=""):
     # tests existence of pkg2zip
     PKG2ZIP = check_pkg2zip(PKG2ZIP, CONFIGFOLDER)
     if PKG2ZIP == False:
-        printft(HTML("<orange>[PKG2ZIP] you don't have a valid pkg2zip installation or binary in your system, extraction will be skipped</orange>"))
+        printft(HTML("<orange>[PKG2ZIP] you don't have a valid pkg2zip installation or binary in your system, extraction will be skipped. PS3 games don't need pkg2zip</orange>"))
         # sys.exit(1)
 
     # tests existence of wget
@@ -100,6 +104,10 @@ def cli_main(maindir=""):
     database_psm_links = {}
     for key in config["PSM_Links"]:
         database_psm_links[key] = config["PSM_Links"][key]
+
+    database_ps3_links = {}
+    for key in config["PS3_Links"]:
+        database_ps3_links[key] = config["PS3_Links"][key]
 
     # create args
     args, parser = create_args()
@@ -238,6 +246,8 @@ def cli_main(maindir=""):
                     db = database_psx_links
                 elif i == "PSM":
                     db = database_psm_links
+                elif i == "PS3":
+                    db = database_ps3_links
                 
                 # parsing supported
                 what_to_up_parsed = [x for x in what_to_up if x in db.keys()]
@@ -556,7 +566,7 @@ def cli_main(maindir=""):
 
         printft(HTML("<grey>%s</grey>") %fill_term())
 
-        if PKG2ZIP != False:
+        if PKG2ZIP != False and i['System'] != 'PS3':
             zrif = ""
             dl_dile_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
             if args.compress_zip == True:
@@ -615,6 +625,7 @@ def cli_main(maindir=""):
                 extraction_folder = f"{DLFOLDER}/Extracted/psm/{i['Title ID']}"
                 # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/psm/{i['Title ID']}</green>"))
 
+            
             # -x is default argument to not create .zip files
             if args.compress_zip == False:
                 pkg2zip_args = ["-x"]
@@ -634,27 +645,62 @@ def cli_main(maindir=""):
                 extraction_folder = dl_location
 
             printft(HTML("<green>[PKG2ZIP] Attempting to extract [%s]%s</green>") %(i['Title ID'], i['Name']))
-
+            
             if i['System'] == "PSV" and zrif not in ["", "MISSING", None]:
-                delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, zrif)
+                delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, i, zrif)
             else:
-                delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder)
+                delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, i)
+
 
             #testing if extraction was completion and delete file if needed
-            
             if delete == True and keepkg == False:
                 # delete file
-                printft(HTML("<green>[EXTRACTION] Attempting to delete .pkg file</green>"))
+                printft(HTML("<green>[EXTRACTION] attempting to delete .pkg file</green>"))
                 try:
                     os.remove(dl_dile_loc)
-                    printft(HTML("<green>[EXTRACTION] Success, the compressed .pkg was deleted</green>"))
+                    printft(HTML("<green>[EXTRACTION] success, the compressed .pkg was deleted</green>"))
                 except:
-                    printft(HTML("<red>[EXTRACTION] Unable to delete, you may want to it manually at: </red><grey>%s</grey>") %dl_dile_loc)
-
+                    printft(HTML("<red>[EXTRACTION] unable to delete, you may want to it manually at: </red><grey>%s</grey>") %dl_dile_loc)     
+            
             ### 2 HERE
             files_downloaded.append(i)
         else:
-            printft(HTML("<orange>[EXTRACTION] skipping extraction since there's no pkg2zip binary in your system</orange>"))
+            if i['System'] != 'PS3':
+                printft(HTML("<orange>[EXTRACTION] skipping extraction since there's no pkg2zip binary in your system</orange>"))
+            else:
+                # move if it's a PS3 pkg
+                # move to ~/PS3/packages
+                # rap files go to ~/PS3/exdata
+                printft(HTML("<orange>[EXTRACTION] skipping extraction since pkg2zip doesn't work with pkg2zip</orange>"))
+                # get downloaded file name
+                pkg_location = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
+
+                # new name
+                pkg_new_location = f"{DLFOLDER}/PS3/{i['Type']}/packages/{i['Name']} ({i['Region']}) - {i['Content ID']}.pkg"
+        
+                
+                try:
+                    # touch new folder
+                    create_folder(os.path.dirname(pkg_new_location))
+                    # # use rename to rename and move the file
+                    os.rename(pkg_location, pkg_new_location)
+                    printft(HTML("<green>[MOVE] PS3 pkg moved</green>"))
+                except:
+                    printft(HTML("<red>[MOVE] unable to move PS3 pkg file</red>"))
+                
+                # download rap file
+                if i['RAP'] == "NOT REQUIRED":
+                    printft(HTML("<green>[RAP] RAP files aren't required for this game!</green>"))
+                elif i['RAP'] == "MISSING":
+                    printft(HTML("<orange>[RAP] unfortunatelly there are no RAP files available for this game on Nopaystation</orange>"))
+                elif i['RAP'] == "UNLOCK/LICENSE BY DLC":
+                    printft(HTML("<orange>[RAP] UNLOCK/LICENSE BY DLC</orange>"))
+                else:
+                    rap_url = f"https://nopaystation.com/tools/rap2file/{i['Content ID']}/{i['RAP']}"
+                    rap_folder = f"{DLFOLDER}/PS3/{i['Type']}/exdata/{i['Content ID']}.rap"
+                    printft(HTML("<green>[RAP] downloaing RAP file</green>"))
+                    get_rap(i, WGET, rap_folder, rap_url)
+                    printft(HTML("<green>[RAP] RAP file downloaded!</green>"))
             
             ### 2 HERE
             files_downloaded.append(i)
