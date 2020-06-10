@@ -690,6 +690,8 @@ def cli_main(maindir=""):
                     printft(HTML("<green>[RAP] RAP files aren't required for this game!</green>"))
                 elif i['RAP'] == "MISSING":
                     printft(HTML("<orange>[RAP] unfortunatelly there are no RAP files available for this game on Nopaystation</orange>"))
+                elif i['RAP'] == "UNLOCK/LICENSE BY DLC":
+                    printft(HTML("<orange>[RAP] UNLOCK/LICENSE BY DLC</orange>"))
                 else:
                     rap_url = f"https://nopaystation.com/tools/rap2file/{i['Content ID']}/{i['RAP']}"
                     rap_folder = f"{DLFOLDER}/PS3/{i['Type']}/exdata/{i['Content ID']}.rap"
