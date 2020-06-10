@@ -701,6 +701,7 @@ def cli_main(maindir=""):
                         printft(HTML("<red>[MOVE] unable to delete, you may want to it manually at: </red><grey>%s</grey>") %dl_dile_loc)
                         
                 # download rap file
+                printft(HTML("<grey>%s</grey>") %fill_term())
                 if i['RAP'] == "NOT REQUIRED":
                     printft(HTML("<green>[RAP] RAP files aren't required for this game!</green>"))
                 elif i['RAP'] == "MISSING":
@@ -712,7 +713,7 @@ def cli_main(maindir=""):
                     rap_folder = f"{DLFOLDER}/PS3/{i['Type']}/exdata/{i['Content ID']}.rap"
                     printft(HTML("<green>[RAP] downloaing RAP file</green>"))
                     get_rap(i, WGET, rap_folder, rap_url)
-                    printft(HTML("<green>[MOVE] PS3 RAP file downloaded to: </green><grey>%s</grey>") %rap_folder)
+                    printft(HTML("<green>[RAP] PS3 RAP file downloaded to: </green><grey>%s</grey>") %rap_folder)
             
             ### 2 HERE
             files_downloaded.append(i)
