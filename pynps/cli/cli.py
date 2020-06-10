@@ -647,9 +647,9 @@ def cli_main(maindir=""):
             printft(HTML("<green>[PKG2ZIP] Attempting to extract [%s]%s</green>") %(i['Title ID'], i['Name']))
             
             if i['System'] == "PSV" and zrif not in ["", "MISSING", None]:
-                delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, zrif)
+                delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, i, zrif)
             else:
-                delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder)
+                delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, i)
 
 
             #testing if extraction was completion and delete file if needed
