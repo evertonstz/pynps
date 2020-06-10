@@ -65,9 +65,9 @@ def cli_main(maindir=""):
         printft(HTML("<red>[ERROR] config file: missing options in the PSM_Links section</red>"))
         print("You need the following options in your PSM_Links section: 'games'")
         sys.exit(1)
-    if sorted(list(config["PS3_Links"])) != sorted(['games', 'dlcs', 'themes', 'updates', 'demos','avatars']):
-        printft(HTML("<red>[ERROR] config file: missing options in the PSV_Links section</red>"))
-        print("You need the following options in your PSV_Links section: 'games', 'dlcs', 'themes', 'updates', 'demos', 'avatars'")
+    if sorted(list(config["PS3_Links"])) != sorted(['games', 'dlcs', 'themes', 'demos', 'avatars']):
+        printft(HTML("<red>[ERROR] config file: missing options in the PS3_Links section</red>"))
+        print("You need the following options in your PS3_Links section: 'games', 'dlcs', 'themes', 'demos', 'avatars'")
         sys.exit(1)
 
     # making vars
