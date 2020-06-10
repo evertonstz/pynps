@@ -566,9 +566,9 @@ def cli_main(maindir=""):
 
         printft(HTML("<grey>%s</grey>") %fill_term())
 
+        dl_dile_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
         if PKG2ZIP != False and i['System'] != 'PS3':
             zrif = ""
-            dl_dile_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
             if args.compress_zip == True:
                 dl_location = f"{DLFOLDER}/ZIP/{i['System']}/{i['Type'].capitalize()}"
             else:
@@ -672,22 +672,34 @@ def cli_main(maindir=""):
                 # move to ~/PS3/packages
                 # rap files go to ~/PS3/exdata
                 printft(HTML("<orange>[EXTRACTION] skipping extraction since pkg2zip doesn't work with pkg2zip</orange>"))
+                printft(HTML("<grey>%s</grey>") %fill_term())
                 # get downloaded file name
                 pkg_location = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
 
                 # new name
                 pkg_new_location = f"{DLFOLDER}/PS3/{i['Type']}/packages/{i['Name']} ({i['Region']}) - {i['Content ID']}.pkg"
         
-                
+                delete = False
                 try:
                     # touch new folder
                     create_folder(os.path.dirname(pkg_new_location))
-                    # # use rename to rename and move the file
-                    os.rename(pkg_location, pkg_new_location)
+                    # copy file and set delte as True if it's sucessfull
+                    copyfile(pkg_location, pkg_new_location)
                     printft(HTML("<green>[MOVE] PS3 pkg file moved to: </green><grey>%s</grey>") %pkg_new_location)
+                    delete = True
                 except:
                     printft(HTML("<red>[MOVE] unable to move PS3 pkg file</red>"))
-                
+                print(delete, keepkg)
+                #testing if extraction was completion and delete file if needed
+                if delete == True and keepkg == False:
+                    # delete file
+                    printft(HTML("<green>[MOVE] attempting to delete .pkg file from old location</green>"))
+                    try:
+                        os.remove(dl_dile_loc)
+                        printft(HTML("<green>[MOVE] success, the compressed .pkg was deleted</green>"))
+                    except:
+                        printft(HTML("<red>[MOVE] unable to delete, you may want to it manually at: </red><grey>%s</grey>") %dl_dile_loc)
+                        
                 # download rap file
                 if i['RAP'] == "NOT REQUIRED":
                     printft(HTML("<green>[RAP] RAP files aren't required for this game!</green>"))

@@ -22,7 +22,7 @@ import argparse
 import hashlib
 import configparser
 import ctypes
-from pathlib import Path
+from shutil import copyfile
 from time import time
 from datetime import datetime
 from json import dumps, dump as file_dump
