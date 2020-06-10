@@ -689,7 +689,7 @@ def cli_main(maindir=""):
                     delete = True
                 except:
                     printft(HTML("<red>[MOVE] unable to move PS3 pkg file</red>"))
-                print(delete, keepkg)
+
                 #testing if extraction was completion and delete file if needed
                 if delete == True and keepkg == False:
                     # delete file
