@@ -671,9 +671,10 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, dict: l
     
     # create a txt file inside the folder with the game's name
     if process == True and "-x" in args:
-        g_name = f"{dict['Name']} ({dict['Region']}) [{dict['Title ID']}].txt"
-        with open(extraction_folder+"/"+g_name, 'w') as file:
-            file_dump(dict, file, sort_keys=True, indent=4)
+        if dict["System"] == 'PSX' or dict["System"] == 'PSP' and "-p" in args:
+            g_name = f"{dict['Name']} ({dict['Region']}) [{dict['Title ID']}].txt"
+            with open(extraction_folder+"/"+g_name, 'w') as file:
+                file_dump(dict, file, sort_keys=True, indent=4)
 
     return process
 
