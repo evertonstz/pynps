@@ -676,7 +676,7 @@ def cli_main(maindir=""):
                 pkg_location = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
 
                 # new name
-                pkg_new_location = f"{DLFOLDER}/PS3/{i['Type']}/packages/{i['Name']}.pkg"
+                pkg_new_location = f"{DLFOLDER}/PS3/{i['Type']}/packages/{i['Name']} ({i['Region']}) - {i['Content ID']}.pkg"
         
                 
                 try:
