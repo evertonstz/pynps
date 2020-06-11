@@ -754,15 +754,17 @@ def create_args():
                         type=str, required=False, action='append', choices=["usa", "eur", "jap", "asia", "int"])
     parser.add_argument("-s", "--sort",help="sort search output by column name, can string multiple names by using a comma. Available options are: console or c, title_id or id, region or r, type or t, game_name or n, size or s. Default value: c,t,r,n",
                         type=str, required=False)
-    parser.add_argument("-G", "-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
+    parser.add_argument("-G", "-dg", "--games", help="to download PSV/PSP/PSX/PSM/PS3 games.",
                         action="store_true")
-    parser.add_argument("-D", "-dd", "--dlcs", help="to download PSV/PSP dlcs.",
+    parser.add_argument("-D", "-dd", "--dlcs", help="to download PSV/PSP/PS3 dlcs.",
                         action="store_true")
-    parser.add_argument("-T", "-dt", "--themes", help="to download PSV/PSP themes.",
+    parser.add_argument("-T", "-dt", "--themes", help="to download PSV/PSP/PS3 themes.",
                         action="store_true")
     parser.add_argument("-U", "-du", "--updates", help="to download PSV/PSP game updates.",
                         action="store_true")
-    parser.add_argument("-E", "-dde", "--demos", help="to download PSV demos.",
+    parser.add_argument("-E", "-dde", "--demos", help="to download PSV/PS3 demos.",
+                        action="store_true")
+    parser.add_argument("-A", "-da", "--avatars", help="to download PS3 avatars.",
                         action="store_true")
     parser.add_argument("-k", "--keepkg", help="using this flag will keep the pkg after the extraction",
                         action="store_true")
