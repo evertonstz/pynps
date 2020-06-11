@@ -706,6 +706,8 @@ def cli_main(maindir=""):
                     printft(HTML("<green>[RAP] RAP files aren't required for this game!</green>"))
                 elif i['RAP'] == "MISSING":
                     printft(HTML("<orange>[RAP] unfortunatelly there are no RAP files available for this game on Nopaystation</orange>"))
+                elif i['RAP'] == "":
+                    printft(HTML("<orange>[RAP] unfortunatelly there are no RAP files available for this game on Nopaystation</orange>"))
                 elif i['RAP'] == "UNLOCK/LICENSE BY DLC":
                     printft(HTML("<orange>[RAP] UNLOCK/LICENSE BY DLC</orange>"))
                 else:
