@@ -819,6 +819,14 @@ def create_args():
         else:
             printft(HTML("<red>[ERROR] NPS only supports game downlaods for the Playstation (PSX)</red>"))
             sys.exit(1)
+
+    if "PSM" in a.console and True in [a.dlcs, a.themes, a.updates, a.demos]:
+        if len(a.console) > 1:
+            printft(HTML("<orange>[WARNING] NPS only supports game downlaods for the Playstation Mobible (PSM)</orange>"))
+        else:
+            printft(HTML("<red>[ERROR] NPS only supports game downlaods for the Playstation Mobible (PSM)</red>"))
+            sys.exit(1)
+
     if "PS3" in a.console and a.updates == True:
         if len(a.console) > 1:
             printft(HTML("<orange>[WARNING] NPS has no support for updates with the Playstation 3 (PS3)</orange>"))
