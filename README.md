@@ -295,39 +295,44 @@ Just run:
 >$ pynps -h
 
 ```
-usage: pynps.py [-h] [-c {psv,psp,psx,psm}] [-r {usa,eur,jap,asia,int}] [-dg]
-                [-dd] [-dt] [-du] [-dde] [-eb] [-cso {1,2,3,4,5,6,7,8,9}] [-u]
-                [--version]
-                [search]
+usage: pynps       [-h] [-c {psv,psp,psx,psm,ps3}] [-r {usa,eur,jap,asia,int}] [-s SORT] [-G] [-D] [-T] [-U] [-E] [-A]
+                   [-k] [-eb] [-cso {1,2,3,4,5,6,7,8,9}] [-zip] [-l LIMIT_RATE] [-u] [-p] [-R] [-v]
+                   [search]
 
-pyNPS is a Nopaystation client writen in python 3.7 that, with the help of
-wget and pkg2zip, can search, download and decrypt/extract PSVita, PSP, PSX
-and PSM games from Nopaystation database.
+pyNPS is a Nopaystation client writen in python 3that, with the help of wget and pkg2zip, can search, download and
+decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database.
 
 positional arguments:
-  search                search something to download, you can search by name
-                        or ID or use '_all' to return everythning.
+  search                search something to download, you can search by name or ID or use '_all' to return
+                        everythning.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -c {psv,psp,psx,psm}, --console {psv,psp,psx,psm}
+  -c {psv,psp,psx,psm,ps3}, --console {psv,psp,psx,psm,ps3}
                         the console you wanna get content with NPS.
   -r {usa,eur,jap,asia,int}, --region {usa,eur,jap,asia,int}
                         the region for the pkj you want.
-  -dg, -G, --games      to download PSV/PSP/PSX/PSM games.
-  -dd, -D, --dlcs       to download PSV/PSP dlcs.
-  -dt, -T, --themes     to download PSV/PSP themes.
-  -du, -U, --updates    to download PSV/PSP game updates.
-  -dde, -E, --demos     to download PSV demos.
-  -eb, --eboot          use this argument to unpack PSP games as EBOOT.PBP
+  -s SORT, --sort SORT  sort search output by column name, can string multiple names by using a comma. Available
+                        options are: console or c, title_id or id, region or r, type or t, game_name or n, size or s.
+                        Default value: c,t,r,n
+  -G, -dg, --games      to download PSV/PSP/PSX/PSM/PS3 games.
+  -D, -dd, --dlcs       to download PSV/PSP/PS3 dlcs.
+  -T, -dt, --themes     to download PSV/PSP/PS3 themes.
+  -U, -du, --updates    to download PSV/PSP game updates.
+  -E, -dde, --demos     to download PSV/PS3 demos.
+  -A, -da, --avatars    to download PS3 avatars.
+  -k, --keepkg          using this flag will keep the pkg after the extraction
+  -eb, --eboot          use this argument to unpack PSP pkgs as EBOOT.pbp.
   -cso {1,2,3,4,5,6,7,8,9}, --compress_cso {1,2,3,4,5,6,7,8,9}
-                        use this argument to unpack PSP games as a compressed
-                        .cso file. You can use any number beetween 1 and 9 for
-                        compression factors, were 1 is less compressed and 9
-                        is more compressed.
+                        use this argument to unpack PSP games as a compressed .cso file. You can use any number
+                        beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.
+  -zip, --compress_zip  extract pkgs into zip files instead of folders, this flag won't work with PS3 pkgs.
+  -l LIMIT_RATE, --limit_rate LIMIT_RATE
+                        limit download speed, input is the same as wget's.
   -u, --update          update database.
-  --version             show program's version number and exit
-
+  -p, --print           just print the result and exit, you can use this option to redirect the output to a file!
+  -R, --resume_session  resume a download session that was saved previously.
+  -v, --version         show program's version number and exit
 ```
 ******
 # Make a donation
