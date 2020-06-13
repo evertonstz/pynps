@@ -754,25 +754,25 @@ def create_args():
                         type=str, required=False, action='append', choices=["usa", "eur", "jap", "asia", "int"])
     parser.add_argument("-s", "--sort",help="sort search output by column name, can string multiple names by using a comma. Available options are: console or c, title_id or id, region or r, type or t, game_name or n, size or s. Default value: c,t,r,n",
                         type=str, required=False)
-    parser.add_argument("-G", "-dg", "--games", help="to download PSV/PSP/PSX/PSM games.",
+    parser.add_argument("-G", "-dg", "--games", help="to download PSV/PSP/PSX/PSM/PS3 games.",
                         action="store_true")
-    parser.add_argument("-D", "-dd", "--dlcs", help="to download PSV/PSP dlcs.",
+    parser.add_argument("-D", "-dd", "--dlcs", help="to download PSV/PSP/PS3 dlcs.",
                         action="store_true")
-    parser.add_argument("-T", "-dt", "--themes", help="to download PSV/PSP themes.",
+    parser.add_argument("-T", "-dt", "--themes", help="to download PSV/PSP/PS3 themes.",
                         action="store_true")
     parser.add_argument("-U", "-du", "--updates", help="to download PSV/PSP game updates.",
                         action="store_true")
-    parser.add_argument("-E", "-dde", "--demos", help="to download PSV demos.",
+    parser.add_argument("-E", "-dde", "--demos", help="to download PSV/PS3 demos.",
                         action="store_true")
     parser.add_argument("-A", "-da", "--avatars", help="to download PS3 avatars.",
                         action="store_true")
     parser.add_argument("-k", "--keepkg", help="using this flag will keep the pkg after the extraction",
                         action="store_true")
-    parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP games as EBOOT.PBP",
+    parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP pkgs as EBOOT.pbp.",
                         action="store_true")
     parser.add_argument("-cso", "--compress_cso", help="use this argument to unpack PSP games as a compressed .cso file. You can use any number beetween 1 and 9 for compression factors, were 1 is less compressed and 9 is more compressed.",
                         type=str, required=False, choices=[str(x) for x in range(1, 10)])
-    parser.add_argument("-zip", "--compress_zip", help="extract pkgs into zip files instead of folders.",
+    parser.add_argument("-zip", "--compress_zip", help="extract pkgs into zip files instead of folders, this flag won't work with PS3 pkgs.",
                         action="store_true")
     parser.add_argument("-l", "--limit_rate", help="limit download speed, input is the same as wget's.",
                         type=str, required=False)
@@ -780,7 +780,7 @@ def create_args():
                         action="store_true")
     parser.add_argument("-p", "--print", help="just print the result and exit, you can use this option to redirect the output to a file!",
                         action="store_true")
-    parser.add_argument("-R", "--resume_session", help="update database.",
+    parser.add_argument("-R", "--resume_session", help="resume a download session that was saved previously.",
                         action="store_true")
     parser.add_argument('--version', action='version',
                         version=f"%(prog)s version {variables.VERSION}")
@@ -795,11 +795,11 @@ def create_args():
     # warn zip, cso and eboot won't work with PS3
     if "PS3" in a.console:
         if a.compress_zip is True:
-            printft(HTML("<orange>[WARNING] PS3 games can't be extracted as zip files</orange>"))
+            printft(HTML("<orange>[WARNING] PS3 games can't be extracted as zip files, this flag will be ignored</orange>"))
         if a.compress_cso is True:
-            printft(HTML("<orange>[WARNING] PS3 games can't be compressed as cso files</orange>"))
+            printft(HTML("<orange>[WARNING] PS3 games can't be compressed as cso files, this flag will be ignored</orange>"))
         if a.eboot is True:
-            printft(HTML("<orange>[WARNING] PS3 games can't be packed as eboot files</orange>"))
+            printft(HTML("<orange>[WARNING] PS3 games can't be packed as eboot files, this flag will be ignored</orange>"))
 
     # tests for resume download
     test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.update, a.avatars] == [['PSV', 'PSP', 'PSX', 'PSM', 'PS3'], None, False, False, False, False, False, False, None, False, False]
@@ -857,12 +857,12 @@ def create_args():
         cso_test = True
     else:
         cso_test = False
-    
+
     if [x for x in [a.eboot, cso_test, a.compress_zip]].count(True) > 1:
         printft(HTML("<red>[ERROR] you can't use --eboot, --compress_cso or --compress_zip at the same time</red>"))
         sys.exit(1)
 
-    # check order list
+    # check sort list
     if a.sort is not None:
         for i in a.sort.split(","):
             if i.lower() not in ["c", "id", "r", "t", "gn", "s", "console", "title_id", "region", "type", "game_name", "size"]:
