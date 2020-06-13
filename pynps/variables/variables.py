@@ -24,7 +24,7 @@ SUFFIXES = ['bytes', 'KiB', 'MiB', 'GiB',
              'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
 
 TYPE_DICT = {"GAMES": "Game", "THEMES": "Theme",
-              "DLCS": "DLC", "DEMOS": "Demo", "UPDATES": "Update"}
+              "DLCS": "DLC", "DEMOS": "Demo", "UPDATES": "Update", "AVATARS": "Avatar"}
 
 REGION_DICT = {"US": "USA", "EU": "EUR", "JP": "JAP", "ASIA": "ASIA",
                 "INT": "INT", "usa": "US", "jap": "JP", "eur": "EU",

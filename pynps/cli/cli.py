@@ -222,7 +222,7 @@ def cli_main(maindir=""):
     else:
 
         what_to_dl = {"games": args.games, "dlcs": args.dlcs, "themes": args.themes,
-                    "updates": args.updates, "demos": args.demos}
+                    "updates": args.updates, "demos": args.demos, "avatars": args.avatars}
 
         if set(what_to_dl.values()) == set([False]):
             for i in what_to_dl:
