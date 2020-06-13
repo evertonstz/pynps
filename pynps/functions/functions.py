@@ -809,32 +809,35 @@ def create_args():
 
     # unsuported download types
     if "PSP" in a.console and True in [a.demos, a.avatars]:
-        if len(a.console) > 1:
+        if len(a.console) > 1 or True in [a.games, a.dlcs, a.themes, a.updates]:
             printft(HTML("<orange>[WARNING] NPS has no support for demos or avatars with the Playstation Portable (PSP)</orange>"))
         else:
             printft(HTML("<red>[ERROR] NPS has no support for demos or avatars with the Playstation Portable (PSP)</red>"))
             sys.exit(1)
 
     if "PSX" in a.console and True in [a.dlcs, a.themes, a.updates, a.demos, a.avatars]:
-        if len(a.console) > 1:
+        if len(a.console) > 1 or True in [a.games]:
             printft(HTML("<orange>[WARNING] NPS only supports game downlaods for the Playstation (PSX)</orange>"))
         else:
             printft(HTML("<red>[ERROR] NPS only supports game downlaods for the Playstation (PSX)</red>"))
             sys.exit(1)
-    if "PS3" in a.console and a.updates == True:
-        if len(a.console) > 1:
+
+    if "PS3" in a.console and True in [a.updates]:
+        if len(a.console) > 1 or True in [a.games, a.dlcs, a.themes, a.demos, a.avatars]:
             printft(HTML("<orange>[WARNING] NPS has no support for updates with the Playstation 3 (PS3)</orange>"))
         else:
             printft(HTML("<red>[ERROR] NPS has no support for updates with the Playstation 3 (PS3))</red>"))
             sys.exit(1)
-    if "PSV" in a.console and a.avatars == True:
-        if len(a.console) > 1:
+
+    if "PSV" in a.console and True in [a.avatars]:
+        if len(a.console) > 1 or True in [a.games, a.dlcs, a.themes, a.updates, a.demos]:
             printft(HTML("<orange>[WARNING] NPS has no support for avatars with the Playstation Vita (PSV)</orange>"))
         else:
             printft(HTML("<red>[ERROR] NPS has no support for avatars with the Playstation Vita (PSV)</red>"))
             sys.exit(1)
+
     if "PSM" in a.console and True in [a.dlcs, a.themes, a.updates, a.demos, a.avatars]:
-        if len(a.console) > 1:
+        if len(a.console) > 1 or True in [a.games]:
             printft(HTML("<orange>[WARNING] NPS only supports game downlaods for the Playstation Mobible (PSM)</orange>"))
         else:
             printft(HTML("<red>[ERROR] NPS only supports game downlaods for the Playstation Mobible (PSM)</red>"))
