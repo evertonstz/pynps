@@ -801,8 +801,9 @@ def create_args():
         if a.eboot is True:
             printft(HTML("<orange>[WARNING] PS3 games can't be packed as eboot files</orange>"))
 
-    # exclusions
+    # tests for resume download
     test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.update, a.avatars] == [['PSV', 'PSP', 'PSX', 'PSM', 'PS3'], None, False, False, False, False, False, False, None, False, False]
+    
     if a.resume_session is True and test is False:
         printft(HTML("<red>[ERROR] you can only use -R/--resume_session alongside the -l/--limit_rate and -k/--keepkg arguments</red>"))
         sys.exit(1)
@@ -850,9 +851,15 @@ def create_args():
             printft(HTML("<red>[ERROR] invalid format for --limit_rate</red>"))
             sys.exit(1)
 
-    # eboot and cso can't be used at the same time
-    if a.eboot is True and a.compress_cso is not None:
-        printft(HTML("<red>[ERROR] you can't use --eboot and --compress_cso at the same time</red>"))
+    # eboot, cso and zip can't be used at the same time
+    if a.compress_cso is not None:
+        # cso is being used
+        cso_test = True
+    else:
+        cso_test = False
+    
+    if [x for x in [a.eboot, cso_test, a.compress_zip]].count(True) > 1:
+        printft(HTML("<red>[ERROR] you can't use --eboot, --compress_cso or --compress_zip at the same time</red>"))
         sys.exit(1)
 
     # check order list
