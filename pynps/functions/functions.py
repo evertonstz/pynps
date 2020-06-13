@@ -764,6 +764,8 @@ def create_args():
                         action="store_true")
     parser.add_argument("-E", "-dde", "--demos", help="to download PSV demos.",
                         action="store_true")
+    parser.add_argument("-A", "-da", "--avatars", help="to download PS3 avatars.",
+                        action="store_true")
     parser.add_argument("-k", "--keepkg", help="using this flag will keep the pkg after the extraction",
                         action="store_true")
     parser.add_argument("-eb", "--eboot", help="use this argument to unpack PSP games as EBOOT.PBP",
@@ -800,20 +802,20 @@ def create_args():
             printft(HTML("<orange>[WARNING] PS3 games can't be packed as eboot files</orange>"))
 
     # exclusions
-    test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.update] == [['PSV', 'PSP', 'PSX', 'PSM'], None, False, False, False, False, False, False, None, False]
+    test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.update, a.avatars] == [['PSV', 'PSP', 'PSX', 'PSM', 'PS3'], None, False, False, False, False, False, False, None, False, False]
     if a.resume_session is True and test is False:
         printft(HTML("<red>[ERROR] you can only use -R/--resume_session alongside the -l/--limit_rate and -k/--keepkg arguments</red>"))
         sys.exit(1)
 
     # unsuported download types
-    if "PSP" in a.console and a.demos == True:
+    if "PSP" in a.console and True in [a.demos, a.avatars]:
         if len(a.console) > 1:
-            printft(HTML("<orange>[WARNING] NPS has no support for demos with the Playstation Portable (PSP)</orange>"))
+            printft(HTML("<orange>[WARNING] NPS has no support for demos or avatars with the Playstation Portable (PSP)</orange>"))
         else:
-            printft(HTML("<red>[ERROR] NPS has no support for demos with the Playstation Portable (PSP)</red>"))
+            printft(HTML("<red>[ERROR] NPS has no support for demos or avatars with the Playstation Portable (PSP)</red>"))
             sys.exit(1)
 
-    if "PSX" in a.console and True in [a.dlcs, a.themes, a.updates, a.demos]:
+    if "PSX" in a.console and True in [a.dlcs, a.themes, a.updates, a.demos, a.avatars]:
         if len(a.console) > 1:
             printft(HTML("<orange>[WARNING] NPS only supports game downlaods for the Playstation (PSX)</orange>"))
         else:
@@ -824,6 +826,18 @@ def create_args():
             printft(HTML("<orange>[WARNING] NPS has no support for updates with the Playstation 3 (PS3)</orange>"))
         else:
             printft(HTML("<red>[ERROR] NPS has no support for updates with the Playstation 3 (PS3))</red>"))
+            sys.exit(1)
+    if "PSV" in a.console and a.avatars == True:
+        if len(a.console) > 1:
+            printft(HTML("<orange>[WARNING] NPS has no support for avatars with the Playstation Vita (PSV)</orange>"))
+        else:
+            printft(HTML("<red>[ERROR] NPS has no support for avatars with the Playstation Vita (PSV)</red>"))
+            sys.exit(1)
+    if "PSM" in a.console and a.avatars == True:
+        if len(a.console) > 1:
+            printft(HTML("<orange>[WARNING] NPS has no support for avatars with the Playstation Mobile (PSM)</orange>"))
+        else:
+            printft(HTML("<red>[ERROR] NPS has no support for avatars with the Playstation Mobile (PSM)</red>"))
             sys.exit(1)
  
     # limit rate string
