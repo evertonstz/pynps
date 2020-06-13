@@ -782,7 +782,7 @@ def create_args():
                         action="store_true")
     parser.add_argument("-R", "--resume_session", help="resume a download session that was saved previously.",
                         action="store_true")
-    parser.add_argument('--version', action='version',
+    parser.add_argument("-v", "--version", action='version',
                         version=f"%(prog)s version {variables.VERSION}")
     a = parser.parse_args()
     
