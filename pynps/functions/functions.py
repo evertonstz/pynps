@@ -833,11 +833,11 @@ def create_args():
         else:
             printft(HTML("<red>[ERROR] NPS has no support for avatars with the Playstation Vita (PSV)</red>"))
             sys.exit(1)
-    if "PSM" in a.console and a.avatars == True:
+    if "PSM" in a.console and True in [a.dlcs, a.themes, a.updates, a.demos, a.avatars]:
         if len(a.console) > 1:
-            printft(HTML("<orange>[WARNING] NPS has no support for avatars with the Playstation Mobile (PSM)</orange>"))
+            printft(HTML("<orange>[WARNING] NPS only supports game downlaods for the Playstation Mobible (PSM)</orange>"))
         else:
-            printft(HTML("<red>[ERROR] NPS has no support for avatars with the Playstation Mobile (PSM)</red>"))
+            printft(HTML("<red>[ERROR] NPS only supports game downlaods for the Playstation Mobible (PSM)</red>"))
             sys.exit(1)
  
     # limit rate string
