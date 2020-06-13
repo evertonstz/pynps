@@ -744,7 +744,7 @@ def create_config(file, folder):
 
 def create_args():
     parser = argparse.ArgumentParser(
-        description='pyNPS is a Nopaystation client writen in python 3.7 that, with the help of wget and pkg2zip, can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database.')
+        description='pyNPS is a Nopaystation client writen in python 3that, with the help of wget and pkg2zip, can search, download and decrypt/extract PSVita, PSP, PSX and PSM games from Nopaystation database.')
 
     parser.add_argument("search",help="search something to download, you can search by name or ID or use '_all' to return everythning.", 
                         type=str, nargs="?")
