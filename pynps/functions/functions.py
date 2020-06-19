@@ -44,7 +44,7 @@ def get_system():
     return system()
 
 def get_pyinstaller():
-    return(getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'))
+    return getattr(sys, 'frozen', False)
 
 def create_folder(location):
     try:
