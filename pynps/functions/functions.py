@@ -43,6 +43,8 @@ import pynps.variables as variables
 def get_system():
     return system()
 
+def get_pyinstaller():
+    return(getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'))
 
 def create_folder(location):
     try:
@@ -704,26 +706,38 @@ def save_conf(file, conf):
         conf.write(file)
 
 
-def create_config(file, folder):
+def create_config(file="", folder="", base_folder=""):
     """this function is used to create a configuration 
     file on first run"""
-
+    print(get_pyinstaller)
+    exit()
     config = configparser.ConfigParser()
 
     # for linux
     if system() == 'Linux':
-        config['pyNPS'] = {'DownloadFolder': folder.replace("/.config/pyNPS", "/Downloads/pyNPS/"), 
+        config['pyNPS'] = {'DownloadFolder': f"{base_folder}/Downloads/pyNPS", 
                             'DatabaseFolder': f"{folder}/database/"}
 
         config['BinaryLocations'] = {'Pkg2zip_Location': f"{folder}/lib/pkg2zip",
                                     'Wget_location': f"{folder}/lib/wget"}
+    
     # for windows
     elif system() == 'Windows':
-        config['pyNPS'] = {'DownloadFolder': './pynps_downloads/', 
-                            'DatabaseFolder': "./pynps_database/"}
+        # using exe
+        if get_pyinstaller() is True:
+            config['pyNPS'] = {'DownloadFolder': './pynps_downloads/', 
+                                'DatabaseFolder': './pynps_database/'}
 
-        config['BinaryLocations'] = {'Pkg2zip_Location': "./pynps_config/lib/pkg2zip.exe",
-                                    'Wget_location': "./pynps_config/lib/wget.exe"}
+            config['BinaryLocations'] = {'Pkg2zip_Location': './pynps_config/lib/pkg2zip.exe',
+                                        'Wget_location': './pynps_config/lib/wget.exe'}
+        # not using exe
+        else:
+            config['pyNPS'] = {'DownloadFolder': f"{base_folder}/Downloads/pyNPS", 
+                                'DatabaseFolder': f"{folder}/database/"}
+
+            config['BinaryLocations'] = {'Pkg2zip_Location': f"{folder}/lib/pkg2zip",
+                                        'Wget_location': f"{folder}/lib/wget"}
+
     # for ??
     else:
         config['pyNPS'] = {'DownloadFolder': '', 

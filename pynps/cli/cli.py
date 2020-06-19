@@ -26,19 +26,24 @@ def cli_main(maindir=""):
     """implement pynps cli interface"""
 
     if get_system() == 'Linux':
-        CONFIGFOLDER = f"{os.getenv('HOME')}/.config/pyNPS"
+        base_folder = os.getenv('HOME')
+        CONFIGFOLDER = f"{base_folder}/.config/pyNPS"
         config_file = f"{CONFIGFOLDER}/settings.ini"
     elif get_system() == 'Windows':
-        CONFIGFOLDER = f"{maindir}/pynps_config/"
-        config_file = f"{CONFIGFOLDER}/settings.ini"
-    else:
-        CONFIGFOLDER = ""
-        config_file = ""
+        if get_pyinstaller() is True:
+            base_folder = maindir
+            CONFIGFOLDER = f"{base_folder}/pynps_config/"
+            config_file = f"{CONFIGFOLDER}/settings.ini"
+        else:
+            base_folder = os.path.expanduser("~")
+            CONFIGFOLDER = f"{base_folder}/AppData/Local/pyNPS"
+            config_file = f"{CONFIGFOLDER}/settings.ini"           
 
     # create conf file
     if os.path.isfile(config_file) == False:
-        create_config(config_file, CONFIGFOLDER)
-        create_folder(CONFIGFOLDER+"/lib/")
+        create_config(config_file, CONFIGFOLDER, base_folder)
+        if CONFIGFOLDER != "":
+            create_folder(CONFIGFOLDER+"/lib/")
 
     # read conf file
     config = configparser.ConfigParser()
