@@ -548,6 +548,8 @@ def check_wget(location, CONFIGFOLDER):
         # if not on patch, check if it's on lib and prefer this one
         if os.path.isfile(f"{CONFIGFOLDER}/lib/wget"):
             return(f"{CONFIGFOLDER}/lib/wget")
+        elif os.path.isfile(f"{CONFIGFOLDER}/lib/wget.exe"):
+            return(f"{CONFIGFOLDER}/lib/wget.exe")
         else:
             # last resort is check for user provided binary in settings.ini
             # check if exists
@@ -596,6 +598,8 @@ def check_pkg2zip(location, CONFIGFOLDER):
     else:
         if os.path.isfile(f"{CONFIGFOLDER}/lib/pkg2zip"):
             return(f"{CONFIGFOLDER}/lib/pkg2zip")
+        elif os.path.isfile(f"{CONFIGFOLDER}/lib/pkg2zip.exe"):
+            return(f"{CONFIGFOLDER}/lib/pkg2zip.exe")
         else:
             if os.path.isfile(location):
                 return(location)
