@@ -709,8 +709,7 @@ def save_conf(file, conf):
 def create_config(file="", folder="", base_folder=""):
     """this function is used to create a configuration 
     file on first run"""
-    print(get_pyinstaller)
-    exit()
+
     config = configparser.ConfigParser()
 
     # for linux
