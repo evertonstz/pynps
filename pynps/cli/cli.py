@@ -36,7 +36,7 @@ def cli_main(maindir=""):
             config_file = f"{CONFIGFOLDER}/settings.ini"
         else:
             base_folder = os.path.expanduser("~")
-            CONFIGFOLDER = f"{base_folder}/AppData/Local/pyNPS"
+            CONFIGFOLDER = f"{base_folder}/Documents/pyNPS"
             config_file = f"{CONFIGFOLDER}/settings.ini"           
 
     # create conf file
