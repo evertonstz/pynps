@@ -261,7 +261,7 @@ def get_rap(i, WGET, rap_folder, rap_url):
         create_folder(os.path.dirname(rap_folder))
 
         # move rap file into final dest
-        os.rename(f"{dl_tmp_folder}{i['RAP']}", rap_folder)
+        shutil.move(f"{dl_tmp_folder}{i['RAP']}", rap_folder)
 
 
 def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
