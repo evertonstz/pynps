@@ -22,11 +22,10 @@ import argparse
 import hashlib
 import configparser
 import ctypes
-from shutil import copyfile
 from time import time
 from datetime import datetime
 from json import dumps, dump as file_dump
-from shutil import copyfile, which, get_terminal_size
+from shutil import copyfile, which, get_terminal_size, move as shutil_move
 from csv import DictReader
 from math import log2
 from sqlitedict import SqliteDict
@@ -261,7 +260,7 @@ def get_rap(i, WGET, rap_folder, rap_url):
         create_folder(os.path.dirname(rap_folder))
 
         # move rap file into final dest
-        shutil.move(f"{dl_tmp_folder}{i['RAP']}", rap_folder)
+        shutil_move(f"{dl_tmp_folder}{i['RAP']}", rap_folder)
 
 
 def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
