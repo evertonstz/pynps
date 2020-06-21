@@ -25,7 +25,7 @@ import ctypes
 from time import time
 from datetime import datetime
 from json import dumps, dump as file_dump
-from shutil import copyfile, which, get_terminal_size, move as shutil_move
+from shutil import copyfile, which, get_terminal_size
 from csv import DictReader
 from math import log2
 from sqlitedict import SqliteDict
@@ -252,15 +252,14 @@ def get_rap(i, WGET, rap_folder, rap_url):
     
     with TmpFolder() as tmp:
         dl_tmp_folder = f"{tmp}/"
-
         # download rap file into temp folder
         process = subprocess.run([WGET, "-q", "--show-progress", rap_url], cwd=dl_tmp_folder)
 
         # make dest folder
         create_folder(os.path.dirname(rap_folder))
 
-        # move rap file into final dest
-        shutil_move(f"{dl_tmp_folder}{i['RAP']}", rap_folder)
+        # copy rap file into final dest
+        copyfile(f"{dl_tmp_folder}{i['RAP']}", rap_folder)
 
 
 def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
