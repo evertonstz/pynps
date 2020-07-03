@@ -42,8 +42,23 @@ import pynps.variables as variables
 def get_system():
     return system()
 
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
 def get_pyinstaller():
-    return getattr(sys, 'frozen', False)
+    if getattr(sys, 'frozen', False) is False: # runing on script
+        return 'python'
+    elif getattr(sys, 'frozen', False) is True: # runing on pyinstaller
+        try:
+            MEI = sys._MEIPASS
+            if 'Temp\_MEI' in MEI: # runing frozen on windows
+                return 'pi-onefile'
+            else:
+                return 'pi-onefolder'
+        except:
+            return 'python'
 
 def create_folder(location):
     try:
@@ -711,7 +726,6 @@ def save_conf(file, conf):
 def create_config(file="", folder="", base_folder=""):
     """this function is used to create a configuration 
     file on first run"""
-
     config = configparser.ConfigParser()
 
     # for linux
@@ -725,19 +739,26 @@ def create_config(file="", folder="", base_folder=""):
     # for windows
     elif system() == 'Windows':
         # using exe
-        if get_pyinstaller() is True:
+        if get_pyinstaller() == 'pi-onefile':
             config['pyNPS'] = {'DownloadFolder': './pynps_downloads/', 
                                 'DatabaseFolder': './pynps_database/'}
 
             config['BinaryLocations'] = {'Pkg2zip_Location': './pynps_config/lib/pkg2zip.exe',
                                         'Wget_location': './pynps_config/lib/wget.exe'}
-        # not using exe
-        else:
+        # using script
+        elif get_pyinstaller() == 'python':
             config['pyNPS'] = {'DownloadFolder': f"{base_folder}/Downloads/pyNPS", 
                                 'DatabaseFolder': f"{folder}/database/"}
 
-            config['BinaryLocations'] = {'Pkg2zip_Location': f"{folder}/lib/pkg2zip",
-                                        'Wget_location': f"{folder}/lib/wget"}
+            config['BinaryLocations'] = {'Pkg2zip_Location': f"{folder}/lib/pkg2zip.exe",
+                                        'Wget_location': f"{folder}/lib/wget.exe"}
+        elif get_pyinstaller() == 'pi-onefolder':
+            config['pyNPS'] = {'DownloadFolder': f"{base_folder}/Downloads/pyNPS", 
+                                'DatabaseFolder': f"{folder}/database/"}
+
+            # on one-folder, binaries should be in the installation folder
+            config['BinaryLocations'] = {'Pkg2zip_Location': resource_path('lib/pkg2zip.exe'),
+                                        'Wget_location': resource_path('lib/wget.exe')}
 
     # for ??
     else:

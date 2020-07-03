@@ -30,11 +30,14 @@ def cli_main(maindir=""):
         CONFIGFOLDER = f"{base_folder}/.config/pyNPS"
         config_file = f"{CONFIGFOLDER}/settings.ini"
     elif get_system() == 'Windows':
-        if get_pyinstaller() is True:
+        if get_pyinstaller() == 'pi-onefile':
+            # one file will have all the related directories in the same folder as the .exe
             base_folder = maindir
             CONFIGFOLDER = f"{base_folder}/pynps_config/"
             config_file = f"{CONFIGFOLDER}/settings.ini"
-        else:
+        elif get_pyinstaller() in ['python', 'pi-onefolder']:
+            # python and one-fodler will have related directories inside Documents
+            # python won't come undled with wget.exe and pkg2zip.exe!
             base_folder = os.path.expanduser("~")
             CONFIGFOLDER = f"{base_folder}/Documents/pyNPS"
             config_file = f"{CONFIGFOLDER}/settings.ini"           
