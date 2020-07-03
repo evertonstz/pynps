@@ -553,6 +553,11 @@ def check_wget(location, CONFIGFOLDER):
     """this fuction is used to detect a wget 
     installation in the users system"""
 
+    #check if is windows and one-file
+    if get_system() == 'Windows' and get_pyinstaller() == 'pi-onefolder':
+        if os.path.isfile(location):
+            return(location)
+
     # check if wget is on path and prefer this one
     if is_tool("wget") != False:
         # can be run as wget
@@ -605,6 +610,11 @@ def check_wget(location, CONFIGFOLDER):
 def check_pkg2zip(location, CONFIGFOLDER):
     """this function is used to detect a pkg2zip 
     installation in the users system"""
+
+    #check if is windows and one-file
+    if get_system() == 'Windows' and get_pyinstaller() == 'pi-onefolder':
+        if os.path.isfile(location):
+            return(location)
 
     if is_tool("pkg2zip") != False:
         return(is_tool("pkg2zip"))
