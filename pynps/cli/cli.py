@@ -24,29 +24,33 @@ from uuid import uuid4 as id_gen
 
 def cli_main(maindir=""):
     """implement pynps cli interface"""
-
+    runing_from = get_pyinstaller()
     if get_system() == 'Linux':
         base_folder = os.getenv('HOME')
         CONFIGFOLDER = f"{base_folder}/.config/pyNPS"
         config_file = f"{CONFIGFOLDER}/settings.ini"
     elif get_system() == 'Windows':
-        if get_pyinstaller() == 'pi-onefile':
+        if runing_from == 'pi-onefile':
             # one file will have all the related directories in the same folder as the .exe
             base_folder = maindir
             CONFIGFOLDER = f"{base_folder}/pynps_config/"
             config_file = f"{CONFIGFOLDER}/settings.ini"
-        elif get_pyinstaller() in ['python', 'pi-onefolder']:
+        elif runing_from in ['python', 'pi-onefolder']:
             # python and one-fodler will have related directories inside Documents
             # python won't come undled with wget.exe and pkg2zip.exe!
             base_folder = os.path.expanduser("~")
-            CONFIGFOLDER = f"{base_folder}/Documents/pyNPS"
+            if runing_from == 'python':
+                CONFIGFOLDER = f"{base_folder}/Documents/pyNPS"
+            else:
+                CONFIGFOLDER = f"{base_folder}/Documents/pyNPSbin"
             config_file = f"{CONFIGFOLDER}/settings.ini"           
 
     # create conf file
     if os.path.isfile(config_file) == False:
         create_config(config_file, CONFIGFOLDER, base_folder)
         if CONFIGFOLDER != "":
-            create_folder(CONFIGFOLDER+"/lib/")
+            if runing_from != 'pi-onefolder':
+                create_folder(CONFIGFOLDER+"/lib/")
 
     # read conf file
     config = configparser.ConfigParser()
