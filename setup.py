@@ -14,7 +14,7 @@ from setuptools import find_packages, setup, Command
 # Package meta-data.
 NAME = 'pynps'
 DESCRIPTION = 'PyNPS is a Nopaystation client writen in python.'
-URL = 'https://github.com/me/myproject'
+URL = 'https://github.com/evertonstz/pynps'
 EMAIL = 'everton@protonmail.com'
 AUTHOR = 'evertonstz'
 REQUIRES_PYTHON = '>=3.7.0'
