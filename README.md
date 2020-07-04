@@ -22,7 +22,7 @@ PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3 t
   * [Using PIP](#using-pip)
   * [pkg2zip](#pkg2zip)
   * [wget](#wget)
-  * [windows](#windows)
+  * [Windows](#windows)
 - [Updating database](#updating-database)
   * [Updating all databases](#updating-all-databases)
   * [Updating database per console](#updating-database-per-console)
@@ -41,34 +41,12 @@ PyNPS is a [Nopaystation](https://nopaystation.com/) client writen in python 3 t
 # Installation
 There are tree methods you can install pyNPS:
 
-## Binary
-This is only for 64bits systems.
-
-You can grab the latest x86_64 binary file at [releases](https://github.com/evertonstz/pyNPS/releases). The binary is made with pyinstaller, so there's no need to deal with python dependencies, just download it and use it (ofc you'll still need pkg2zip and wget installed or inside `/home/$USER/.config/pyNPS/lib`
-
-If you want to just use it by typing "pynps" in your terminal, you'll have to copy your binary to /usr/bin/
-
-Here's a full guide:
-- download the latest release [here](https://github.com/evertonstz/pyNPS/releases), last time time this readme was updated it was 1.1.0, so you'll need to download the file named `pynps-1.4.1-1.x86_64.linux`;
-
-- enter your terminal and cd to were you downloaded the file, usually it's:
-  >$ cd ~/Download
-
-- move the downloaded file to the /usr/bin folder by runing (don't forget to change the version if you're installing a newer release):
-  >$ sudo mv pynps-1.4.1-1.x86_64.linux /usr/bin/pynps
-
-- make sure the moved file is marked as executable:
-  >$ sudo chmod +x /usr/bin/pynps
-
-- test the newly installed binary, pynps should output the version:
-  >$ pynps --version
-
-If everything was done correctly, pynps should print the version in your terminal. After this proceed to the [pkg2zip](#pkg2zip) section, you'll also need to install that.
-
 ## Using PIP
 This is for both 32 and 64bits systems. All you need is python 3.7 or newer alongside PIP:
 
 >pip install pynps
+
+Make sure to also install pkg2zip and wget (this should already be installed in most Linux distros tho).
 
 ******
 # pkg2zip
@@ -83,7 +61,7 @@ This script uses lusid1's pkg2zip, as [recomended by NoPayStation](https://twitt
 
     >$ yay -S pkg2zip-fork
 
-3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases) and move  the binary into this folder `/home/$USER/.config/pyNPS/lib/`.
+3. Or you can just grab the sources from lusid1's repo and compile it yourself [here](https://github.com/lusid1/pkg2zip/releases) and move the binary into this folder `/home/$USER/.config/pyNPS/lib/`.
 
 For methods 1 and 3 pyNPS will autodetect and use it automatically, so there's no need to add the path to your config file
 
@@ -97,10 +75,12 @@ You can drop a wget binary at `/home/$USER/.config/pyNPS/lib/` after that pyNPS 
 
 In case you decide to store your binary outside `/home/$USER/.config/pyNPS/lib/` you'll need to specify this folder in your config file unde the "wget_location" option.
 ******
-# windows
-Just happens this also works on windows and binaries for windows are provided since version 1.4.0, available in the [releases page](https://github.com/evertonstz/pynps/releases), more info how using it on windows can be found in the notes for the version 1.4.0 [here](https://github.com/evertonstz/pynps/releases/tag/1.4.0). 
+# Windows
+TL;DR: install with the windows installer (available at [releases page](https://github.com/evertonstz/pynps/releases)) as administrator (aka select "install for every user in this PC" when you run the installer), open CMD and start using by typing `pynps`. More info about download directories and config files can be found in [these notes](https://github.com/evertonstz/pynps/releases/tag/1.6.2)
 
-Remember Windows is not fully supported, so your milage may vary: just use [NPSBrowser](https://nopaystation.com/vita/npsReleases/) .
+The Windows installer comes bundled with wget and pkg2zip and when installed as administrator it'll also include itself on PATH (if not the user will need to add it manually). There's also a portable binary and Windows can also install it with pip. More infor is found in [these notes](https://github.com/evertonstz/pynps/releases/tag/1.6.2).
+
+People on Windows that don't actually care about command line stuff can also try [NPSBrowser](https://nopaystation.com/vita/npsReleases/).
 
 ******
 # Updating database
