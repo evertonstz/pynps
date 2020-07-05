@@ -1,7 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/pynps.svg)](https://badge.fury.io/py/pynps)
 [![Downloads](https://pepy.tech/badge/pynps)](https://pepy.tech/project/pynps)
 
-# pyNPS - A cli Linux Nopaystation client made with python 3 and wget 
+# pyNPS - A cli Linux and Windows Nopaystation client made with python 3 and wget 
 <p align="center">
 <img src="https://octodex.github.com/images/pythocat.png" width="448" height="448">
 </p>
