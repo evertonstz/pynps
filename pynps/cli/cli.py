@@ -459,9 +459,17 @@ def cli_main(maindir=""):
                 sys.exit(0)
 
         else: # noconfirm download
-            printft(HTML("<green>[SEARCH] ATTENTION! Since you used --noconfirm, you'll be downloading all the listed files, download will start in 4 seconds, you can use control+c to cancel now or at any time.</green>"))
+            try:
+                printft(HTML("<green>[SEARCH] ATTENTION! Since you used --noconfirm, you'll be downloading all the listed files, download will start in 4 seconds, you can use control+c to cancel now or at any time.</green>"))
+                sleep(4)
+            except KeyboardInterrupt:
+                printft(HTML("<grey>Interrupted by user</grey>"))
+                sys.exit(0)
+            except:
+                printft(HTML("<grey>Interrupted by user</grey>"))
+                sys.exit(0)
+                   
             files_to_download = maybe_download
-            sleep(4)
 
 ####### skip all inputs to here in case of a resume :)
     """fully process game by game inside a single "for"
