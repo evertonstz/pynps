@@ -850,7 +850,7 @@ def create_args():
             printft(HTML("<orange>[WARNING] PS3 games can't be packed as eboot files, this flag will be ignored</orange>"))
 
     # tests for resume download
-    test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.compress_zip, a.update, a.avatars] == [['PSV', 'PSP', 'PSX', 'PSM', 'PS3'], None, False, False, False, False, False, False, None, False, False, False]
+    test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.compress_zip, a.update, a.avatars, a.noconfirm] == [['PSV', 'PSP', 'PSX', 'PSM', 'PS3'], None, False, False, False, False, False, False, None, False, False, False, False]
     
     if a.resume_session is True and test is False:
         printft(HTML("<red>[ERROR] you can only use -R/--resume_session alongside the -l/--limit_rate and -k/--keepkg arguments</red>"))
