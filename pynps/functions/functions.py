@@ -828,6 +828,8 @@ def create_args():
                         action="store_true")
     parser.add_argument("-R", "--resume_session", help="resume a download session that was saved previously.",
                         action="store_true")
+    parser.add_argument("-nc", "--noconfirm", help="use this flag to download every search result without confirmation, use it with caution.",
+                        action="store_true")
     parser.add_argument("-v", "--version", action='version',
                         version=f"%(prog)s version {variables.VERSION}")
     a = parser.parse_args()
@@ -848,7 +850,7 @@ def create_args():
             printft(HTML("<orange>[WARNING] PS3 games can't be packed as eboot files, this flag will be ignored</orange>"))
 
     # tests for resume download
-    test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.update, a.avatars] == [['PSV', 'PSP', 'PSX', 'PSM', 'PS3'], None, False, False, False, False, False, False, None, False, False]
+    test = [a.console, a.region, a.games, a.dlcs, a.themes, a.updates, a.demos, a.eboot, a.compress_cso, a.compress_zip, a.update, a.avatars] == [['PSV', 'PSP', 'PSX', 'PSM', 'PS3'], None, False, False, False, False, False, False, None, False, False, False]
     
     if a.resume_session is True and test is False:
         printft(HTML("<red>[ERROR] you can only use -R/--resume_session alongside the -l/--limit_rate and -k/--keepkg arguments</red>"))

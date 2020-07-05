@@ -14,6 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 
 # local imports
+from time import sleep
 # from functions import *
 from pynps.functions import *
 # import variables
@@ -242,6 +243,7 @@ def cli_main(maindir=""):
 
         if args.update == True:
             if [args.region, args.search, args.eboot, args.compress_cso] != [None, None, False, None]:
+                # TODO let the user search while updating the database
                 printft(HTML("<red>[UPDATEDB] you can't search while updating the database</red>"))
                 sys.exit(1)
 
@@ -273,8 +275,8 @@ def cli_main(maindir=""):
             sys.exit(0)
 
         elif args.update == False and args.search is None:
-            printft(HTML("<red>[SEARCH] No search term provided, you need to search for something</red>"))
-            parser.print_help()
+            printft(HTML("<red>[SEARCH] No search term provided, you need to search for something, use -h for help</red>"))
+            # parser.print_help()
             sys.exit(1)
 
         # checking for database's existense:
@@ -311,150 +313,155 @@ def cli_main(maindir=""):
             printft(HTML("<grey>%s</grey>") %fill_term())
             printft(HTML("<green>[SEARCH] here are the matches:</green>"))
             process_search(maybe_download)
-            
-        # validating input
-        class Check_game_input(Validator):
-            def validate(self, document):
-                text = document.text
-                if len(text) > 0:
-                    # test if number being typed is bigger than the biggest number from game list
-                    num_p = len(maybe_download)
-                    if num_p == 1 and text != "1":
-                        raise ValidationError(message="Your only option is to type 1.",
-                                            cursor_position=0)
-                    text_processed = text.replace(
-                        "-", " ").replace(",", " ").split(" ")
-                    last_texttext_processed = [
-                        x for x in text_processed if x != ""]
-                    last_text = text_processed[-1]
 
-                    if "0" in text_processed:
-                        raise ValidationError(message='Zero is an invalid entry.')
+        if args.noconfirm is False:
+            # validating input
+            class Check_game_input(Validator):
+                def validate(self, document):
+                    text = document.text
+                    if len(text) > 0:
+                        # test if number being typed is bigger than the biggest number from game list
+                        num_p = len(maybe_download)
+                        if num_p == 1 and text != "1":
+                            raise ValidationError(message="Your only option is to type 1.",
+                                                cursor_position=0)
+                        text_processed = text.replace(
+                            "-", " ").replace(",", " ").split(" ")
+                        last_texttext_processed = [
+                            x for x in text_processed if x != ""]
+                        last_text = text_processed[-1]
 
-                    if last_text.isdigit():
-                        last_text = int(last_text)
-                        if last_text > num_p:
+                        if "0" in text_processed:
+                            raise ValidationError(message='Zero is an invalid entry.')
+
+                        if last_text.isdigit():
+                            last_text = int(last_text)
+                            if last_text > num_p:
+                                raise ValidationError(
+                                    message=f"There are no entries past {num_p}.")
+
+                        if text.startswith("-") or text.startswith(","):
+                            # break
+                            raise ValidationError(message='Start the input with a number. Press "h" for help.',
+                                                cursor_position=0)
+
+                        if "--" in text or ",," in text or ",-" in text or "-," in text:
                             raise ValidationError(
-                                message=f"There are no entries past {num_p}.")
+                                message='Use only one symbol to separate numbers. Press "h" for help.')
 
-                    if text.startswith("-") or text.startswith(","):
-                        # break
-                        raise ValidationError(message='Start the input with a number. Press "h" for help.',
+                        text = text.replace("-", "").replace(",", "")
+                        if text.isdigit() is False and text != "h":
+                            raise ValidationError(
+                                message='Do not use leters. Press "h" for help.')
+                    else:
+                        raise ValidationError(message='Enter something or press Ctrl+C to close. Press "h" for help.',
                                             cursor_position=0)
 
-                    if "--" in text or ",," in text or ",-" in text or "-," in text:
-                        raise ValidationError(
-                            message='Use only one symbol to separate numbers. Press "h" for help.')
+            if len(maybe_download) > 1:
+                try:
+                    index_to_download_raw = prompt("Enter the number for what you want to download, you can enter multiple numbers using commas: ", 
+                                                    validator=Check_game_input())
+                except KeyboardInterrupt:
+                    printft(HTML("<grey>Interrupted by user</grey>"))
+                    sys.exit(0)
+                except:
+                    printft(HTML("<grey>Interrupted by user</grey>"))
+                    sys.exit(0)
+            else:
+                index_to_download_raw = "1"
 
-                    text = text.replace("-", "").replace(",", "")
-                    if text.isdigit() is False and text != "h":
-                        raise ValidationError(
-                            message='Do not use leters. Press "h" for help.')
+            # provides help
+            if index_to_download_raw.lower() == "h":
+                printft(HTML("<grey>\tSuppose you have 10 files to select from:</grey>"))
+                printft(HTML("<grey>\tTo download file 2, you type: 2</grey>"))
+                printft(HTML("<grey>\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9</grey>"))
+                printft(HTML("<grey>\tTo download files 1 to 9, the cool-kid method, you type: 1-9</grey>"))
+                printft(HTML("<grey>\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10</grey>"))
+                printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10: 1,4,6-10</grey>"))
+                printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6</grey>"))
+                printft(HTML("<grey>Exiting</grey>"))
+                sys.exit(0)
+
+            # parsing indexes
+            index_to_download_raw = index_to_download_raw.replace(" ", "").split(",")
+            index_to_download = []
+            for i in index_to_download_raw:
+                if "-" in i and i.count("-") == 1:
+                    # spliting range
+                    range_0, range_1 = i.split("-")
+                    # test if is digit
+                    if range_0.isdigit() == True and range_1.isdigit() == True:
+                        # test if there's a zero
+                        range_0 = int(range_0)
+                        range_1 = int(range_1)
+
+                        if range_0 < 1 or range_1 < 1:
+                            print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                            sys.exit(1)
+                        # test if digit 0 is bigger than digit 1
+                        if range_0 < range_1:
+                            # populate the index list
+                            for a in range(range_0, range_1+1):
+                                if a not in index_to_download:
+                                    index_to_download.append(a)
+                        elif range_0 > range_1:
+                            for a in range(range_1, range_0+1):
+                                if a not in index_to_download:
+                                    index_to_download.append(a)
+                        else:  # range_0 == range_1
+                            if range_0 not in index_to_download:
+                                index_to_download.append(range_0)
+                    else:
+                        print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                        sys.exit(1)
+                elif i.isdigit() == True:
+                    if int(i) not in index_to_download:
+                        index_to_download.append(int(i))
                 else:
-                    raise ValidationError(message='Enter something or press Ctrl+C to close. Press "h" for help.',
-                                        cursor_position=0)
+                    print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                    sys.exit(1)
 
-        if len(maybe_download) > 1:
+            # fixing indexes for python syntax and sorting the list
+            index_to_download = sorted([int(x)-1 for x in index_to_download])
+
+            files_to_download = [maybe_download[i] for i in index_to_download]
+
+            # if index_to_download_raw == "1":
+            printft(HTML("<grey>%s</grey>") %fill_term())
+            printft(HTML("<green>[SEARCH] you're going to download the following files:</green>"))
+
+
+            process_search(files_to_download)
+            
+            # validation 2
+            class Check_game_input_y_n(Validator):
+                def validate(self, document):
+                    text = document.text
+                    if len(text) > 0:
+                        if text.lower() not in ['y', 'n']:
+                            # break
+                            raise ValidationError(message='Use "y" for yes and "n" for no',
+                                                cursor_position=0)
+                    else:
+                        raise ValidationError(message='Enter something or press Ctrl+C to close.',
+                                            cursor_position=0)
+
             try:
-                index_to_download_raw = prompt("Enter the number for what you want to download, you can enter multiple numbers using commas: ", 
-                                                validator=Check_game_input())
+                accept = prompt("Download files? [y/n]: ",
+                                validator=Check_game_input_y_n())
+                if accept.lower() != "y":
+                    raise
             except KeyboardInterrupt:
                 printft(HTML("<grey>Interrupted by user</grey>"))
                 sys.exit(0)
             except:
                 printft(HTML("<grey>Interrupted by user</grey>"))
                 sys.exit(0)
-        else:
-            index_to_download_raw = "1"
 
-        # provides help
-        if index_to_download_raw.lower() == "h":
-            printft(HTML("<grey>\tSuppose you have 10 files to select from:</grey>"))
-            printft(HTML("<grey>\tTo download file 2, you type: 2</grey>"))
-            printft(HTML("<grey>\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9</grey>"))
-            printft(HTML("<grey>\tTo download files 1 to 9, the cool-kid method, you type: 1-9</grey>"))
-            printft(HTML("<grey>\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10</grey>"))
-            printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10: 1,4,6-10</grey>"))
-            printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6</grey>"))
-            printft(HTML("<grey>Exiting</grey>"))
-            sys.exit(0)
-
-        # parsing indexes
-        index_to_download_raw = index_to_download_raw.replace(" ", "").split(",")
-        index_to_download = []
-        for i in index_to_download_raw:
-            if "-" in i and i.count("-") == 1:
-                # spliting range
-                range_0, range_1 = i.split("-")
-                # test if is digit
-                if range_0.isdigit() == True and range_1.isdigit() == True:
-                    # test if there's a zero
-                    range_0 = int(range_0)
-                    range_1 = int(range_1)
-
-                    if range_0 < 1 or range_1 < 1:
-                        print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
-                        sys.exit(1)
-                    # test if digit 0 is bigger than digit 1
-                    if range_0 < range_1:
-                        # populate the index list
-                        for a in range(range_0, range_1+1):
-                            if a not in index_to_download:
-                                index_to_download.append(a)
-                    elif range_0 > range_1:
-                        for a in range(range_1, range_0+1):
-                            if a not in index_to_download:
-                                index_to_download.append(a)
-                    else:  # range_0 == range_1
-                        if range_0 not in index_to_download:
-                            index_to_download.append(range_0)
-                else:
-                    print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
-                    sys.exit(1)
-            elif i.isdigit() == True:
-                if int(i) not in index_to_download:
-                    index_to_download.append(int(i))
-            else:
-                print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
-                sys.exit(1)
-
-        # fixing indexes for python syntax and sorting the list
-        index_to_download = sorted([int(x)-1 for x in index_to_download])
-
-        files_to_download = [maybe_download[i] for i in index_to_download]
-
-        # if index_to_download_raw == "1":
-        printft(HTML("<grey>%s</grey>") %fill_term())
-        printft(HTML("<green>[SEARCH] you're going to download the following files:</green>"))
-
-
-        process_search(files_to_download)
-
-
-        # validation 2
-        class Check_game_input_y_n(Validator):
-            def validate(self, document):
-                text = document.text
-                if len(text) > 0:
-                    if text.lower() not in ['y', 'n']:
-                        # break
-                        raise ValidationError(message='Use "y" for yes and "n" for no',
-                                            cursor_position=0)
-                else:
-                    raise ValidationError(message='Enter something or press Ctrl+C to close.',
-                                        cursor_position=0)
-
-        try:
-            accept = prompt("Download files? [y/n]: ",
-                            validator=Check_game_input_y_n())
-            if accept.lower() != "y":
-                raise
-        except KeyboardInterrupt:
-            printft(HTML("<grey>Interrupted by user</grey>"))
-            sys.exit(0)
-        except:
-            printft(HTML("<grey>Interrupted by user</grey>"))
-            sys.exit(0)
+        else: # noconfirm download
+            printft(HTML("<green>[SEARCH] ATTENTION! Since you used --noconfirm, you'll be downloading all the listed files, download will start in 4 seconds, you can use control+c to cancel now or at any time.</green>"))
+            files_to_download = maybe_download
+            sleep(4)
 
 ####### skip all inputs to here in case of a resume :)
     """fully process game by game inside a single "for"
