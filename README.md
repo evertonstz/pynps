@@ -1,5 +1,12 @@
-[![PyPI version](https://badge.fury.io/py/pynps.svg)](https://badge.fury.io/py/pynps)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pynps)
+![PyPI - License](https://img.shields.io/pypi/l/pynps)
+
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/evertonstz/pynps)
+![PyPI](https://img.shields.io/pypi/v/pynps)
+
 [![Downloads](https://pepy.tech/badge/pynps)](https://pepy.tech/project/pynps)
+
+
 
 # pyNPS - A cli Linux and Windows Nopaystation client made with python 3 and wget 
 <p align="center">
