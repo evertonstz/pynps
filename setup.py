@@ -22,7 +22,7 @@ VERSION = "1.6.2"
 
 # What packages are required for this module to be executed?
 REQUIRED = [    
-     'prompt_toolkit', 'sqlitedict',
+     'prompt_toolkit', 'sqlitedict', 'rich'
 ]
 
 # What packages are optional?
