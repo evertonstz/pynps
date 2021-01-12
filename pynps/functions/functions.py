@@ -22,7 +22,7 @@ import argparse
 import hashlib
 import configparser
 import ctypes
-from time import time
+import time
 from datetime import datetime
 from json import dumps, dump as file_dump
 from shutil import copyfile, which, get_terminal_size
@@ -34,9 +34,16 @@ from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit import prompt, HTML, print_formatted_text as printft
 from tempfile import TemporaryDirectory as TmpFolder
 from operator import itemgetter
+from rich.console import Console
+from rich.table import Table
+from rich import box
+from rich.progress import Progress
 
 # local
 import pynps.variables as variables
+
+
+rich = Console()
 
 ##FUNCTIONS##
 def get_system():
@@ -137,7 +144,7 @@ def progress_bar(number, symbol="#", fill_width=20, open_symbol="[", close_symbo
 def download_save_state(dict, DBFOLDER, id, tag=False):
     """saves downloads sessions"""
     
-    epoch_date = int(time())
+    epoch_date = int(time.time())
     pretty_date = datetime.utcfromtimestamp(epoch_date).strftime('%Y-%m-%d %H:%M:%S')
 
     with SqliteDict(f"{DBFOLDER}/downloads.db", autocommit=False) as database:
@@ -210,12 +217,12 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
                 database[system] = []
             system_database = database[system]
             # if next((item for item in file if item['Title ID'] == "Tom" and item["age"] == 11), None) is not None:
-            
-            for index_file, i in enumerate(file):
+            from rich.progress import track
+            for index_file, i in track(enumerate(file), total=len(file), description="[green]Processing..."):
                 
-                print(f"Processing {type}: {progress_bar( int(index_file/(len(file) - 1) * 100) )}", 
-                                            f"({index_file}/{len(file) - 1})", 
-                                            end="\r")
+                # print(f"Processing {type}: {progress_bar( int(index_file/(len(file) - 1) * 100) )}", 
+                #                             f"({index_file}/{len(file) - 1})", 
+                #                             end="\r")
                 
                 i["Type"] = type.upper()
                 i['System'] = system
@@ -235,7 +242,7 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
                     # this means it's a new entry
                     # print("New database entry:", i['Title ID'], i['Region'], i['Type'], i['System'], i['Name'])
                     system_database.append(i)
-            print() # escapes \r from print above
+            # print() # escapes \r from print above
 
             # commit changes
             database[system] = system_database
@@ -287,8 +294,9 @@ def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
     name = dict['Name']
     title_id = dict['Title ID']
 
-    printft(HTML("<grey>%s</grey>") %fill_term())
-    printft(HTML("<green>[DOWNLOAD] %s (%s) [%s] for %s</green>") %(name, dict['Region'], title_id, system))
+    # printft(HTML("<grey>%s</grey>") %fill_term())
+    fillterm(f"[green on black][DOWNLOAD][/green on black][green] {name} ({dict['Region']}) [{title_id}] for {system}[/green]")
+    # printft(HTML("<green>[DOWNLOAD] %s (%s) [%s] for %s</green>") %(name, dict['Region'], title_id, system))
 
     dl_folder = f"{DLFOLDER}/PKG/{system}/{dict['Type']}"
 
@@ -297,7 +305,7 @@ def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
 
     # check if file exists
     if os.path.isfile(f"{dl_folder}/{filename}"):
-        printft(HTML("<orange>[DOWNLOAD] file exists, wget will decide if the file is completely downloaded, if it's not the download will be resumed</orange>"))
+        rich.print("File exists, wget will decide if the file is completely downloaded, if it's not the download will be resumed", style='dark_orange')
 
     try:
         if limit_rate is None:
@@ -352,68 +360,40 @@ def crop_print(text, leng, center=False, align="left"):
     elif len(text) == leng:
         return text
 
+def fillterm(tittle='', color='red'):
+    rich.rule(tittle, style=color)
 
-def process_search(out, show_index=True):
+def process_search(dict, show_index=True):
     """this function prints the search result for the 
     user in a human friendly format"""
-    if show_index is not False:
-        # look for the biggest Index value
-        biggest_index = sorted([int(x["Index"]) for x in out])
-        lenght_str = len(str(biggest_index[-1]))
-    else:
-        lenght_str = 2
+    CONSOLE_COLOR = {"PSV": "red", "PSP": "blue",
+                "PSX": "green", "PSM": "yellow", "PS3":"magenta"}
 
-    try:
-        biggest_type = sorted([len(x['Type']) for x in out])[-1] - 1
-    except:
-        biggest_type = 2 - 1
+    REGION_COLOR = {"USA": "red", "EUR": "blue",
+                "JAP": "green", "ASIA": "yellow", "INT":"magenta"}
 
-    try:
-        if sorted([len(x['Region']) for x in out])[-1] in [2, 3]:
-            biggest_reg = 3
-        elif sorted([len(x['Region']) for x in out])[-1] == 4:
-            biggest_reg = 4
-    except:
-        biggest_reg = 2
+    table = Table(show_header=True, header_style="bold magenta", box=box.ROUNDED, width=rich.width)
+    table.add_column("Index", style="dim", justify="center")
+    table.add_column("System", style="red", justify="center")
+    table.add_column("Title ID", justify="center")
+    table.add_column("Region", justify="center")
+    table.add_column("Type", justify="center")
+    table.add_column("Name")
+    table.add_column("File Size", justify="right")
+    
+    for i in dict:
+        system = i['System']
+        region = variables.REGION_DICT[i['Region']]
+        table.add_row(i['Index'],
+                        f'[{CONSOLE_COLOR[system]}]{system}',
+                        i['Title ID'],
+                        f'[{REGION_COLOR[region]}]{region}',
+                        i['Type'],
+                        i['Name'],
+                        file_size(i['File Size'])
+                        )
 
-    for i in out:
-        if show_index is not False:
-            number_str = f"{crop_print(str(i['Index']), lenght_str)})"
-        else:
-            number_str = " "
-        system_str = i['System']
-        id_str = i['Title ID']
-
-        reg_str = crop_print(variables.REGION_DICT[i['Region']], biggest_reg, center=True)
-        type_str = crop_print(variables.TYPE_DICT[i['Type']], biggest_type, center=False)
-        size_str = crop_print(file_size(i['File Size']), 9, center=False, align="right")
-
-        head = f"{number_str} {system_str} | {id_str} | {reg_str} | {type_str} | "
-
-        tail = f" [{size_str}]"
-
-        head_name = f"{head}{i['Name']}"
-
-        term_cols = get_terminal_columns()
-
-        if len(head_name + tail) <= term_cols:  # no neet to crop
-            rest = " " * (term_cols - len(head_name + tail))
-            if system() == 'Windows':
-                rest = rest[:-1]
-            #print(head_name + rest*" " + tail)
-            print(f"{head_name}{rest}{tail}")
-        else:
-            thats_more = len(head_name + tail) - term_cols
-
-            remove = len(i['Name']) - thats_more
-
-            if remove > 10:
-                head_name = head + i['Name'][:remove]
-                head_name = head + i['Name'][:remove]
-            else:
-                head_name = f"{head}{i['Name']}"
-            
-            print(f"{head_name}{tail}")
+    rich.print(table)
 
 
 def process_resumes(out):
@@ -440,7 +420,8 @@ def process_resumes(out):
         # print(header_tail)
         printft(HTML("<grey>%s</grey>") %header_tail)
         process_search(dicts, show_index=False)
-        printft(HTML("<grey>%s</grey>") %fill_term())
+        fillterm()
+        # printft(HTML("<grey>%s</grey>") %fill_term())
 
 
 def search_db(systems, type, query, region, order, DBFOLDER):
@@ -520,6 +501,21 @@ def search_db(systems, type, query, region, order, DBFOLDER):
 
     return(result)
 
+def get_xmas():
+    day, month = datetime.now().strftime("%d/%m").split('/')
+    if month == '12' and day >= '20' and day < '26':
+        return True
+    else:
+        return False
+    
+def get_spinner():
+    #make a christmas surprise
+    if get_xmas() is True:
+        return('christmas')
+    else:
+        return('bouncingBar')
+        
+        
 
 def checksum_file(file):
     """this fuction is used to calculate a sha256 
@@ -528,13 +524,17 @@ def checksum_file(file):
     BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
 
     sha256 = hashlib.sha256()
-
+    sum = 0
     with open(file, 'rb') as f:
-        while True:
-            data = f.read(BUF_SIZE)
-            if not data:
-                break
-            sha256.update(data)
+        with Progress() as progress:
+            task1 = progress.add_task("[green]Calculating...", total=os.path.getsize(file))
+            while not progress.finished:
+                while True:
+                    data = f.read(BUF_SIZE)
+                    if not data:
+                        break
+                    sha256.update(data)
+                    progress.update(task1, advance=BUF_SIZE)
     return(sha256.hexdigest())
 
 
@@ -633,51 +633,52 @@ def check_pkg2zip(location, CONFIGFOLDER):
 def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, dict: list, zrif=False):  # OK!
     """this fuction is used to extract a pkg with pkg2zip"""
     def runner( list, cwd):
+        
         p = subprocess.Popen(list, cwd=cwd,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.STDOUT)
         
         r = re.compile('pkg2zip v\\d.\\d')
         full_out = ''
+            
         for line in iter(p.stdout.readline, b''):
             out = line.rstrip().decode()
             full_out += f"{out}\n"
-            if out.startswith("ERROR") == False and r.match(out) is None:
-                print(out)
-        # test if file exist
+            # if out.startswith("ERROR") == False and r.match(out) is None:
+            #     rich.print(out, style="dim")
         
         # test for corrupted and file not being a pkg
         if "ERROR: not a pkg file" in full_out:
             # corrupted file and feeding inexistent file
             if os.path.isfile(file):
                 if file.endswith(".pkg"):
-                    printft(HTML("<red>[PKG2ZIP] The provided file is is a .pkg, but seems to be corrupted</red>"))
+                    rich.print("The provided file is is a .pkg, but seems to be corrupted", style='red on black')
                 else:
-                    printft(HTML("<red>[PKG2ZIP] The provided file is is not a .pkg</red>"))
+                    rich.print("The provided file is is not a .pkg", style='red on black')
             else:
-                printft(HTML("<red>[PKG2ZIP] Provided file doesn't exist</red>"))
+                rich.print("Provided file doesn't exist", style='red on black')
             return False
         elif "ERROR: pkg file is too small" in full_out:
             # download not ended
-            printft(HTML("<red>[PKG2ZIP] The provided file is too small, it's probably corrupted or didn't fully downloaded</red>"))
+            rich.print("The provided file is too small, it's probably corrupted or didn't fully downloaded", style='red on black')
             return False
         elif "ERROR: failed to read 256 bytes from file" in full_out:
             # feeded a folder to pkg2zip
             if os.path.isdir(file):
-                printft(HTML("<red>[PKG2ZIP] The provided file seems to be a folder</red>"))
+                rich.print("The provided file seems to be a folder", style='red on black')
             else:
-                printft(HTML("<red>[PKG2ZIP] Unknown extraction error. Output:</red>"))
-                print(full_out)
+                rich.print("Unknown extraction error. Output:", style='red on black')
+                rich.print(full_out, style='bright_black on black')
             return False
         elif "ERROR: cannot create 'pspemu' folder" in full_out:
             printft(HTML("<red>[PKG2ZIP] cannot create 'pspemu' folder. Do you have reading permissions for your Download folder?</red>"))
         else:
             if "done!" in full_out:
-                printft(HTML("<green>[PKG2ZIP] File extracted to: </green><grey>%s</grey>") %extraction_folder)
+                rich.print(f"File extracted to: [bright_black]{extraction_folder}", style='green')
                 return True
             else:
-                printft(HTML("<red>[PKG2ZIP] Unknown extraction error. Output:</red>"))
-                print(full_out)
+                rich.print("Unknown extraction error. Output:", style='red on black')
+                rich.print(full_out, style='bright_black on black')
                 return False
 
     
@@ -686,24 +687,25 @@ def run_pkg2zip(file, output_location, PKG2ZIP, args, extraction_folder, dict: l
 
     # reversing list
     args.reverse()
-
-    if zrif == False:
-        run_lst = [PKG2ZIP, file]
-        for x in args:
-            run_lst.insert(1, x)
-        process = runner(run_lst, cwd=output_location)
-    else:
-        run_lst = [PKG2ZIP, file, zrif]
-        for x in args:
-            run_lst.insert(1, x)
-        process = runner(run_lst, cwd=output_location)
     
-    # create a txt file inside the folder with the game's name
-    if process == True and "-x" in args:
-        if dict["System"] == 'PSX' or dict["System"] == 'PSP' and "-p" in args:
-            g_name = f"{dict['Name']} ({dict['Region']}) [{dict['Title ID']}].txt"
-            with open(extraction_folder+"/"+g_name, 'w') as file:
-                file_dump(dict, file, sort_keys=True, indent=4)
+    with rich.status("[bold green]Extracting with pkg2zip...", spinner=get_spinner()) as status:
+        if zrif == False:
+            run_lst = [PKG2ZIP, file]
+            for x in args:
+                run_lst.insert(1, x)
+            process = runner(run_lst, cwd=output_location)
+        else:
+            run_lst = [PKG2ZIP, file, zrif]
+            for x in args:
+                run_lst.insert(1, x)
+            process = runner(run_lst, cwd=output_location)
+            
+            # create a txt file inside the folder with the game's name
+            if process == True and "-x" in args:
+                if dict["System"] == 'PSX' or dict["System"] == 'PSP' and "-p" in args:
+                    g_name = f"{dict['Name']} ({dict['Region']}) [{dict['Title ID']}].txt"
+                    with open(extraction_folder+"/"+g_name, 'w') as file:
+                        file_dump(dict, file, sort_keys=True, indent=4)
 
     return process
 

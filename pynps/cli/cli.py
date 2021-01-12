@@ -23,6 +23,7 @@ import pynps.variables as variables
 #external imports
 from uuid import uuid4 as id_gen
 
+
 def cli_main(maindir=""):
     """implement pynps cli interface"""
     runing_from = get_pyinstaller()
@@ -179,13 +180,13 @@ def cli_main(maindir=""):
                     if yn_check.lower() != "y":
                         raise
                 except KeyboardInterrupt:
-                    printft(HTML("<grey>Interrupted by user</grey>"))
+                    rich.print('Interrupted by user', style='bright_black')
                     sys.exit(0)
                 except:
-                    printft(HTML("<grey>Interrupted by user</grey>"))
+                    rich.print('Interrupted by user', style='bright_black')
                     sys.exit(0)
             
-            printft(HTML("<grey>%s</grey>") %fill_term())
+            fillterm()
             
             p_db = []
             for index_file, i in enumerate(db):
@@ -222,10 +223,10 @@ def cli_main(maindir=""):
                 session_index = prompt("Enter the number for the download session you want to resume: ", 
                                                 validator=Check_resume_input())
             except KeyboardInterrupt:
-                printft(HTML("<grey>Interrupted by user</grey>"))
+                rich.print('Interrupted by user', style='bright_black')
                 sys.exit(0)
             except:
-                printft(HTML("<grey>Interrupted by user</grey>"))
+                rich.print('Interrupted by user', style='bright_black')
                 sys.exit(0)
 
             session = db[int(session_index) - 1]
@@ -246,8 +247,8 @@ def cli_main(maindir=""):
                 # TODO let the user search while updating the database
                 printft(HTML("<red>[UPDATEDB] you can't search while updating the database</red>"))
                 sys.exit(1)
-
-            printft(HTML("<grey>%s</grey>") %fill_term())
+    
+            fillterm()
             what_to_up = [x for x in what_to_dl if what_to_dl[x] == True]
 
             for i in system:
@@ -310,8 +311,7 @@ def cli_main(maindir=""):
                 for i in maybe_download:
                     print(f"{i['Index']} {i['System']} | {i['Title ID']} | {variables.REGION_DICT[i['Region']]} | {i['Type']} | {i['Name']} | [{file_size(i['File Size'])}]".encode("utf-8"))
                 sys.exit(0)
-            printft(HTML("<grey>%s</grey>") %fill_term())
-            printft(HTML("<green>[SEARCH] here are the matches:</green>"))
+            fillterm("[green][SEARCH] here are the matches[/green]")
             process_search(maybe_download)
 
         if args.noconfirm is False:
@@ -362,10 +362,10 @@ def cli_main(maindir=""):
                     index_to_download_raw = prompt("Enter the number for what you want to download, you can enter multiple numbers using commas: ", 
                                                     validator=Check_game_input())
                 except KeyboardInterrupt:
-                    printft(HTML("<grey>Interrupted by user</grey>"))
+                    rich.print('Interrupted by user', style='bright_black')
                     sys.exit(0)
                 except:
-                    printft(HTML("<grey>Interrupted by user</grey>"))
+                    rich.print('Interrupted by user', style='bright_black')
                     sys.exit(0)
             else:
                 index_to_download_raw = "1"
@@ -427,8 +427,8 @@ def cli_main(maindir=""):
             files_to_download = [maybe_download[i] for i in index_to_download]
 
             # if index_to_download_raw == "1":
-            printft(HTML("<grey>%s</grey>") %fill_term())
-            printft(HTML("<green>[SEARCH] you're going to download the following files:</green>"))
+            fillterm("[green][SEARCH] you're going to download the following files[/green]")
+            # printft(HTML("<green>[SEARCH] you're going to download the following files:</green>"))
 
 
             process_search(files_to_download)
@@ -452,10 +452,10 @@ def cli_main(maindir=""):
                 if accept.lower() != "y":
                     raise
             except KeyboardInterrupt:
-                printft(HTML("<grey>Interrupted by user</grey>"))
+                rich.print('Interrupted by user', style='bright_black')
                 sys.exit(0)
             except:
-                printft(HTML("<grey>Interrupted by user</grey>"))
+                rich.print('Interrupted by user', style='bright_black')
                 sys.exit(0)
 
         else: # noconfirm download
@@ -463,57 +463,30 @@ def cli_main(maindir=""):
                 printft(HTML("<green>[SEARCH] ATTENTION! Since you used --noconfirm, you'll be downloading all the listed files, download will start in 4 seconds, you can use control+c to cancel now or at any time.</green>"))
                 sleep(4)
             except KeyboardInterrupt:
-                printft(HTML("<grey>Interrupted by user</grey>"))
+                rich.print('Interrupted by user', style='bright_black')
                 sys.exit(0)
             except:
-                printft(HTML("<grey>Interrupted by user</grey>"))
+                rich.print('Interrupted by user', style='bright_black')
                 sys.exit(0)
                    
             files_to_download = maybe_download
 
 ####### skip all inputs to here in case of a resume :)
     """fully process game by game inside a single "for"
-    # this is useful to change the state for every game in the resume list
-    # proposed "Status" key in the dictionary will be as follow:
+    this is useful to change the state for every game in the resume list
+    proposed "Status" key in the dictionary will be as follow:
     
-    # 0 - PKG not downloaded:
-    #         this is already checked by the dl_file() fucntion!
-    #         Also, this should be the default parameter?
+    0 - PKG not downloaded:
+            this is already checked by the dl_file() fucntion!
+            Also, this should be the default parameter?
     
-    # 1 - PKG downloaded, but not extracted:
-    #         the status will be updated to 1 after the download passes checksum
-    #         a good place to do it could be around ### 1 HERE
+    1 - PKG downloaded, but not extracted:
+            the status will be updated to 1 after the download passes checksum
+            a good place to do it could be around ### 1 HERE
     
-    # 2 - PKG downloaded and extracted!
-    #         the package should be removed from the resume dictionary when it reaches this status
-    #         a good place to do it could be around ### 2 HERE
-
-    'files_downloaded' starts with no itens
-    'files_to_download' starts with all itens to be downloaded
-
-    for i in files_to_download:
-        downloads i
-
-        if dl_results is False:
-            do processing for resuming download latter
-        
-        save download locationg into 'downloaded_file_loc' var
-
-        call pkg_checksum() function (WIP) into 'chekcsum' var
-
-        if checksum is True:
-            if PKG2ZIP == False:
-                append i to 'files_downloaded' list
-            else:
-                proceed to extract pkg with pkg2zip
-
-                if extraction is ok:
-                    delete pkg file if needed
-                    append i to 'files_downloaded' list
-                    
-                remove i from list in the database!!! 
-        else:
-            skip file
+    2 - PKG downloaded and extracted!
+            the package should be removed from the resume dictionary when it reaches this status
+            a good place to do it could be around ### 2 HERE
     """
     files_downloaded = []
     for i in files_to_download:
@@ -531,7 +504,7 @@ def cli_main(maindir=""):
             # TODO: alert about closing with control + c to not save session
             # TODO don't let duplicate tags
             
-            printft(HTML("<grey>%s</grey>") %fill_term())
+            fillterm()
             # tag save validation
             class Check_tag_save(Validator):
                 def validate(self, document):
@@ -545,7 +518,7 @@ def cli_main(maindir=""):
                 tag = prompt("If you wanna save this download session to easily resume it latter, give this session a tag (you can use control+c to not save it or just leave blank to use a generated tag): ",
                                 validator=Check_tag_save())
             except KeyboardInterrupt:
-                printft(HTML("<grey>Interrupted by user</grey>"))
+                rich.print('Interrupted by user', style='bright_black')
                 sys.exit(0)
             
             if tag == "":
@@ -568,11 +541,10 @@ def cli_main(maindir=""):
         # checksum
         # TODO: transform into function?
         if "SHA256" in i.keys():
-            printft(HTML("<grey>%s</grey>") %fill_term())
+            fillterm(f"[green on black][CHECKSUM][/green on black][green] Checking if downloaded file is valid")
             if i["SHA256"] == "":
-                printft(HTML("<orange>[CHECKSUM] No checksum provided by NPS, skipping check</orange>"))
+                rich.print('No checksum provided by NPS, skipping check', style='dark_orange')
             else:
-
                 sha256_dl = checksum_file(downloaded_file_loc)
 
                 try:
@@ -582,16 +554,13 @@ def cli_main(maindir=""):
 
                 if sha256_dl != sha256_exp:
                     loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
-                    printft(HTML("<red>[CHECKSUM] checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg</red>"))
-                    printft(HTML("<red>[CHECKSUM] corrupted file location: %s</red>") %loc)
+                    rich.print('Checksum not matching, pkg file is probably corrupted, delete it at your download folder and redownload the pkg', style='red on black')
+                    rich.print(f'Corrupted file is located at [bright_black]{loc}[/bright_black]', style='red on black')
                     break # skip file
                 else:
-                    printft(HTML("<green>[CHECKSUM] downloaded is not corrupted!</green>"))
+                    rich.print('Download is not corrupted :^)', style='green')
         
         ### 1 HERE
-        
-
-        printft(HTML("<grey>%s</grey>") %fill_term())
 
         dl_dile_loc = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
         if PKG2ZIP != False and i['System'] != 'PS3':
@@ -662,7 +631,8 @@ def cli_main(maindir=""):
             if cso_factor != None and i["Type"] == "GAMES" and i['System'] == "PSP":
                 pkg2zip_args.append("-c"+cso_factor)
             elif cso_factor != None and i["Type"] != "UPDATES" and i['System'] != "PSP":
-                printft(HTML("<orange>[EXTRACTION] cso is only supported for PSP games, since you're extracting a %s %s the compression will be skipped</orange>") %(i['System'], i['Type'][:-1].lower()))
+                rich.print(f"cso is only supported for PSP games, since you're extracting a {i['System']} {i['Type'][:-1].lower()} the compression will be skipped", style='dark_orange')
+                
 
             if args.eboot == True and i["Type"] == "GAMES" and i['System'] == "PSP":
                 pkg2zip_args.append("-p")
@@ -671,7 +641,7 @@ def cli_main(maindir=""):
             if args.compress_zip == True:
                 extraction_folder = dl_location
 
-            printft(HTML("<green>[PKG2ZIP] Attempting to extract [%s]%s</green>") %(i['Title ID'], i['Name']))
+            fillterm(f"[green on black][PKG2ZIP][/green on black][green] Attempting extraction")
             
             if i['System'] == "PSV" and zrif not in ["", "MISSING", None]:
                 delete = run_pkg2zip(dl_dile_loc, dl_location, PKG2ZIP, pkg2zip_args, extraction_folder, i, zrif)
@@ -682,24 +652,24 @@ def cli_main(maindir=""):
             #testing if extraction was completion and delete file if needed
             if delete == True and keepkg == False:
                 # delete file
-                printft(HTML("<green>[EXTRACTION] attempting to delete .pkg file</green>"))
                 try:
                     os.remove(dl_dile_loc)
-                    printft(HTML("<green>[EXTRACTION] success, the compressed .pkg was deleted</green>"))
+                    rich.print("The compressed .pkg was deleted", style='green')
                 except:
-                    printft(HTML("<red>[EXTRACTION] unable to delete, you may want to it manually at: </red><grey>%s</grey>") %dl_dile_loc)     
+                    rich.print(f"Unable to delete file, you may want to it manually at [bright_black]{dl_dile_loc}[/bright_black]", style='red on black')
             
             ### 2 HERE
             files_downloaded.append(i)
         else:
             if i['System'] != 'PS3':
-                printft(HTML("<orange>[EXTRACTION] skipping extraction since there's no pkg2zip binary in your system</orange>"))
+                fillterm(f"[green on black][PKG2ZIP][/green on black][green] Attempting extraction")
+                rich.print("Skipping extraction since there's no pkg2zip binary in your system", style='red on black')
             else:
                 # move if it's a PS3 pkg
                 # move to ~/PS3/packages
                 # rap files go to ~/PS3/exdata
-                printft(HTML("<orange>[EXTRACTION] skipping extraction since pkg2zip doesn't work with pkg2zip</orange>"))
-                printft(HTML("<grey>%s</grey>") %fill_term())
+                fillterm(f"[green on black][MOVE][/green on black][green] Attempting to move files")
+                
                 # get downloaded file name
                 pkg_location = f"{DLFOLDER}/PKG/{i['System']}/{i['Type']}/{i['PKG direct link'].split('/')[-1]}"
 
@@ -712,39 +682,44 @@ def cli_main(maindir=""):
                     create_folder(os.path.dirname(pkg_new_location))
                     # copy file and set delte as True if it's sucessfull
                     copyfile(pkg_location, pkg_new_location)
-                    printft(HTML("<green>[MOVE] PS3 pkg file moved to: </green><grey>%s</grey>") %pkg_new_location)
+                    rich.print(f"PS3 pkg file moved to [bright_black]{pkg_new_location}[/bright_black]", style='green')
                     delete = True
                 except:
-                    printft(HTML("<red>[MOVE] unable to move PS3 pkg file</red>"))
+                    rich.print(f"Unable to move PS3 pkg file", style='red on black')
+                    
 
                 #testing if extraction was completion and delete file if needed
                 if delete == True and keepkg == False:
                     # delete file
-                    printft(HTML("<green>[MOVE] attempting to delete .pkg file from old location</green>"))
                     try:
                         os.remove(dl_dile_loc)
-                        printft(HTML("<green>[MOVE] success, the compressed .pkg was deleted</green>"))
+                        rich.print(f"The compressed .pkg was deleted", style='green')
                     except:
-                        printft(HTML("<red>[MOVE] unable to delete, you may want to it manually at: </red><grey>%s</grey>") %dl_dile_loc)
+                        rich.print(f"Unable to delete file, you may want to it manually at [bright_black]{dl_dile_loc}[/bright_black]", style='red on black')
                         
                 # download rap file
-                printft(HTML("<grey>%s</grey>") %fill_term())
+                fillterm(f"[green on black][RAP][/green on black][green] Trying to download RAP file")
+                
                 if i['RAP'] == "NOT REQUIRED":
-                    printft(HTML("<green>[RAP] RAP files aren't required for this game!</green>"))
+                    rich.print(f"RAP files aren't required for this game :^)", style='green')
                 elif i['RAP'] == "MISSING" or i['RAP'] == "":
-                    printft(HTML("<orange>[RAP] unfortunatelly there are no RAP files available for this game on Nopaystation</orange>"))
+                    rich.print(f"Unfortunatelly there are no RAP files available for this game on Nopaystation", style='dark_orange')
                 elif i['RAP'] == "UNLOCK/LICENSE BY DLC":
-                    printft(HTML("<orange>[RAP] this pkg is unlocked by a DLC</orange>"))
+                    rich.print(f"This pkg is unlocked by a DLC", style='dark_orange')
+                    
                 else:
                     rap_url = f"https://nopaystation.com/tools/rap2file/{i['Content ID']}/{i['RAP']}"
                     rap_folder = f"{DLFOLDER}/PS3/{i['Type']}/exdata/{i['Content ID']}.rap"
-                    printft(HTML("<green>[RAP] downloaing RAP file</green>"))
+                    # printft(HTML("<green>[RAP] downloaing RAP file</green>"))
                     get_rap(i, WGET, rap_folder, rap_url)
-                    printft(HTML("<green>[RAP] PS3 RAP file downloaded to: </green><grey>%s</grey>") %rap_folder)
+                    rich.print(f"PS3 RAP file downloaded to: [bright_black]{rap_folder}[/bright_black]", style='green')
             
             ### 2 HERE
             files_downloaded.append(i)
 
-    printft(HTML("<grey>%s</grey>") %fill_term())
-    printft(HTML("<blue>Done!</blue>"))
+    fillterm()
+    if get_xmas():
+        rich.print(f"Done! [red]Happy Holidays!!![/red] 🎄✨", style='green')
+    else:
+        rich.print(f"Done!", style='green')
 
