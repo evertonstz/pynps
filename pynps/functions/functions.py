@@ -37,7 +37,7 @@ from operator import itemgetter
 from rich.console import Console
 from rich.table import Table
 from rich import box
-from rich.progress import Progress
+from rich.progress import Progress, track
 
 # local
 import pynps.variables as variables
@@ -217,8 +217,8 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
                 database[system] = []
             system_database = database[system]
             # if next((item for item in file if item['Title ID'] == "Tom" and item["age"] == 11), None) is not None:
-            from rich.progress import track
-            for index_file, i in track(enumerate(file), total=len(file), description="[green]Processing..."):
+            
+            for index_file, i in track(enumerate(file), total=len(file), description=f"[green]Processing {t.title()} ", transient=True):
                 
                 # print(f"Processing {type}: {progress_bar( int(index_file/(len(file) - 1) * 100) )}", 
                 #                             f"({index_file}/{len(file) - 1})", 
@@ -247,6 +247,7 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
             # commit changes
             database[system] = system_database
             database.commit()
+            rich.print(f'[dim green]{t.title()} updated!')
 
     with TmpFolder() as tmp:
         dl_tmp_folder = f"{tmp}/"
@@ -256,15 +257,40 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
                 # detect file#
                 file = f"{t.upper()}.tsv"
                 url = dict[t]
-
+                
                 filename = url.split('/')[-1]
 
                 dl_folder = f"{DBFOLDER}/"
 
                 # create folder
                 create_folder(dl_folder)
-                process = subprocess.run([WGET, "-q", "--show-progress", url], cwd=dl_tmp_folder)
-
+                process = subprocess.Popen( [WGET, "-q", "--show-progress", url], cwd=dl_tmp_folder,
+                                           stdout=subprocess.PIPE, 
+                                           stderr=subprocess.STDOUT
+                                           )
+                with Progress(transient=True) as progress:
+                    task = progress.add_task(f"[green]Downloading {t.title()}", total=100)
+                    
+                    previous_percentage = 0
+                    while not progress.finished:
+                        if process.poll() is not None:
+                            break
+                        for line in iter(process.stdout.readline, b''):
+                            try:
+                                line = line.decode("utf-8")
+                                search = re.findall(r'(\d+(\.\d+)?%)', line)
+                                if len(search) == 1:
+                                    percentage = int(search[0][0].replace('%',''))
+                                elif len(search) > 1:
+                                    percentage = int(search[-1][0].replace('%',''))
+                                else:
+                                    break
+                                progress.update(task, advance=int(percentage-previous_percentage))
+                                previous_percentage = percentage
+                            except:
+                                pass
+                            
+                            
                 #read file and feed to database
                 DB = f"{DBFOLDER}/pynps.db"
                 insert_into_DB(f"{dl_tmp_folder}{filename}", DB, t) #pass downloaded tsv here in local
@@ -275,7 +301,32 @@ def get_rap(i, WGET, rap_folder, rap_url):
     with TmpFolder() as tmp:
         dl_tmp_folder = f"{tmp}/"
         # download rap file into temp folder
-        process = subprocess.run([WGET, "-q", "--show-progress", rap_url], cwd=dl_tmp_folder)
+        process = subprocess.Popen( [WGET, "-q", "--show-progress", rap_url], cwd=dl_tmp_folder,
+                            stdout=subprocess.PIPE, 
+                            stderr=subprocess.STDOUT
+                            )
+        
+        with Progress() as progress:
+            task = progress.add_task("[green]Downloading", total=100)
+            
+            previous_percentage = 0
+            while not progress.finished:
+                if process.poll() is not None:
+                    break
+                for line in iter(process.stdout.readline, b''):
+                    try:
+                        line = line.decode("utf-8")
+                        search = re.findall(r'(\d+(\.\d+)?%)', line)
+                        if len(search) == 1:
+                            percentage = int(search[0][0].replace('%',''))
+                        elif len(search) > 1:
+                            percentage = int(search[-1][0].replace('%',''))
+                        else:
+                            break
+                        progress.update(task, advance=int(percentage-previous_percentage))
+                        previous_percentage = percentage
+                    except:
+                        pass
 
         # make dest folder
         create_folder(os.path.dirname(rap_folder))
@@ -309,11 +360,41 @@ def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
 
     try:
         if limit_rate is None:
-            process = subprocess.run([WGET, "-q", "--show-progress", "-c",
-                                    dl_folder, url], cwd=dl_folder)
+            cmd_lst = [WGET, "-q", "--show-progress", "-c", dl_folder, url]
         else:
-            process = subprocess.run([WGET, "-q", "--show-progress", "-c", "--limit-rate", limit_rate,
-                                    dl_folder, url], cwd=dl_folder)           
+            cmd_lst = [WGET, "-q", "--show-progress", "-c", "--limit-rate", limit_rate, dl_folder, url]
+        process = subprocess.Popen( cmd_lst, cwd=dl_folder,
+                                    stdout=subprocess.PIPE, 
+                                    stderr=subprocess.STDOUT
+                                    )
+        with Progress() as progress:
+            task = progress.add_task("[green]Downloading", total=100)
+            
+            previous_percentage = 0
+            while not progress.finished:
+                if process.poll() is not None:
+                    break
+                for line in iter(process.stdout.readline, b''):
+                    try:
+                        line = line.decode("utf-8")
+                        search = re.findall(r'(\d+(\.\d+)?%)', line)
+                        if len(search) == 1:
+                            percentage = int(search[0][0].replace('%',''))
+                        elif len(search) > 1:
+                            percentage = int(search[-1][0].replace('%',''))
+                        else:
+                            break
+                        progress.update(task, advance=int(percentage-previous_percentage))
+                        previous_percentage = percentage
+                    except KeyboardInterrupt:
+                        #killing download process just to be on the safe side
+                        process.kill()
+                        # TODO: add infor about resuming
+                        printft(HTML("\n<orange>[DOWNLOAD] File was partially downloaded, you can resume this download by searching for same pkg again</orange>"))
+                        printft(HTML("<orange>[DOWNLOAD] File location:</orange> <grey>%s/%s</grey>") %(dl_folder, filename))
+                        printft(HTML("<grey>Download interrupted by user</grey>"))
+                        return False
+                
     except KeyboardInterrupt:
         # TODO: add infor about resuming
         printft(HTML("\n<orange>[DOWNLOAD] File was partially downloaded, you can resume this download by searching for same pkg again</orange>"))
@@ -360,7 +441,7 @@ def crop_print(text, leng, center=False, align="left"):
     elif len(text) == leng:
         return text
 
-def fillterm(tittle='', color='red'):
+def fillterm(tittle='', color='bright_black'):
     rich.rule(tittle, style=color)
 
 def process_search(dict, show_index=True):
@@ -369,27 +450,33 @@ def process_search(dict, show_index=True):
     CONSOLE_COLOR = {"PSV": "red", "PSP": "blue",
                 "PSX": "green", "PSM": "yellow", "PS3":"magenta"}
 
-    REGION_COLOR = {"USA": "red", "EUR": "blue",
-                "JAP": "green", "ASIA": "yellow", "INT":"magenta"}
+    REGION_COLOR = {"USA": "red", "EUR": "blue","JAP": "green", "ASIA": "yellow", "INT":"magenta"}
+    TYPE_COLOR = {"GAMES": "red", 
+                  "THEMES": "blue",
+                  "DLCS": "green", 
+                  "DEMOS": "yellow", 
+                  "UPDATES": "magenta", 
+                  "AVATARS": "cyan"}
 
-    table = Table(show_header=True, header_style="bold magenta", box=box.ROUNDED, width=rich.width)
-    table.add_column("Index", style="dim", justify="center")
+    table = Table(show_header=True, header_style="bold dim", box=box.SIMPLE, width=rich.width)
+    table.add_column("Index", justify="center")
     table.add_column("System", style="red", justify="center")
-    table.add_column("Title ID", justify="center")
-    table.add_column("Region", justify="center")
-    table.add_column("Type", justify="center")
     table.add_column("Name")
-    table.add_column("File Size", justify="right")
+    table.add_column("Title ID", style="dim", justify="center")
+    table.add_column("Region", justify="center")
+    table.add_column("Type", style="dim", justify="center")
+    table.add_column("File Size", style="dim", justify="right")
     
     for i in dict:
         system = i['System']
         region = variables.REGION_DICT[i['Region']]
+        type_g = i['Type']
         table.add_row(i['Index'],
                         f'[{CONSOLE_COLOR[system]}]{system}',
+                        i['Name'],
                         i['Title ID'],
                         f'[{REGION_COLOR[region]}]{region}',
-                        i['Type'],
-                        i['Name'],
+                        f'[{TYPE_COLOR[type_g]}]{type_g}',
                         file_size(i['File Size'])
                         )
 
@@ -406,8 +493,8 @@ def process_resumes(out):
         time = dict["session_time"]
         id = dict["session_id"]
         pretty_time = dict["session_prettytime"]
-
-        printft(HTML("<green>Session</green><red> %s</red>") %index)
+        
+        fillterm(f"[green]Session {index}")
 
         header = f"TAG: {tag} | SAVED AT: {pretty_time}"
         tail = f"UUID: {id}"
@@ -417,10 +504,10 @@ def process_resumes(out):
             rest = " " * (term_cols - (len(header) + len(tail)))
             header_tail = f"{header}{rest}{tail}"
 
-        # print(header_tail)
-        printft(HTML("<grey>%s</grey>") %header_tail)
+        rich.print(header_tail, style='bright_black')
+        
         process_search(dicts, show_index=False)
-        fillterm()
+        print()
         # printft(HTML("<grey>%s</grey>") %fill_term())
 
 
@@ -503,7 +590,7 @@ def search_db(systems, type, query, region, order, DBFOLDER):
 
 def get_xmas():
     day, month = datetime.now().strftime("%d/%m").split('/')
-    if month == '12' and day >= '20' and day < '26':
+    if month == '12' and day >= '20' and day < '31':
         return True
     else:
         return False

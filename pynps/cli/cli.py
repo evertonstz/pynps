@@ -186,16 +186,14 @@ def cli_main(maindir=""):
                     rich.print('Interrupted by user', style='bright_black')
                     sys.exit(0)
             
-            fillterm()
-            
             p_db = []
             for index_file, i in enumerate(db):
                 i["Index"] = index_file + 1
                 p_db.append(i)
-
-            
+ 
             process_resumes(p_db)
-
+            
+            
             # validating input
             class Check_resume_input(Validator):
                 def validate(self, document):
@@ -248,11 +246,10 @@ def cli_main(maindir=""):
                 printft(HTML("<red>[UPDATEDB] you can't search while updating the database</red>"))
                 sys.exit(1)
     
-            fillterm()
             what_to_up = [x for x in what_to_dl if what_to_dl[x] == True]
 
             for i in system:
-                printft(HTML("<green>[UPDATEDB] %s:</green>") %variables.FULL_SYSTEM_NAME[i])
+                fillterm(f"[green on black][UPDATEDB][/green on black][green] Updating {variables.FULL_SYSTEM_NAME[i]} database")
                 if i == "PSV":
                     db = database_psv_links
                 elif i == "PSP":
@@ -271,8 +268,14 @@ def cli_main(maindir=""):
                     updatedb(db, i, DBFOLDER, WGET, what_to_up_parsed)
                 else:
                     printft(HTML("<blue>Nothing to do!</blue>"))
-
-            printft(HTML("<blue>Done!</blue>"))
+                    
+            fillterm()
+            
+            if get_xmas():
+                rich.print(f"Done! [red]Happy Holidays!!![/red] 🎄✨", style='green')
+            else:
+                rich.print(f"Done!", style='green')
+                
             sys.exit(0)
 
         elif args.update == False and args.search is None:
