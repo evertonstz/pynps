@@ -60,28 +60,22 @@ def cli_main(maindir=""):
 
     # test sections
     if sorted(config.sections()) != sorted(['pyNPS', 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'PS3_Links', 'BinaryLocations']):
-        printft(HTML("<red>[ERROR] config file: missing sections</red>"))
-        print("You need the following sections in your config file: 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'PS3_Links', 'BinaryLocations'")
+        rich.print("Error: config file is missing sections: you need the following sections in your config file: 'PSV_Links', 'PSP_Links', 'PSX_Links', 'PSM_Links', 'PS3_Links', 'BinaryLocations'", style='red on black')
         sys.exit(1)
     if sorted(list(config["PSV_Links"])) != sorted(['games', 'dlcs', 'themes', 'updates', 'demos']):
-        printft(HTML("<red>[ERROR] config file: missing options in the PSV_Links section</red>"))
-        print("You need the following options in your PSV_Links section: 'games', 'dlcs', 'themes', 'updates', 'demos'")
+        rich.print("Error: config file is missing options in the PSV_Links section: you need the following options in your PSV_Links section: 'games', 'dlcs', 'themes', 'updates', 'demos'", style='red on black')
         sys.exit(1)
     if sorted(list(config["PSP_Links"])) != sorted(['games', 'dlcs', 'themes', 'updates']):
-        printft(HTML("<red>[ERROR] config file: missing options in the PSP_Links section</red>"))
-        print("You need the following options in your PSP_Links section: 'games', 'dlcs', 'themes', 'updates'")
+        rich.print("Error: config file is missing options in the PSP_Links section: you need the following options in your PSP_Links section: 'games', 'dlcs', 'themes', 'updates'", style='red on black')
         sys.exit(1)
     if sorted(list(config["PSX_Links"])) != sorted(['games']):
-        printft(HTML("<red>[ERROR] config file: missing options in the PSX_Links section</red>"))
-        print("You need the following options in your PSX_Links section: 'games'")
+        rich.print("Error: config file is missing options in the PSX_Links section: you need the following options in your PSX_Links section: 'games'", style='red on black')
         sys.exit(1)
     if sorted(list(config["PSM_Links"])) != sorted(['games']):
-        printft(HTML("<red>[ERROR] config file: missing options in the PSM_Links section</red>"))
-        print("You need the following options in your PSM_Links section: 'games'")
+        rich.print("Error: config file is missing options in the PSM_Links section: you need the following options in your PSM_Links section: 'games'", style='red on black')
         sys.exit(1)
     if sorted(list(config["PS3_Links"])) != sorted(['games', 'dlcs', 'themes', 'demos', 'avatars']):
-        printft(HTML("<red>[ERROR] config file: missing options in the PS3_Links section</red>"))
-        print("You need the following options in your PS3_Links section: 'games', 'dlcs', 'themes', 'demos', 'avatars'")
+        rich.print("Error: config file is missing options in the PS3_Links section: you need the following options in your PS3_Links section: 'games', 'dlcs', 'themes', 'demos', 'avatars'", style='red on black')
         sys.exit(1)
 
     # making vars
@@ -93,13 +87,12 @@ def cli_main(maindir=""):
     # tests existence of pkg2zip
     PKG2ZIP = check_pkg2zip(PKG2ZIP, CONFIGFOLDER)
     if PKG2ZIP == False:
-        printft(HTML("<orange>[PKG2ZIP] you don't have a valid pkg2zip installation or binary in your system, extraction will be skipped. PS3 games don't need pkg2zip</orange>"))
-        # sys.exit(1)
+        rich.print("You don't have a valid pkg2zip installation or binary in your system, extraction will be skipped. PS3 games don't need pkg2zip", style='dark_orange')
 
     # tests existence of wget
     WGET = check_wget(WGET, CONFIGFOLDER)
     if WGET == False:
-        printft(HTML("<red>[ERROR] you don't have a valid wget installation or binary in your system, this program can't work without it</red>"))
+        rich.print("Error: you don't have a valid wget installation or binary in your system, this program can't work without it", style='red on black')
         sys.exit(1)
 
     # makin dicts for links
@@ -137,7 +130,7 @@ def cli_main(maindir=""):
         input_tag = args.search
         if input_tag is not None:
             if input_tag.isalnum() is False:
-                printft(HTML("<orange>[DOWNLOAD] Tags can only be alphanumeric without spaces</orange>"))
+                rich.print("Tags can only be alphanumeric without spaces", style='dark_orange')
                 input_tag = None
            
         ##load download db
@@ -147,7 +140,7 @@ def cli_main(maindir=""):
                 if len(db) == 0:
                     raise
             except:
-                printft(HTML("<orange>[DOWNLOAD] There are no saved download sessions to resume</orange>"))
+                rich.print("There are no saved download sessions to resume", style='dark_orange')
                 sys.exit(0)
 
         checker = next((item for item in db if item['session_tag'] == input_tag), None)
@@ -159,7 +152,7 @@ def cli_main(maindir=""):
 
         elif checker is None or input_tag is None:
             if input_tag is not None:
-                printft(HTML("<orange>[DOWNLOAD] There's no such tag in download sessions</orange>"))
+                rich.print("There's no such tag in the download sessions", style='dark_orange')
 
                 # validation resume input
                 class Check_resume_input_y_n(Validator):
@@ -243,7 +236,7 @@ def cli_main(maindir=""):
         if args.update == True:
             if [args.region, args.search, args.eboot, args.compress_cso] != [None, None, False, None]:
                 # TODO let the user search while updating the database
-                printft(HTML("<red>[UPDATEDB] you can't search while updating the database</red>"))
+                rich.print("Error: you can't search while updating the database", style='red on black')
                 sys.exit(1)
     
             what_to_up = [x for x in what_to_dl if what_to_dl[x] == True]
@@ -267,7 +260,7 @@ def cli_main(maindir=""):
                 if len(what_to_up_parsed) > 0:
                     updatedb(db, i, DBFOLDER, WGET, what_to_up_parsed)
                 else:
-                    printft(HTML("<blue>Nothing to do!</blue>"))
+                    rich.print("Nothing to do!", style='green')
                     
             fillterm()
             
@@ -279,13 +272,12 @@ def cli_main(maindir=""):
             sys.exit(0)
 
         elif args.update == False and args.search is None:
-            printft(HTML("<red>[SEARCH] No search term provided, you need to search for something, use -h for help</red>"))
-            # parser.print_help()
+            rich.print("Error: No search term provided, you need to search for something, use -h for help", style='red on black')
             sys.exit(1)
 
         # checking for database's existense:
         if os.path.isfile(f"{DBFOLDER}/pynps.db") is False:
-            printft(HTML("<red>[UPDATEDB] theres no database in your system, please update your database and try again</red>"))
+            rich.print("Error: theres no database in your system, please update your database and try again, use -h for help", style='red on black')
             sys.exit(1)
 
 
@@ -300,7 +292,7 @@ def cli_main(maindir=""):
 
         # test if the result isn't empty
         if len(maybe_download) == 0:
-            printft(HTML("<orange>[SEARCH] No results found, try searching for something else or updating your database</orange>"))
+            rich.print("No results found, try searching for something else or updating your database", style='dark_orange')
             sys.exit(0)
 
         # adding indexes to maybe_download
@@ -375,14 +367,14 @@ def cli_main(maindir=""):
 
             # provides help
             if index_to_download_raw.lower() == "h":
-                printft(HTML("<grey>\tSuppose you have 10 files to select from:</grey>"))
-                printft(HTML("<grey>\tTo download file 2, you type: 2</grey>"))
-                printft(HTML("<grey>\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9</grey>"))
-                printft(HTML("<grey>\tTo download files 1 to 9, the cool-kid method, you type: 1-9</grey>"))
-                printft(HTML("<grey>\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10</grey>"))
-                printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10: 1,4,6-10</grey>"))
-                printft(HTML("<grey>\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6</grey>"))
-                printft(HTML("<grey>Exiting</grey>"))
+                rich.print("\tSuppose you have 10 files to select from:", style='bright_black')
+                rich.print("\tTo download file 2, you type: 2", style='bright_black')
+                rich.print("\tTo download files 1 to 9, the masochist method, you type: 1,2,3,4,5,6,7,8,9", style='bright_black')
+                rich.print("\tTo download files 1 to 9, the cool-kid method, you type: 1-9", style='bright_black')
+                rich.print("\tTo download files 1 to 5 and files 8 to 10: 1-5,8-10", style='bright_black')
+                rich.print("\tTo download files 1, 4 and files 6 to 10: 1,4,6-10:", style='bright_black')
+                rich.print("\tTo download files 1, 4 and files 6 to 10, the crazy way, as the software doesn't care about order or duplicates: 10-6,1,4,6", style='bright_black')
+                rich.print("Exiting", style='bright_black')
                 sys.exit(0)
 
             # parsing indexes
@@ -399,7 +391,7 @@ def cli_main(maindir=""):
                         range_1 = int(range_1)
 
                         if range_0 < 1 or range_1 < 1:
-                            print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                            rich.print("Error: invalid syntax, please only use non-zero positive integer numbers", style='red on black')
                             sys.exit(1)
                         # test if digit 0 is bigger than digit 1
                         if range_0 < range_1:
@@ -415,13 +407,13 @@ def cli_main(maindir=""):
                             if range_0 not in index_to_download:
                                 index_to_download.append(range_0)
                     else:
-                        print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                        rich.print("Error: syntax, please only use non-zero positive integer numbers", style='red on black')
                         sys.exit(1)
                 elif i.isdigit() == True:
                     if int(i) not in index_to_download:
                         index_to_download.append(int(i))
                 else:
-                    print("ERROR: Invalid syntax, please only use non-zero positive integer numbers")
+                    rich.print("Error: syntax, please only use non-zero positive integer numbers", style='red on black')
                     sys.exit(1)
 
             # fixing indexes for python syntax and sorting the list
@@ -463,7 +455,7 @@ def cli_main(maindir=""):
 
         else: # noconfirm download
             try:
-                printft(HTML("<green>[SEARCH] ATTENTION! Since you used --noconfirm, you'll be downloading all the listed files, download will start in 4 seconds, you can use control+c to cancel now or at any time.</green>"))
+                rich.print("ATTENTION! Since you used --noconfirm, you'll be downloading all the listed files, download will start in 4 seconds, you can use control+c to cancel now or at any time.", style='green')
                 sleep(4)
             except KeyboardInterrupt:
                 rich.print('Interrupted by user', style='bright_black')
