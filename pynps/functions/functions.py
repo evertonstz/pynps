@@ -268,12 +268,14 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
                                            stdout=subprocess.PIPE, 
                                            stderr=subprocess.STDOUT
                                            )
+                
                 with Progress(transient=True) as progress:
                     task = progress.add_task(f"[green]Downloading {t.title()}", total=100)
-                    
                     previous_percentage = 0
+                    
                     while not progress.finished:
-                        if process.poll() is not None:
+                        poll = process.poll()
+                        if poll is not None:
                             break
                         for line in iter(process.stdout.readline, b''):
                             try:
@@ -289,11 +291,13 @@ def updatedb(dict, system, DBFOLDER, WGET, types):
                                 previous_percentage = percentage
                             except:
                                 pass
-                            
-                            
-                #read file and feed to database
-                DB = f"{DBFOLDER}/pynps.db"
-                insert_into_DB(f"{dl_tmp_folder}{filename}", DB, t) #pass downloaded tsv here in local
+                
+                if poll is None:
+                    #read file and feed to database
+                    DB = f"{DBFOLDER}/pynps.db"
+                    insert_into_DB(f"{dl_tmp_folder}{filename}", DB, t) #pass downloaded tsv here in local
+                else:
+                    rich.print('Unable to download .tsv file. Do you have a internet connection?', style='red on black')
 
 def get_rap(i, WGET, rap_folder, rap_url):
     """this function downloads rap files for PS3 games from nopaystation servers"""
@@ -306,12 +310,13 @@ def get_rap(i, WGET, rap_folder, rap_url):
                             stderr=subprocess.STDOUT
                             )
         
-        with Progress() as progress:
+        with Progress(transient=True) as progress:
             task = progress.add_task("[green]Downloading", total=100)
-            
             previous_percentage = 0
+            
             while not progress.finished:
-                if process.poll() is not None:
+                poll = process.poll()
+                if poll is not None:
                     break
                 for line in iter(process.stdout.readline, b''):
                     try:
@@ -327,12 +332,17 @@ def get_rap(i, WGET, rap_folder, rap_url):
                         previous_percentage = percentage
                     except:
                         pass
-
-        # make dest folder
-        create_folder(os.path.dirname(rap_folder))
-
-        # copy rap file into final dest
-        copyfile(f"{dl_tmp_folder}{i['RAP']}", rap_folder)
+        
+        if poll is None:
+            # make dest folder
+            create_folder(os.path.dirname(rap_folder))
+            
+            # copy rap file into final dest
+            copyfile(f"{dl_tmp_folder}{i['RAP']}", rap_folder)
+            return(True)
+        else:
+            return(False)
+            
 
 
 def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
@@ -356,52 +366,54 @@ def dl_file(dict, system, DLFOLDER, WGET, limit_rate):
 
     # check if file exists
     if os.path.isfile(f"{dl_folder}/{filename}"):
-        rich.print("File exists, wget will decide if the file is completely downloaded, if it's not the download will be resumed", style='dark_orange')
+        rich.print("File exists in disk, wget will decide if the file is completely downloaded, if it's not the download will be resumed", style='dark_orange')
 
+    if limit_rate is None:
+        cmd_lst = [WGET, "-q", "--show-progress", "-c", dl_folder, url]
+    else:
+        cmd_lst = [WGET, "-q", "--show-progress", "-c", "--limit-rate", limit_rate, dl_folder, url]
+        
     try:
-        if limit_rate is None:
-            cmd_lst = [WGET, "-q", "--show-progress", "-c", dl_folder, url]
-        else:
-            cmd_lst = [WGET, "-q", "--show-progress", "-c", "--limit-rate", limit_rate, dl_folder, url]
         process = subprocess.Popen( cmd_lst, cwd=dl_folder,
                                     stdout=subprocess.PIPE, 
                                     stderr=subprocess.STDOUT
                                     )
-        with Progress() as progress:
+        with Progress(transient=True) as progress:
             task = progress.add_task("[green]Downloading", total=100)
             
             previous_percentage = 0
             while not progress.finished:
-                if process.poll() is not None:
+                poll = process.poll()
+                if poll is not None:
                     break
                 for line in iter(process.stdout.readline, b''):
-                    try:
-                        line = line.decode("utf-8")
-                        search = re.findall(r'(\d+(\.\d+)?%)', line)
-                        if len(search) == 1:
-                            percentage = int(search[0][0].replace('%',''))
-                        elif len(search) > 1:
-                            percentage = int(search[-1][0].replace('%',''))
-                        else:
-                            break
-                        progress.update(task, advance=int(percentage-previous_percentage))
-                        previous_percentage = percentage
-                    except KeyboardInterrupt:
-                        #killing download process just to be on the safe side
-                        process.kill()
-                        # TODO: add infor about resuming
-                        printft(HTML("\n<orange>[DOWNLOAD] File was partially downloaded, you can resume this download by searching for same pkg again</orange>"))
-                        printft(HTML("<orange>[DOWNLOAD] File location:</orange> <grey>%s/%s</grey>") %(dl_folder, filename))
-                        printft(HTML("<grey>Download interrupted by user</grey>"))
-                        return False
-                
+                    # try:
+                    line = line.decode("utf-8")
+                    search = re.findall(r'(\d+(\.\d+)?%)', line)
+                    if len(search) == 1:
+                        percentage = int(search[0][0].replace('%',''))
+                    elif len(search) > 1:
+                        percentage = int(search[-1][0].replace('%',''))
+                    else:
+                        break
+                    progress.update(task, advance=int(percentage-previous_percentage))
+                    previous_percentage = percentage
+                    # except:
+                    #     pass
     except KeyboardInterrupt:
+        #killing download process just to be on the safe side
+        process.kill()
         # TODO: add infor about resuming
-        printft(HTML("\n<orange>[DOWNLOAD] File was partially downloaded, you can resume this download by searching for same pkg again</orange>"))
-        printft(HTML("<orange>[DOWNLOAD] File location:</orange> <grey>%s/%s</grey>") %(dl_folder, filename))
-        printft(HTML("<grey>Download interrupted by user</grey>"))
+        rich.print("File was partially downloaded, you can resume this download by searching for same pkg again", style='dark_orange')       
+        rich.print(f"File location: [bright_black]{dl_folder}/{filename}[/bright_black]", style='dark_orange')       
+        rich.print("Download interrupted by user", style='bright_black')       
+        return 'interrupted'
+    
+    if poll is None:
+        return True
+    else:
         return False
-    return True
+    
 
 
 def file_size(size):
@@ -613,7 +625,7 @@ def checksum_file(file):
     sha256 = hashlib.sha256()
     sum = 0
     with open(file, 'rb') as f:
-        with Progress() as progress:
+        with Progress(transient=True) as progress:
             task1 = progress.add_task("[green]Calculating...", total=os.path.getsize(file))
             while not progress.finished:
                 while True:

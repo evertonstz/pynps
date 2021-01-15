@@ -495,8 +495,13 @@ def cli_main(maindir=""):
     for i in files_to_download:
         # download file
         dl_result = dl_file(i,  i['System'], DLFOLDER, WGET, limit_rate)
-
-        if dl_result is False:
+        
+        if dl_result is True:
+            rich.print("Download finished", style='dim green')
+        elif dl_result is False:
+            rich.print('Unable to download .pkg file. Do you have a internet connection?', style='red on black')
+        
+        if dl_result == 'interrupted':
             # interrupted by user
             resume_dict = []
             for i in files_to_download:
@@ -714,8 +719,13 @@ def cli_main(maindir=""):
                     rap_url = f"https://nopaystation.com/tools/rap2file/{i['Content ID']}/{i['RAP']}"
                     rap_folder = f"{DLFOLDER}/PS3/{i['Type']}/exdata/{i['Content ID']}.rap"
                     # printft(HTML("<green>[RAP] downloaing RAP file</green>"))
-                    get_rap(i, WGET, rap_folder, rap_url)
-                    rich.print(f"PS3 RAP file downloaded to: [bright_black]{rap_folder}[/bright_black]", style='green')
+                    rap_state = get_rap(i, WGET, rap_folder, rap_url)
+                    
+                    if rap_state:
+                        rich.print(f"PS3 RAP file downloaded to: [bright_black]{rap_folder}[/bright_black]", style='green')
+                    else:
+                        rich.print('Unable to download .rap file. Do you have a internet connection?', style='red on black')
+                        
             
             ### 2 HERE
             files_downloaded.append(i)
