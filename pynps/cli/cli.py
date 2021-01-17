@@ -423,7 +423,6 @@ def cli_main(maindir=""):
 
             # if index_to_download_raw == "1":
             fillterm("[green][SEARCH] you're going to download the following files[/green]")
-            # printft(HTML("<green>[SEARCH] you're going to download the following files:</green>"))
 
 
             process_search(files_to_download)
@@ -580,46 +579,34 @@ def cli_main(maindir=""):
             if i['System'] == "PSV":
                 if i["Type"] in ["GAMES", "DEMOS"]:
                     extraction_folder = f"{DLFOLDER}/Extracted/app/{i['Title ID']}"
-                    # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/app/{i['Title ID']}</green>"))
                 if i["Type"] == "UPDATES":
                     extraction_folder = f"{DLFOLDER}/Extracted/patch/{i['Title ID']}"
-                    # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/patch/{i['Title ID']}</green>"))
                 if i["Type"] == "DLCS":
                     extraction_folder = f"{DLFOLDER}/Extracted/addcont/{i['Title ID']}"
-                    # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/addcont/{i['Title ID']}</green>"))
                 if i["Type"] == "THEMES":
                     theme_folder_name = get_theme_folder_name(f"{DLFOLDER}/Extracted/bgdl/t/")
                     extraction_folder = f"{DLFOLDER}/Extracted/bgdl/t/{theme_folder_name}/{i['Title ID']}"
-                    # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/bgdl/t/{theme_folder_name}/{i['Title ID']}</green>"))
 
             if i['System'] == "PSP":
                 if i["Type"] == "GAMES":
                     if cso_factor == None and args.eboot == False:
                         extraction_folder = f"{DLFOLDER}/Extracted/pspemu/ISO/<i>game_name</i> [{i['Title ID']}].iso"
-                        # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/ISO/<i>game_name</i> [{i['Title ID']}].iso</green>"))
                     elif cso_factor in [str(x) for x in range(1, 10)]:
                         extraction_folder = f"{DLFOLDER}/Extracted/pspemu/ISO/<i>game_name</i> [{i['Title ID']}].cso"
-                        # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/ISO/<i>game_name</i> [{i['Title ID']}].cso</green>"))
                     elif args.eboot == True:
                         extraction_folder = f"{DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}"
-                        # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}</green>"))
                 if i["Type"] == "DLCS":
                     extraction_folder = f"{DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}"
-                    # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}</green>"))
                 if i["Type"] == "THEMES":
                     extraction_folder = f"{DLFOLDER}/Extracted/pspemu/PSP/THEME/<i>theme_name</i>.PTF"
-                    # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/PSP/THEME/<i>theme_name</i>.PTF</green>"))
                 if i["Type"] == "UPDATES":
                     extraction_folder = f"{DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}"
-                    # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}</green>"))
 
             if i['System'] == "PSX":
                 extraction_folder = f"{DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}"
-                # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/pspemu/PSP/GAME/{i['Title ID']}</green>"))
 
             if i['System'] == "PSM":
                 extraction_folder = f"{DLFOLDER}/Extracted/psm/{i['Title ID']}"
-                # printft(HTML(f"<green>[EXTRACTION] {i['Name']} ➔ {DLFOLDER}/Extracted/psm/{i['Title ID']}</green>"))
 
             
             # -x is default argument to not create .zip files
