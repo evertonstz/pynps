@@ -1,6 +1,8 @@
 __pycache__/*
 cli/*/__pycache__/*
 cli/__pycache__/*
+cli/test_*.py
+test_*.py
 build/*
 dist/*
 *.spec
