@@ -1,3 +1,18 @@
+#!/usr/bin/python3
+# coding=utf-8
+# Created by evertonstz
+""" This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>. """
+
 import configparser
 import os
 from dataclasses import dataclass, field
@@ -36,7 +51,7 @@ class Path:
 
 @dataclass(frozen=False)
 class Configurations:
-    """define the class used to interact with the configuration file"""
+    """define the class used to interact with configuration parameters and the configuration file"""
 
     path: str
     download_folder: ClassVar[Path] = field(default=Path("./pynps_downloads/"))
@@ -138,7 +153,7 @@ class Configurations:
             return False
 
     def commit_to_file(self) -> None:
-        """commit all variables from class attributes to configfile"""
+        """commit all attributes to configfile"""
         with open(self.path, "w") as file:
             self.__config.write(file)
 
@@ -160,7 +175,6 @@ class Configurations:
             self.psm_links = consoles.PsmConsoleTsvs(**dict(self.__config["PSM_Links"]))
             self.ps3_links = consoles.Ps3ConsoleTsvs(**dict(self.__config["PS3_Links"]))
         else:
-            # TODO create a custom error just to make clear the config file is broken
             raise Error(
-                "unable to read file, check the file syntax or try recreating it."
+                "unable to read the configuration file, check the syntax in the file and try again"
             )
