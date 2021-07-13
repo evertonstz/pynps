@@ -1,7 +1,7 @@
 __pycache__/*
-cli/*/__pycache__/*
-cli/__pycache__/*
-cli/test_*.py
+*/*/__pycache__/*
+*/__pycache__/*
+*/test_*.py
 test_*.py
 build/*
 dist/*
