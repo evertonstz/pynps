@@ -1,6 +1,6 @@
 __pycache__/*
-pynps/*/__pycache__/*
-pynps/__pycache__/*
+cli/*/__pycache__/*
+cli/__pycache__/*
 build/*
 dist/*
 *.spec
@@ -21,3 +21,7 @@ pynps_database/*
 pynps_downloads/*
 pynps/Scripts/*
 lib/*
+pyinstaller_distribute.py
+dist_onefile/*
+dist_onefolder/*
+Output/*
