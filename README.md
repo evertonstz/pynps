@@ -6,7 +6,9 @@
 
 [![Downloads](https://pepy.tech/badge/pynps)](https://pepy.tech/project/pynps)
 
+# About this branch
 
+I started this project a couple years ago and gained a lot of knoledge since. The code for pyNPS works reliably, but it's very very messy and hacky, in this branch I will try to rewrite everything to comply with best python and coding practices as much as possible :)
 
 # pyNPS - A cli Linux and Windows Nopaystation client made with python 3 and wget 
 <p align="center">
