@@ -48,7 +48,7 @@ class Path:
         """when used a dot to express the script dir, the folder string needs to be unraped to express the full directory path"""
         return self._fix_folder_syntax(self._unrapper(self.path, maindir))
 
-
+# TODO user shouldn't be forced to set every parameter in the config file, in cases like this, the parameter not available in the config file will be the default fields in this class
 @dataclass(frozen=False)
 class Configurations:
     """define the class used to interact with configuration parameters and the configuration file"""
