@@ -53,8 +53,6 @@ class Database:
     def rollback(self) -> None:
         self.con.rollback()
 
-    # def query(self, query: str):
-    #     pass
     def _dict_factory(self, cursor, row):
         d = {}
         for idx, col in enumerate(cursor.description):
@@ -65,7 +63,6 @@ class Database:
         cur = self.con.cursor()
         query = cur.execute(f"""SELECT * FROM {self.table};""")
 
-        # res = []
         res = [
             games.Game(
                 game_id=row["GameId"],
@@ -87,13 +84,6 @@ class Database:
 
         return res
 
-    # def query_all(self):
-    #     try:
-    #         with SqliteDict(self.path, autocommit=self.autocommit) as database:
-    #             self.data = database[self.table]
-    #     except KeyError:
-    #         raise Error(f"no table named {self.table} in the database")
-
 
 @dataclass
 class Resumes(Database):
@@ -102,7 +92,6 @@ class Resumes(Database):
 
 @dataclass
 class GameDatabase(Database):
-    # def insert(self, game_id: str, platform: str, type: str, region: str, name: str, zrif: str, content_id: str, last_modified_date: str, original_name: str, sha256: str, file_size: int, app_version: int, required_fw: str):
     def upsert(self, game: games.Game) -> None:
         cur = self.con.cursor()
         t = cur.execute(
