@@ -14,6 +14,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 import sqlite3
 from dataclasses import dataclass, field
+from sqlite3.dbapi2 import Cursor
+from typing import Any
 
 
 # this is guetto but works, hopefully god will forgive me
@@ -65,13 +67,13 @@ class Database:
     def rollback(self) -> None:
         self.con.rollback()
 
-    def _dict_factory(self, cursor, row):
+    def _dict_factory(self, cursor: Cursor, row: tuple) -> dict[str, Any]:
         d = {}
         for idx, col in enumerate(cursor.description):
             d[col[0]] = row[idx]
         return d
 
-    def query_all(self):
+    def query_all(self) -> list[games.Game]:
         cur = self.con.cursor()
         query = cur.execute(f"""SELECT * FROM {self.table};""")
 
