@@ -14,7 +14,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 import sqlite3
 from dataclasses import dataclass, field
-import typing
 
 
 # this is guetto but works, hopefully god will forgive me
