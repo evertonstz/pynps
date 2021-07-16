@@ -14,6 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 from dataclasses import dataclass, field
 
+
 @dataclass
 class Game:
     game_id: str
@@ -21,19 +22,14 @@ class Game:
     type: str
     region: str = field(default="")
     name: str = field(default="")
+    pkg_direct_link: str = field(default="")
     zrif: str = field(default="")
     content_id: str = field(default="")
     last_modified_date: str = field(default="")
     original_name: str = field(default="")
     sha256: str = field(default="")
-    file_size: int = field(default=0)
-    app_version: int = field(default=0)
+    file_size: str = field(default="")
+    app_version: str = field(default="")
     required_fw: str = field(default="")
-
-def main():
-    att = {"game_id": "id", "platform": "str", "type": "str"}
-    g = Game(**att)
-    print(g)
-
-if __name__ == '__main__':
-    main()
+    rap: str = field(default="")
+    rap_direct_link: str = field(default="")
