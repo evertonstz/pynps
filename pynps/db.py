@@ -13,16 +13,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 import sqlite3
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from sqlite3.dbapi2 import Cursor
 from typing import Any
 
 
 # this is guetto but works, hopefully god will forgive me
 if __name__ == "__main__":
-    import games
+    from games import Game
 else:
-    import pynps.games as games
+    from pynps.games import Game
 
 
 @dataclass
@@ -41,21 +41,24 @@ class Database:
         cur.execute(
             f"""
         CREATE TABLE IF NOT EXISTS {self.table} (
-		Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-		GameId TEXT UNIQUE,		
-		Platform TEXT NOT NULL,
-		Type TEXT NOT NULL,
-		Region TEXT,
-		Name TEXT,
-		ZRif TEXT,
-		ContentId TEXT,
-		LastModDate TEXT,
-		OriginalName TEXT,
-		Sha256 TEXT,
-		FileSize INTEGER,
-		AppVersion INTEGER,
-		RequiredFw TEXT
-	  );"""
+		    Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+		    game_id TEXT UNIQUE,		
+		    platform TEXT NOT NULL,
+		    type TEXT NOT NULL,
+		    region TEXT,
+		    name TEXT,
+            pkg_direct_link TEXT,
+		    zrif TEXT,
+		    content_id TEXT,
+		    last_modified_date TEXT,
+		    original_name TEXT,
+		    sha256 TEXT,
+		    file_size TEXT,
+		    app_version TEXT,
+		    required_fw TEXT,
+            rap TEXT,
+            rap_direct_link TEXT
+	    );"""
         )
 
     def close(self) -> None:
@@ -73,25 +76,28 @@ class Database:
             d[col[0]] = row[idx]
         return d
 
-    def query_all(self) -> list[games.Game]:
+    def query_all(self) -> list[Game]:
         cur = self.con.cursor()
         query = cur.execute(f"""SELECT * FROM {self.table};""")
 
         res = [
-            games.Game(
-                game_id=row["GameId"],
-                platform=row["Platform"],
-                type=row["Type"],
-                region=row["Region"],
-                name=row["Name"],
-                zrif=row["ZRif"],
-                content_id=row["ContentId"],
-                last_modified_date=row["LastModDate"],
-                original_name=row["OriginalName"],
-                sha256=row["Sha256"],
-                file_size=row["FileSize"],
-                app_version=row["AppVersion"],
-                required_fw=row["RequiredFw"],
+            Game(
+                game_id=row["game_id"],
+                platform=row["platform"],
+                type=row["type"],
+                region=row["region"],
+                name=row["name"],
+                pkg_direct_link=row["pkg_direct_link"],
+                zrif=row["zrif"],
+                content_id=row["content_id"],
+                last_modified_date=row["last_modified_date"],
+                original_name=row["original_name"],
+                sha256=row["sha256"],
+                file_size=row["file_size"],
+                app_version=row["app_version"],
+                required_fw=row["required_fw"],
+                rap=row["rap"],
+                rap_direct_link=row["rap_direct_link"],
             )
             for row in query
         ]
@@ -106,52 +112,47 @@ class Resumes(Database):
 
 @dataclass
 class GameDatabase(Database):
-    def upsert(self, game: games.Game) -> None:
+    def upsert(self, game: Game) -> None:
         """this method upserts the data from a Game object into the sqlite3 database"""
         cur = self.con.cursor()
         t = cur.execute(
             f"""
-		INSERT INTO {self.table} (GameId, Platform, Type, Region, Name, ZRif, ContentId, LastModDate, OriginalName, Sha256, FileSize, AppVersion, RequiredFw)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		ON CONFLICT(GameId) DO UPDATE SET
-		Platform=excluded.Platform,
-		Type=excluded.Type,
-		Region=excluded.Region,
-		Name=excluded.Name,
-		ZRif=excluded.ZRif,
-		ContentId=excluded.ContentId,
-		LastModDate=excluded.LastModDate,
-		OriginalName=excluded.OriginalName,
-		Sha256=excluded.Sha256,
-		FileSize=excluded.FileSize,
-		AppVersion=excluded.AppVersion,
-		RequiredFw=excluded.RequiredFw;""",
+		INSERT INTO {self.table} (game_id, platform, type, region, name, pkg_direct_link, zrif, content_id, last_modified_date, original_name, sha256, file_size, app_version, required_fw, rap, rap_direct_link)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		ON CONFLICT(game_id) DO UPDATE SET
+		platform=excluded.platform,
+		type=excluded.type,
+		region=excluded.region,
+		name=excluded.name,
+        pkg_direct_link=excluded.pkg_direct_link,
+		zrif=excluded.zrif,
+		content_id=excluded.content_id,
+		last_modified_date=excluded.last_modified_date,
+		original_name=excluded.original_name,
+		sha256=excluded.sha256,
+		file_size=excluded.file_size,
+		app_version=excluded.app_version,
+		required_fw=excluded.required_fw,
+        rap=excluded.rap,
+        rap_direct_link=excluded.rap_direct_link;""",
             (
                 game.game_id,
                 game.platform,
                 game.type,
                 game.region,
                 game.name,
+                game.pkg_direct_link,
                 game.zrif,
                 game.content_id,
                 game.last_modified_date,
                 game.original_name,
                 game.sha256,
-                str(game.file_size),
-                str(game.app_version),
+                game.file_size,
+                game.app_version,
                 game.required_fw,
+                game.rap,
+                game.rap_direct_link,
             ),
         )
 
-    
-
         # TODO add option for autocommit
-
-
-def main():
-    # d = GameDatabase("D:/Documentos/GitHub/pynps/testfiles/test.db", "resumes")
-    pass
-
-
-if __name__ == "__main__":
-    main()
