@@ -97,7 +97,8 @@ class Configurations:
 
     __config = configparser.ConfigParser()
 
-    def __post_init__(self):
+    def _populate___config_with_data_from_attributes(self):
+        """populate __config object with the data from all the attributes"""
         self.__config["pyNPS"] = {
             "DownloadFolder": self.download_folder,
             "DatabaseFolder": self.database_folder,
@@ -112,10 +113,10 @@ class Configurations:
         self.__config["PSP_Links"] = self.psp_links.__dict__
         self.__config["PSX_Links"] = self.psx_links.__dict__
         self.__config["PSM_Links"] = self.psm_links.__dict__
-        self.__config["PS3_Links"] = self.ps3_links.__dict__
-
+        self.__config["PS3_Links"] = self.ps3_links.__dict__    
+    
     def _check_sections(self, parser: configparser.ConfigParser) -> bool:
-        """checks if all sections are avaliable in a given list"""
+        """checks if all sections are avaliable in the on_disk configuration file"""
         sections = parser.sections()
 
         obligatory_main_sections = [
@@ -153,7 +154,9 @@ class Configurations:
             return False
 
     def commit_to_file(self) -> None:
-        """commit all attributes to configfile"""
+        """commit all attributes to on_disk configfile"""
+        self._populate___config_with_data_from_attributes()
+        
         with open(self.path, "w") as file:
             self.__config.write(file)
 
@@ -162,7 +165,7 @@ class Configurations:
         self.__config.read(self.path)
 
         if os.path.isfile(self.path) == False:
-            raise FileNotFoundError
+            raise FileNotFoundError(f"can't find {self.path} on disk")
 
         if self._check_sections(self.__config):
             self.download_folder = self.__config["pyNPS"]["downloadfolder"]
