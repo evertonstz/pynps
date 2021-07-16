@@ -36,7 +36,7 @@ class Database:
 
         # TODO check if table exists, if not, create it
 
-    def _touch_table(self) -> None:
+    def touch_table(self) -> None:
         cur = self.con.cursor()
         cur.execute(
             f"""
