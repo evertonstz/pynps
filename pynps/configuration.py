@@ -17,9 +17,8 @@ import configparser
 import os
 from dataclasses import dataclass, field
 from shutil import Error
-from typing import ClassVar
 
-import pynps.consoles as consoles
+from pynps.consoles import *
 
 
 @dataclass
@@ -58,8 +57,8 @@ class Configurations:
     database_folder: Path = field(default=Path("./pynps_database/"))
     pkg2zip_location: Path = field(default=Path("./pynps_config/lib/pkg2zip"))
     wget_location: Path = field(default=Path("./pynps_config/lib/wget"))
-    psv_links: consoles.PsvConsoleTsvs = field(
-        default=consoles.PsvConsoleTsvs(
+    psv_links: PsvConsoleTsvs = field(
+        default=PsvConsoleTsvs(
             games="http://nopaystation.com/tsv/PSV_GAMES.tsv",
             dlcs="http://nopaystation.com/tsv/PSV_DLCS.tsv",
             themes="http://nopaystation.com/tsv/PSV_THEMES.tsv",
@@ -67,26 +66,26 @@ class Configurations:
             demos="http://nopaystation.com/tsv/PSV_DEMOS.tsv",
         )
     )
-    psp_links: consoles.PspConsoleTsvs = field(
-        default=consoles.PspConsoleTsvs(
+    psp_links: PspConsoleTsvs = field(
+        default=PspConsoleTsvs(
             games="http://nopaystation.com/tsv/PSP_GAMES.tsv",
             dlcs="http://nopaystation.com/tsv/PSP_DLCS.tsv",
             themes="http://nopaystation.com/tsv/PSP_THEMES.tsv",
             updates="http://nopaystation.com/tsv/PSP_UPDATES.tsv",
         )
     )
-    psx_links: consoles.PsxConsoleTsvs = field(
-        default=consoles.PsxConsoleTsvs(
+    psx_links: PsxConsoleTsvs = field(
+        default=PsxConsoleTsvs(
             games="http://nopaystation.com/tsv/PSX_GAMES.tsv"
         )
     )
-    psm_links: consoles.PsmConsoleTsvs = field(
-        default=consoles.PsmConsoleTsvs(
+    psm_links: PsmConsoleTsvs = field(
+        default=PsmConsoleTsvs(
             games="http://nopaystation.com/tsv/PSM_GAMES.tsv"
         )
     )
-    ps3_links: consoles.Ps3ConsoleTsvs = field(
-        default=consoles.Ps3ConsoleTsvs(
+    ps3_links: Ps3ConsoleTsvs = field(
+        default=Ps3ConsoleTsvs(
             games="https://nopaystation.com/tsv/PS3_GAMES.tsv",
             dlcs="https://nopaystation.com/tsv/PS3_DLCS.tsv",
             themes="https://nopaystation.com/tsv/PS3_THEMES.tsv",
@@ -172,11 +171,11 @@ class Configurations:
             self.database_folder.path = self.__config["pyNPS"]["databasefolder"]
             self.pkg2zip_location.path = self.__config["BinaryLocations"]["pkg2zip_location"]
             self.wget_location.path = self.__config["BinaryLocations"]["wget_location"]
-            self.psv_links = consoles.PsvConsoleTsvs(**dict(self.__config["PSV_Links"]))
-            self.psp_links = consoles.PspConsoleTsvs(**dict(self.__config["PSP_Links"]))
-            self.psx_links = consoles.PsxConsoleTsvs(**dict(self.__config["PSX_Links"]))
-            self.psm_links = consoles.PsmConsoleTsvs(**dict(self.__config["PSM_Links"]))
-            self.ps3_links = consoles.Ps3ConsoleTsvs(**dict(self.__config["PS3_Links"]))
+            self.psv_links = PsvConsoleTsvs(**dict(self.__config["PSV_Links"]))
+            self.psp_links = PspConsoleTsvs(**dict(self.__config["PSP_Links"]))
+            self.psx_links = PsxConsoleTsvs(**dict(self.__config["PSX_Links"]))
+            self.psm_links = PsmConsoleTsvs(**dict(self.__config["PSM_Links"]))
+            self.ps3_links = Ps3ConsoleTsvs(**dict(self.__config["PS3_Links"]))
         else:
             raise Error(
                 "unable to read the configuration file, check the syntax in the file and try again"
