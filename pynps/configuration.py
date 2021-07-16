@@ -54,11 +54,11 @@ class Configurations:
     """define the class used to interact with configuration parameters and the configuration file"""
 
     path: str
-    download_folder: ClassVar[Path] = field(default=Path("./pynps_downloads/"))
-    database_folder: ClassVar[Path] = field(default=Path("./pynps_database/"))
-    pkg2zip_location: ClassVar[Path] = field(default=Path("./pynps_config/lib/pkg2zip"))
-    wget_location: ClassVar[Path] = field(default=Path("./pynps_config/lib/wget"))
-    psv_links: ClassVar[consoles.PsvConsoleTsvs] = field(
+    download_folder: Path = field(default=Path("./pynps_downloads/"))
+    database_folder: Path = field(default=Path("./pynps_database/"))
+    pkg2zip_location: Path = field(default=Path("./pynps_config/lib/pkg2zip"))
+    wget_location: Path = field(default=Path("./pynps_config/lib/wget"))
+    psv_links: consoles.PsvConsoleTsvs = field(
         default=consoles.PsvConsoleTsvs(
             games="http://nopaystation.com/tsv/PSV_GAMES.tsv",
             dlcs="http://nopaystation.com/tsv/PSV_DLCS.tsv",
@@ -67,7 +67,7 @@ class Configurations:
             demos="http://nopaystation.com/tsv/PSV_DEMOS.tsv",
         )
     )
-    psp_links: ClassVar[consoles.PspConsoleTsvs] = field(
+    psp_links: consoles.PspConsoleTsvs = field(
         default=consoles.PspConsoleTsvs(
             games="http://nopaystation.com/tsv/PSP_GAMES.tsv",
             dlcs="http://nopaystation.com/tsv/PSP_DLCS.tsv",
@@ -75,17 +75,17 @@ class Configurations:
             updates="http://nopaystation.com/tsv/PSP_UPDATES.tsv",
         )
     )
-    psx_links: ClassVar[consoles.PsxConsoleTsvs] = field(
+    psx_links: consoles.PsxConsoleTsvs = field(
         default=consoles.PsxConsoleTsvs(
             games="http://nopaystation.com/tsv/PSX_GAMES.tsv"
         )
     )
-    psm_links: ClassVar[consoles.PsmConsoleTsvs] = field(
+    psm_links: consoles.PsmConsoleTsvs = field(
         default=consoles.PsmConsoleTsvs(
             games="http://nopaystation.com/tsv/PSM_GAMES.tsv"
         )
     )
-    ps3_links: ClassVar[consoles.Ps3ConsoleTsvs] = field(
+    ps3_links: consoles.Ps3ConsoleTsvs = field(
         default=consoles.Ps3ConsoleTsvs(
             games="https://nopaystation.com/tsv/PS3_GAMES.tsv",
             dlcs="https://nopaystation.com/tsv/PS3_DLCS.tsv",
@@ -100,13 +100,13 @@ class Configurations:
     def _populate___config_with_data_from_attributes(self):
         """populate __config object with the data from all the attributes"""
         self.__config["pyNPS"] = {
-            "DownloadFolder": self.download_folder,
-            "DatabaseFolder": self.database_folder,
+            "DownloadFolder": self.download_folder.path,
+            "DatabaseFolder": self.database_folder.path,
         }
 
         self.__config["BinaryLocations"] = {
-            "Pkg2zip_Location": self.pkg2zip_location,
-            "Wget_location": self.wget_location,
+            "Pkg2zip_Location": self.pkg2zip_location.path,
+            "Wget_location": self.wget_location.path,
         }
 
         self.__config["PSV_Links"] = self.psv_links.__dict__
@@ -168,10 +168,10 @@ class Configurations:
             raise FileNotFoundError(f"can't find {self.path} on disk")
 
         if self._check_sections(self.__config):
-            self.download_folder = self.__config["pyNPS"]["downloadfolder"]
-            self.database_folder = self.__config["pyNPS"]["databasefolder"]
-            self.pkg2zip_location = self.__config["BinaryLocations"]["pkg2zip_location"]
-            self.wget_location = self.__config["BinaryLocations"]["wget_location"]
+            self.download_folder.path = self.__config["pyNPS"]["downloadfolder"]
+            self.database_folder.path = self.__config["pyNPS"]["databasefolder"]
+            self.pkg2zip_location.path = self.__config["BinaryLocations"]["pkg2zip_location"]
+            self.wget_location.path = self.__config["BinaryLocations"]["wget_location"]
             self.psv_links = consoles.PsvConsoleTsvs(**dict(self.__config["PSV_Links"]))
             self.psp_links = consoles.PspConsoleTsvs(**dict(self.__config["PSP_Links"]))
             self.psx_links = consoles.PsxConsoleTsvs(**dict(self.__config["PSX_Links"]))
