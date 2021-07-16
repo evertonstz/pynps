@@ -107,6 +107,7 @@ class Resumes(Database):
 @dataclass
 class GameDatabase(Database):
     def upsert(self, game: games.Game) -> None:
+        """this method upserts the data from a Game object into the sqlite3 database"""
         cur = self.con.cursor()
         t = cur.execute(
             f"""
@@ -141,6 +142,8 @@ class GameDatabase(Database):
                 game.required_fw,
             ),
         )
+
+    
 
         # TODO add option for autocommit
 
