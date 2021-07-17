@@ -53,8 +53,6 @@ def _replace_tsv_keys_with_keys_used_on_database(keys: list) -> list:
             new_keys.append("required_fw")
         elif key == "App Version":
             new_keys.append("app_version")
-        else:
-            new_keys.append(key)
 
     return new_keys
 
@@ -75,5 +73,4 @@ def download_and_process_tsv_file(url: str, system: str, type: str) -> list[Game
 
     # construct Game object
     games = [Game(**row, platform=system, type=type) for row in data]
-    print(games[0])
     return games
