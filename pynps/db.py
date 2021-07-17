@@ -17,12 +17,7 @@ from dataclasses import dataclass
 from sqlite3.dbapi2 import Cursor
 from typing import Any
 
-
-# this is guetto but works, hopefully god will forgive me
-if __name__ == "__main__":
-    from games import Game
-else:
-    from pynps.games import Game
+from pynps.games import Game
 
 
 @dataclass
@@ -34,8 +29,6 @@ class Database:
         self._conn = sqlite3.connect(self.path)
         self._conn.row_factory = self._query_factory
         self._cursor = self._conn.cursor()
-
-        # TODO check if table exists, if not, create it
 
     def __enter__(self):
         return self

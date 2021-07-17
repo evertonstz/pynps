@@ -12,30 +12,27 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
-if __name__ == "__main__":
-    from db import GameDatabase
-    from games import Game
-else:
-    from pynps.db import GameDatabase
-    from pynps.games import Game
-    
-import requests
-
 from csv import reader
 
+import requests
+
+from pynps.db import GameDatabase
+from pynps.games import Game
+
+
 def _replace_tsv_keys_with_keys_used_on_database(keys: list) -> list:
-    """The .tsv files from nopaystation.com have column names that are incompatible with the names used in the Game class, 
+    """The .tsv files from nopaystation.com have column names that are incompatible with the names used in the Game class,
     mostly due to PEP8 naming conventions. This function is used from the nopaystation names to the ones used by this app"""
     new_keys = []
     for key in keys:
         if key == "Title ID":
-            new_keys.append("game_id")#
+            new_keys.append("game_id")  #
         elif key == "Region":
-            new_keys.append("region")#
+            new_keys.append("region")  #
         elif key == "Name":
-            new_keys.append("name")#
+            new_keys.append("name")  #
         elif key == "PKG direct link":
-            new_keys.append("pkg_direct_link")#
+            new_keys.append("pkg_direct_link")  #
         elif key == "zRIF":
             new_keys.append("zrif")
         elif key == "Content ID":
@@ -61,29 +58,22 @@ def _replace_tsv_keys_with_keys_used_on_database(keys: list) -> list:
 
     return new_keys
 
+
 def download_and_process_tsv_file(url: str, system: str, type: str) -> list[Game]:
     """this function will use requests to download a given tsv file and dump it to a list of Game objects, making it basically stateless"""
     req = requests.get(url)
-    content = req.content.decode('utf-8')
+    content = req.content.decode("utf-8")
 
     keys: list
     data: list = []
-    for index, row in enumerate(reader(content.splitlines(), delimiter='\t')):
-        if index == 0: #builds key dictionary
+    for index, row in enumerate(reader(content.splitlines(), delimiter="\t")):
+        if index == 0:  # builds key dictionary
             keys = _replace_tsv_keys_with_keys_used_on_database(row)
         else:
             # keys can't be unbound, so I'm teling the linter to ignore the next row
-            data.append({key:value for key, value in zip(keys, row)}) #type: ignore
-    
+            data.append({key: value for key, value in zip(keys, row)})  # type: ignore
+
     # construct Game object
     games = [Game(**row, platform=system, type=type) for row in data]
     print(games[0])
     return games
-
-def main():
-    a = download_and_process_tsv_file("http://nopaystation.com/tsv/PSM_GAMES.tsv", "psm", "games")
-    print(a)
-
-
-if __name__ == "__main__":
-    main()
