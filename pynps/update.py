@@ -20,41 +20,92 @@ from pynps.db import GameDatabase
 from pynps.games import Game
 
 
-def _replace_tsv_keys_with_keys_used_on_database(keys: list) -> list:
-    """The .tsv files from nopaystation.com have column names that are incompatible with the names used in the Game class,
-    mostly due to PEP8 naming conventions. This function is used from the nopaystation names to the ones used by this app"""
-    new_keys = []
-    for key in keys:
-        if key == "Title ID":
-            new_keys.append("game_id")  #
-        elif key == "Region":
-            new_keys.append("region")  #
-        elif key == "Name":
-            new_keys.append("name")  #
-        elif key == "PKG direct link":
-            new_keys.append("pkg_direct_link")  #
-        elif key == "zRIF":
-            new_keys.append("zrif")
-        elif key == "Content ID":
-            new_keys.append("content_id")
-        elif key == "Last Modification Date":
-            new_keys.append("last_modified_date")
-        elif key == "File Size":
-            new_keys.append("file_size")
-        elif key == "SHA256":
-            new_keys.append("sha256")
-        elif key == "RAP":
-            new_keys.append("rap")
-        elif key == "Download .RAP file":
-            new_keys.append("rap_direct_link")
-        elif key == "Original Name":
-            new_keys.append("original_name")
-        elif key == "Required FW":
-            new_keys.append("required_fw")
-        elif key == "App Version":
-            new_keys.append("app_version")
-
-    return new_keys
+def _construct_Game_from_tsv_row(system: str, type: str, row: list[str]) -> Game:
+    if system == "psv":
+        return Game(
+            **{
+                "game_id": row[0],
+                "platform": system,
+                "type": type,
+                "region": row[1],
+                "name": row[2],
+                "pkg_direct_link": row[3],
+                "zrif": row[4],
+                "content_id": row[5],
+                "last_modified_date": row[6],
+                "original_name": row[7],
+                "file_size": row[8],
+                "sha256": row[9],
+                "required_fw": row[10],
+                "app_version": row[11],
+            }
+        )
+    elif system == "psp":
+        return Game(
+            **{
+                "game_id": row[0],
+                "platform": system,
+                "type": type,
+                "region": row[1],
+                "name": row[3],
+                "pkg_direct_link": row[4],
+                "content_id": row[5],
+                "last_modified_date": row[6],
+                "rap": row[7],
+                "rap_direct_link": row[8],
+                "file_size": row[9],
+                "sha256": row[10],
+            }
+        )
+    elif system == "psx":
+        return Game(
+            **{
+                "game_id": row[0],
+                "platform": system,
+                "type": type,
+                "region": row[1],
+                "name": row[2],
+                "pkg_direct_link": row[3],
+                "content_id": row[4],
+                "last_modified_date": row[5],
+                "original_name": row[6],
+                "file_size": row[7],
+                "sha256": row[8],
+            }
+        )
+    elif system == "psm":
+        return Game(
+            **{
+                "game_id": row[0],
+                "platform": system,
+                "type": type,
+                "region": row[1],
+                "name": row[2],
+                "pkg_direct_link": row[3],
+                "zrif": row[4],
+                "content_id": row[5],
+                "last_modified_date": row[6],
+                "file_size": row[7],
+                "sha256": row[8],
+            }
+        )
+    else:  # else is ps3
+        return Game(
+            **{
+                "game_id": row[0],
+                "platform": system,
+                "type": type,
+                "region": row[1],
+                "name": row[2],
+                "pkg_direct_link": row[3],
+                "rap": row[4],
+                "content_id": row[5],
+                "last_modified_date": row[6],
+                "rap_direct_link": row[7],
+                "file_size": row[8],
+                "sha256": row[9],
+            }
+        )
 
 
 def download_and_process_tsv_file(url: str, system: str, type: str) -> list[Game]:
@@ -62,15 +113,9 @@ def download_and_process_tsv_file(url: str, system: str, type: str) -> list[Game
     req = requests.get(url)
     content = req.content.decode("utf-8")
 
-    keys: list
     data: list = []
     for index, row in enumerate(reader(content.splitlines(), delimiter="\t")):
-        if index == 0:  # builds key dictionary
-            keys = _replace_tsv_keys_with_keys_used_on_database(row)
-        else:
-            # keys can't be unbound, so I'm teling the linter to ignore the next row
-            data.append({key: value for key, value in zip(keys, row)})  # type: ignore
+        if index != 0:
+            data.append(_construct_Game_from_tsv_row(system, type, row))
 
-    # construct Game object
-    games = [Game(**row, platform=system, type=type) for row in data]
-    return games
+    return data
