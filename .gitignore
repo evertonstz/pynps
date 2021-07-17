@@ -1,7 +1,7 @@
 __pycache__/*
 */*/__pycache__/*
 */__pycache__/*
-*/test_*.py
+tests/*
 testfiles/*
 test_*.py
 build/*
@@ -28,3 +28,4 @@ pyinstaller_distribute.py
 dist_onefile/*
 dist_onefolder/*
 Output/*
+htmlcov/*
