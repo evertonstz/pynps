@@ -107,15 +107,19 @@ def _construct_Game_from_tsv_row(system: str, type: str, row: list[str]) -> Game
             }
         )
 
-
-def download_and_process_tsv_file(url: str, system: str, type: str) -> list[Game]:
-    """this function will use requests to download a given tsv file and dump it to a list of Game objects, making it basically stateless"""
-    req = requests.get(url)
-    content = req.content.decode("utf-8")
-
+def _construct_Games_from_tsv_content(system:str, type: str, content:str) -> list[Game]:
     data: list = []
     for index, row in enumerate(reader(content.splitlines(), delimiter="\t")):
         if index != 0:
             data.append(_construct_Game_from_tsv_row(system, type, row))
-
     return data
+
+def _request_tsv_file(url: str) -> str:
+    """download a file to a variable"""
+    req = requests.get(url)
+    return req.content.decode("utf-8")
+
+def download_and_process_tsv_file(url: str, system: str, type: str) -> list[Game]:
+    """this function will use requests to download a given tsv file and dump it to a list of Game objects, making it basically stateless"""
+    content = _request_tsv_file(url)
+    return _construct_Games_from_tsv_content(system, type, content)
