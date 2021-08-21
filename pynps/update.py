@@ -12,13 +12,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
-from csv import reader
 import csv
 from io import StringIO
 
 import requests
 
-from pynps.db import GameDatabase
 from pynps.games import Game
 
 
@@ -41,7 +39,6 @@ def _replace_dict_key_names(dictionary: dict[str, str]) -> dict[str, str]:
         "App Version": "app_version",
         "zRIF": "zrif",
         "Type": None,
-
     }
 
     for old, new in replace_dict.items():
@@ -50,7 +47,7 @@ def _replace_dict_key_names(dictionary: dict[str, str]) -> dict[str, str]:
 
         if old in dictionary:
             dictionary[new] = dictionary.pop(old)
-    
+
     return dictionary
 
 
