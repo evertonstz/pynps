@@ -13,6 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 from csv import reader
+import csv
+from io import StringIO
 
 import requests
 
@@ -20,106 +22,62 @@ from pynps.db import GameDatabase
 from pynps.games import Game
 
 
-def _construct_Game_from_tsv_row(system: str, type: str, row: list[str]) -> Game:
-    if system == "psv":
-        return Game(
-            **{
-                "game_id": row[0],
-                "platform": system,
-                "type": type,
-                "region": row[1],
-                "name": row[2],
-                "pkg_direct_link": row[3],
-                "zrif": row[4],
-                "content_id": row[5],
-                "last_modified_date": row[6],
-                "original_name": row[7],
-                "file_size": row[8],
-                "sha256": row[9],
-                "required_fw": row[10],
-                "app_version": row[11],
-            }
-        )
-    elif system == "psp":
-        return Game(
-            **{
-                "game_id": row[0],
-                "platform": system,
-                "type": type,
-                "region": row[1],
-                "name": row[3],
-                "pkg_direct_link": row[4],
-                "content_id": row[5],
-                "last_modified_date": row[6],
-                "rap": row[7],
-                "rap_direct_link": row[8],
-                "file_size": row[9],
-                "sha256": row[10],
-            }
-        )
-    elif system == "psx":
-        return Game(
-            **{
-                "game_id": row[0],
-                "platform": system,
-                "type": type,
-                "region": row[1],
-                "name": row[2],
-                "pkg_direct_link": row[3],
-                "content_id": row[4],
-                "last_modified_date": row[5],
-                "original_name": row[6],
-                "file_size": row[7],
-                "sha256": row[8],
-            }
-        )
-    elif system == "psm":
-        return Game(
-            **{
-                "game_id": row[0],
-                "platform": system,
-                "type": type,
-                "region": row[1],
-                "name": row[2],
-                "pkg_direct_link": row[3],
-                "zrif": row[4],
-                "content_id": row[5],
-                "last_modified_date": row[6],
-                "file_size": row[7],
-                "sha256": row[8],
-            }
-        )
-    else:  # else is ps3
-        return Game(
-            **{
-                "game_id": row[0],
-                "platform": system,
-                "type": type,
-                "region": row[1],
-                "name": row[2],
-                "pkg_direct_link": row[3],
-                "rap": row[4],
-                "content_id": row[5],
-                "last_modified_date": row[6],
-                "rap_direct_link": row[7],
-                "file_size": row[8],
-                "sha256": row[9],
-            }
-        )
+def _replace_dict_key_names(dictionary: dict[str, str]) -> dict[str, str]:
+    replace_dict = {
+        "Title ID": "game_id",
+        "Region": "region",
+        "Name": "name",
+        "Original name": "original_name",
+        "Original Name": "original_name",
+        "PKG direct link": "pkg_direct_link",
+        "RAP": "rap",
+        "Content ID": "content_id",
+        "Last Modification Date": "last_modified_date",
+        "Download .RAP file": "rap_direct_link",
+        "Download .rap file": "rap_direct_link",
+        "File Size": "file_size",
+        "SHA256": "sha256",
+        "Required FW": "required_fw",
+        "App Version": "app_version",
+        "zRIF": "zrif",
+        "Type": None,
 
-def _construct_Games_from_tsv_content(system:str, type: str, content:str) -> list[Game]:
-    data: list = []
-    for index, row in enumerate(reader(content.splitlines(), delimiter="\t")):
-        if index != 0:
-            data.append(_construct_Game_from_tsv_row(system, type, row))
-    return data
+    }
+
+    for old, new in replace_dict.items():
+        if new == None and old in dictionary:
+            dictionary.pop(old)
+
+        if old in dictionary:
+            dictionary[new] = dictionary.pop(old)
+    
+    return dictionary
+
+
+def _construct_Games_from_tsv_content(
+    platform: str, type: str, content: str
+) -> list[Game]:
+    csv_reader = csv.DictReader(
+        StringIO(content), delimiter="\t", quoting=csv.QUOTE_NONE
+    )
+
+    game_list: list[Game] = []
+    for g in csv_reader:
+        g = _replace_dict_key_names(g)
+        g["platform"] = platform
+        g["type"] = type
+        game_list.append(Game(**g))
+
+    return game_list
+
 
 def _request_tsv_file(url: str) -> str:
     """download a file to a variable"""
     req = requests.get(url)
     return req.content.decode("utf-8")
 
-def download_and_process_tsv_file(url: str, system: str, type: str) -> list[Game]:
+
+def download_and_process_tsv_file(url: str, platform: str, type: str) -> list[Game]:
     """this function will use requests to download a given tsv file and dump it to a list of Game objects, making it basically stateless"""
     content = _request_tsv_file(url)
-    return _construct_Games_from_tsv_content(system, type, content)
+    return _construct_Games_from_tsv_content(platform, type, content)
