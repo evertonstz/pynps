@@ -47,6 +47,7 @@ class Path:
         """when used a dot to express the script dir, the folder string needs to be unraped to express the full directory path"""
         return self._fix_folder_syntax(self._unrapper(self.path, maindir))
 
+
 # TODO user shouldn't be forced to set every parameter in the config file, in cases like this, the parameter not available in the config file will be the default fields in this class
 @dataclass(frozen=False)
 class Configurations:
@@ -75,14 +76,10 @@ class Configurations:
         )
     )
     psx_links: PsxConsoleTsvs = field(
-        default=PsxConsoleTsvs(
-            games="http://nopaystation.com/tsv/PSX_GAMES.tsv"
-        )
+        default=PsxConsoleTsvs(games="http://nopaystation.com/tsv/PSX_GAMES.tsv")
     )
     psm_links: PsmConsoleTsvs = field(
-        default=PsmConsoleTsvs(
-            games="http://nopaystation.com/tsv/PSM_GAMES.tsv"
-        )
+        default=PsmConsoleTsvs(games="http://nopaystation.com/tsv/PSM_GAMES.tsv")
     )
     ps3_links: Ps3ConsoleTsvs = field(
         default=Ps3ConsoleTsvs(
@@ -112,8 +109,8 @@ class Configurations:
         self.__config["PSP_Links"] = self.psp_links.__dict__
         self.__config["PSX_Links"] = self.psx_links.__dict__
         self.__config["PSM_Links"] = self.psm_links.__dict__
-        self.__config["PS3_Links"] = self.ps3_links.__dict__    
-    
+        self.__config["PS3_Links"] = self.ps3_links.__dict__
+
     def _check_sections(self, parser: configparser.ConfigParser) -> bool:
         """checks if all sections are avaliable in the on_disk configuration file"""
         sections = parser.sections()
@@ -155,7 +152,7 @@ class Configurations:
     def commit_to_file(self) -> None:
         """commit all attributes to on_disk configfile"""
         self._populate___config_with_data_from_attributes()
-        
+
         with open(self.path, "w") as file:
             self.__config.write(file)
 
@@ -169,7 +166,9 @@ class Configurations:
         if self._check_sections(self.__config):
             self.download_folder.path = self.__config["pyNPS"]["downloadfolder"]
             self.database_folder.path = self.__config["pyNPS"]["databasefolder"]
-            self.pkg2zip_location.path = self.__config["BinaryLocations"]["pkg2zip_location"]
+            self.pkg2zip_location.path = self.__config["BinaryLocations"][
+                "pkg2zip_location"
+            ]
             self.wget_location.path = self.__config["BinaryLocations"]["wget_location"]
             self.psv_links = PsvConsoleTsvs(**dict(self.__config["PSV_Links"]))
             self.psp_links = PspConsoleTsvs(**dict(self.__config["PSP_Links"]))
