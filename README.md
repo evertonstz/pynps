@@ -6,7 +6,7 @@
 
 [![Downloads](https://pepy.tech/badge/pynps)](https://pepy.tech/project/pynps)
 
-
+Currently, all the work is being done inside the [refactoring branch](https://github.com/evertonstz/pynps/tree/code_refactoring).
 
 # pyNPS - A cli Linux and Windows Nopaystation client made with python 3 and wget 
 <p align="center">
