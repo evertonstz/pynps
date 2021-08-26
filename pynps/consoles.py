@@ -14,14 +14,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. """
 
 from dataclasses import dataclass, field
+import abc
 
 
-@dataclass(frozen=False)
-class ConsoleTsvs:
+@dataclass
+class ConsoleTsvs(abc.ABC):
     games: str
 
 
-@dataclass(frozen=False)
+@dataclass
 class PsvConsoleTsvs(ConsoleTsvs):
     dlcs: str
     themes: str
@@ -29,24 +30,24 @@ class PsvConsoleTsvs(ConsoleTsvs):
     demos: str
 
 
-@dataclass(frozen=False)
+@dataclass
 class PspConsoleTsvs(ConsoleTsvs):
     dlcs: str
     themes: str
     updates: str
 
 
-@dataclass(frozen=False)
+@dataclass
 class PsxConsoleTsvs(ConsoleTsvs):
     pass
 
 
-@dataclass(frozen=False)
+@dataclass
 class PsmConsoleTsvs(ConsoleTsvs):
     pass
 
 
-@dataclass(frozen=False)
+@dataclass
 class Ps3ConsoleTsvs(ConsoleTsvs):
     dlcs: str
     themes: str
