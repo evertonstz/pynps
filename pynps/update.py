@@ -17,7 +17,7 @@ from io import StringIO
 
 import requests
 
-from pynps.games import Game
+from pynps.entities.games import Game
 
 
 def _replace_dict_key_names(dictionary: dict[str, str]) -> dict[str, str]:

@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from sqlite3.dbapi2 import Cursor
 from typing import Any
 
-from pynps.games import Game
+from pynps.entities.games import Game
 
 
 @dataclass
