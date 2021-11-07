@@ -17,6 +17,7 @@ import configparser
 import os
 from dataclasses import dataclass, field
 from shutil import Error
+from pynps.configuration.constants import DEFAULT_DATABASE_FOLDER, DEFAULT_DOWNLOAD_FOLDER, DEFAULT_PKG2ZIP_PATH, DEFAULT_WGET_PATH, PS3_AVATARS_DEFAULT_URL, PS3_DEMOS_DEFAULT_URL, PS3_DLCS_DEFAULT_URL, PS3_GAMES_DEFAULT_URL, PS3_THEMES_DEFAULT_URL, PSM_GAMES_DEFAULT_URL, PSP_DLCS_DEFAULT_URL, PSP_GAMES_DEFAULT_URL, PSP_THEMES_DEFAULT_URL, PSP_UPDATES_DEFAULT_URL, PSV_DEMOS_DEFAULT_URL, PSV_DLCS_DEFAULT_URL, PSV_GAMES_DEFAULT_URL, PSV_THEMES_DEFAULT_URL, PSV_UPDATES_DEFAULT_URL, PSX_GAMES_DEFAULT_URL
 
 from pynps.consoles import *
 
@@ -49,45 +50,46 @@ class Path:
 
 
 # TODO user shouldn't be forced to set every parameter in the config file, in cases like this, the parameter not available in the config file will be the default fields in this class
+# TODO refact: unlink entity from business methods
 @dataclass(frozen=False)
 class Configurations:
     """define the class used to interact with configuration parameters and the configuration file"""
 
     path: str
-    download_folder: Path = field(default=Path("./pynps_downloads/"))
-    database_folder: Path = field(default=Path("./pynps_database/"))
-    pkg2zip_location: Path = field(default=Path("./pynps_config/lib/pkg2zip"))
-    wget_location: Path = field(default=Path("./pynps_config/lib/wget"))
+    download_folder: Path = field(default=Path(DEFAULT_DOWNLOAD_FOLDER))
+    database_folder: Path = field(default=Path(DEFAULT_DATABASE_FOLDER))
+    pkg2zip_location: Path = field(default=Path(DEFAULT_PKG2ZIP_PATH))
+    wget_location: Path = field(default=Path(DEFAULT_WGET_PATH))
     psv_links: PsvConsoleTsvs = field(
         default=PsvConsoleTsvs(
-            games="http://nopaystation.com/tsv/PSV_GAMES.tsv",
-            dlcs="http://nopaystation.com/tsv/PSV_DLCS.tsv",
-            themes="http://nopaystation.com/tsv/PSV_THEMES.tsv",
-            updates="http://nopaystation.com/tsv/PSV_UPDATES.tsv",
-            demos="http://nopaystation.com/tsv/PSV_DEMOS.tsv",
+            games=PSV_GAMES_DEFAULT_URL,
+            dlcs=PSV_DLCS_DEFAULT_URL,
+            themes=PSV_THEMES_DEFAULT_URL,
+            updates=PSV_UPDATES_DEFAULT_URL,
+            demos=PSV_DEMOS_DEFAULT_URL,
         )
     )
     psp_links: PspConsoleTsvs = field(
         default=PspConsoleTsvs(
-            games="http://nopaystation.com/tsv/PSP_GAMES.tsv",
-            dlcs="http://nopaystation.com/tsv/PSP_DLCS.tsv",
-            themes="http://nopaystation.com/tsv/PSP_THEMES.tsv",
-            updates="http://nopaystation.com/tsv/PSP_UPDATES.tsv",
+            games=PSP_GAMES_DEFAULT_URL,
+            dlcs=PSP_DLCS_DEFAULT_URL,
+            themes=PSP_THEMES_DEFAULT_URL,
+            updates=PSP_UPDATES_DEFAULT_URL,
         )
     )
     psx_links: PsxConsoleTsvs = field(
-        default=PsxConsoleTsvs(games="http://nopaystation.com/tsv/PSX_GAMES.tsv")
+        default=PsxConsoleTsvs(games=PSX_GAMES_DEFAULT_URL)
     )
     psm_links: PsmConsoleTsvs = field(
-        default=PsmConsoleTsvs(games="http://nopaystation.com/tsv/PSM_GAMES.tsv")
+        default=PsmConsoleTsvs(games=PSM_GAMES_DEFAULT_URL)
     )
     ps3_links: Ps3ConsoleTsvs = field(
         default=Ps3ConsoleTsvs(
-            games="https://nopaystation.com/tsv/PS3_GAMES.tsv",
-            dlcs="https://nopaystation.com/tsv/PS3_DLCS.tsv",
-            themes="https://nopaystation.com/tsv/PS3_THEMES.tsv",
-            demos="https://nopaystation.com/tsv/PS3_DEMOS.tsv",
-            avatars="https://nopaystation.com/tsv/PS3_AVATARS.tsv",
+            games=PS3_GAMES_DEFAULT_URL,
+            dlcs=PS3_DLCS_DEFAULT_URL,
+            themes=PS3_THEMES_DEFAULT_URL,
+            demos=PS3_DEMOS_DEFAULT_URL,
+            avatars=PS3_AVATARS_DEFAULT_URL,
         )
     )
 
@@ -179,3 +181,6 @@ class Configurations:
             raise Error(
                 "unable to read the configuration file, check the syntax in the file and try again"
             )
+
+    def get_links_by_system_name(self, system: str) -> ConsoleTsvs:
+        return getattr(self, f"{system}_links")
