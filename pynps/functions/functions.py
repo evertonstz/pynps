@@ -1014,7 +1014,7 @@ def create_args():
     # check sort list
     if a.sort is not None:
         for i in a.sort.split(","):
-            if i.lower() not in ["c", "id", "r", "t", "gn", "s", "console", "title_id", "region", "type", "game_name", "size"]:
+            if i.lower() not in ["c", "id", "r", "t", "n", "s", "console", "title_id", "region", "type", "game_name", "size"]:
                 printft(HTML("<red>[ERROR] invalid list for --order</red>"))
                 sys.exit(1)
 
