@@ -556,7 +556,7 @@ def search_db(systems, type, query, region, order, DBFOLDER):
                     else:
                         result = result + [item for item in system_database if 
                                             (item['System'] == system and item['Region'] in region and item['Type'] in types) and 
-                                            (query.lower() in item['Name'].lower() or query.lower() in item['Title ID']) and
+                                            (query.lower() in item['Name'].lower() or query.lower() in item['Title ID'].lower()) and
                                             (item['PKG direct link'] not in ["", "MISSING", None, "CART ONLY"])
                                             ]
                 except:
